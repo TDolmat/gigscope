@@ -1,0 +1,168 @@
+############################
+# OS-SPECIFIC NOISE
+############################
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.nfs*
+
+############################
+# PYTHON / FLASK
+############################
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.env/
+.python-version  # pyenv version file is usually tracked; ignore if you prefer
+
+# Packaging / build
+build/
+dist/
+.eggs/
+*.egg-info/
+*.egg
+
+# Test & coverage
+.coverage
+.coverage.*
+.cache/
+.pytest_cache/
+htmlcov/
+.tox/
+.nox/
+
+# Type checkers / linters
+.mypy_cache/
+.dmypy.json
+.dmypy/
+.pyre/
+.pyright/
+ruff_cache/
+
+# Flask specific
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Local settings / secrets (12-factor: use env vars or a secrets manager)
+*.env
+*.env.*        # e.g., .env.local, .env.development
+.envrc         # direnv
+secrets.*.json
+secrets.json
+
+############################
+# TOOLING / EDITORS / IDEs
+############################
+
+# VS Code
+.vscode/
+.history/
+
+# JetBrains
+.idea/
+*.iml
+out/
+
+# Sublime
+*.sublime-workspace
+*.sublime-project
+
+# Eclipse / PyDev
+.project
+.pydevproject
+.settings/
+
+# Others
+.tags
+.ctags
+*.swp
+*.swo
+
+############################
+# DOCKER / CONTAINERS
+############################
+
+# Compose overrides & local volumes
+docker-compose.override.yml
+.docker/
+**/.dockerignore~  # backup files
+
+############################
+# LOGS / RUNTIME / TEMP
+############################
+
+logs/
+*.log
+log/
+tmp/
+temp/
+*.pid
+*.seed
+*.out
+
+# Uploaded/media (store in object storage in prod, not git)
+media/
+uploads/
+
+############################
+# C / C++ EXTENSIONS (if any compiled modules)
+############################
+
+*.so
+*.pyd
+*.dll
+*.dylib
+build/
+
+############################
+# JUPYTER (if you use notebooks for prototyping)
+############################
+
+.ipynb_checkpoints/
+profile_default/
+*.ipynb_convert/
+
+############################
+# SECURITY SAFETY NET
+############################
+
+# Never commit private keys or certs
+*.pem
+*.key
+*.crt
+*.p12
+
+# SSH
+.ssh/
+
+# Misc secrets
+*.token
+*.bak
+*.backup

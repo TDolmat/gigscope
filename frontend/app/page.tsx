@@ -1,51 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Checkbox } from '@/components/ui/Checkbox';
-import { categoriesApi, subscriptionApi } from '@/lib/api';
+import { Tooltip } from '@/components/ui/Tooltip';
+import { Mail, Check, Plus, X, Sparkles, HelpCircle } from 'lucide-react';
 
 export default function Home() {
   const [email, setEmail] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [mustContain, setMustContain] = useState('');
+  const [mayContain, setMayContain] = useState('');
+  const [mustNotContain, setMustNotContain] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loadingCategories, setLoadingCategories] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [emailError, setEmailError] = useState('');
-
-  // Fetch categories on component mount
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const data = await categoriesApi.getCategories();
-        setCategories(data);
-      } catch (err) {
-        console.error('Error fetching categories:', err);
-        setError('Nie udało się pobrać kategorii. Spróbuj ponownie później.');
-      } finally {
-        setLoadingCategories(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
 
   // Email validation
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-  };
-
-  // Handle category toggle
-  const handleCategoryToggle = (category: string) => {
-    setSelectedCategories(prev => 
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
   };
 
   // Handle form submission
@@ -66,18 +41,25 @@ export default function Home() {
       return;
     }
 
-    if (selectedCategories.length === 0) {
-      setError('Wybierz przynajmniej jedną kategorię');
+    if (!mustContain.trim()) {
+      setError('Podaj przynajmniej jedno słowo kluczowe w sekcji "Musi zawierać"');
       return;
     }
 
     setLoading(true);
 
     try {
-      await subscriptionApi.subscribe(email, selectedCategories);
+      // TODO: Replace with actual API call when backend is ready
+      // await subscriptionApi.subscribe(email, { mustContain, mayContain, mustNotContain });
+      
+      // Temporary success simulation
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       setSuccess(true);
       setEmail('');
-      setSelectedCategories([]);
+      setMustContain('');
+      setMayContain('');
+      setMustNotContain('');
       
       // Reset success message after 5 seconds
       setTimeout(() => setSuccess(false), 5000);
@@ -90,61 +72,86 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-violet-50/30 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white">
       {/* Gradient mesh background */}
-      <div className="fixed inset-0 gradient-mesh pointer-events-none" />
+      <div className="fixed inset-0 gradient-mesh-dark pointer-events-none" />
       
-      {/* Header */}
-      <header className="relative border-b border-gray-200/50 backdrop-blur-sm bg-white/80">
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
-              <span className="text-white text-xl font-bold">G</span>
-            </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
-              Gig Scope
+      {/* Header - Sticky Glass Navbar */}
+      <header className="sticky top-0 z-50 border-b border-white/10 backdrop-blur-2xl bg-white/50 shadow-sm">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-extrabold">
+              <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent tracking-tight">
+                GigScope
+              </span>
             </h1>
+            
+            <button
+              onClick={() => setShowHowItWorks(true)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all"
+            >
+              <HelpCircle className="w-4 h-4" />
+              Jak to działa?
+            </button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="relative max-w-5xl mx-auto px-6 py-16 md:py-24">
+      <main className="relative max-w-6xl mx-auto px-6 py-16 md:py-28">
         {/* Hero Section */}
-        <div className="text-center mb-20 animate-fadeInUp">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-100 text-violet-700 rounded-full text-sm font-semibold mb-6 shadow-sm">
+        <div className="text-center mb-24 animate-fadeInUp">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50/80 text-blue-700 rounded-full text-sm font-semibold mb-8 border border-blue-100/50">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-600"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
             </span>
-            Nowe oferty codziennie
+            Codzienne powiadomienia
           </div>
           
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Otrzymuj najlepsze
+          <h2 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-7 leading-tight tracking-tight">
+            Najlepsze zlecenia
             <br />
-            <span className="bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
-              oferty freelance
+            <span className="text-gradient-blue">
+              spersonalizowane dla Ciebie
             </span>
           </h2>
           
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Subskrybuj powiadomienia i bądź na bieżąco z najlepszymi zleceniami 
-            z popularnych platform freelancerskich. Zupełnie za darmo! 🚀
+          <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-medium">
+            Codziennie otrzymuj <span className="text-blue-600 font-bold">najlepsze oferty</span> dopasowane 
+            do Twoich potrzeb i preferencji
           </p>
         </div>
 
         {/* Subscription Form */}
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-200/50 p-8 md:p-12">
-            <form onSubmit={handleSubmit} className="space-y-10">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl shadow-blue-500/10 border border-blue-100/50 p-8 md:p-14 animate-scaleIn">
+            <form onSubmit={handleSubmit} className="space-y-12">
               {/* Email Input */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">📧</span>
-                  <label className="block text-base font-bold text-gray-900">
+                  <Mail className="w-5 h-5 text-blue-600" />
+                  <label className="block text-base font-bold text-slate-900">
                     Twój adres email
                   </label>
+                  <Tooltip
+                    content={
+                      <div className="max-w-xs text-left">
+                        <p className="font-semibold mb-1">Dla członków be free club</p>
+                        <p className="text-xs opacity-90">
+                          Nie jesteś członkiem?{' '}
+                          <a 
+                            href="https://circle.befree.club" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="underline hover:text-blue-300"
+                          >
+                            Dołącz tutaj
+                          </a>
+                        </p>
+                      </div>
+                    }
+                  />
                 </div>
                 <Input
                   type="email"
@@ -156,129 +163,228 @@ export default function Home() {
                 />
               </div>
 
-              {/* Categories Selection */}
-              <div>
-                <div className="flex items-center gap-2 mb-5">
-                  <span className="text-2xl">🎯</span>
-                  <label className="block text-base font-bold text-gray-900">
-                    Wybierz interesujące Cię kategorie
-                  </label>
+              {/* Keywords Section */}
+              <div className="space-y-8">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Check className="w-5 h-5 text-blue-600" />
+                    <label className="block text-base font-bold text-slate-900">
+                      Musi zawierać
+                    </label>
+                    <Tooltip content="Zlecenia będą zawierały wszystkie te słowa kluczowe. To główny filtr." />
+                  </div>
+                  <Input
+                    placeholder="np. React, TypeScript, Frontend (oddziel przecinkami)"
+                    value={mustContain}
+                    onChange={(e) => setMustContain(e.target.value)}
+                    disabled={loading}
+                  />
+                  <p className="mt-2 text-sm text-gray-500">Oddziel słowa kluczowe przecinkami</p>
                 </div>
-                
-                {loadingCategories ? (
-                  <div className="flex items-center justify-center py-16">
-                    <div className="relative">
-                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-violet-200 border-t-violet-600"></div>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-6 h-6 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-full animate-pulse"></div>
-                      </div>
-                    </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Plus className="w-5 h-5 text-blue-600" />
+                    <label className="block text-base font-bold text-slate-900">
+                      Może zawierać
+                    </label>
+                    <Tooltip content="Zlecenia z tymi słowami będą wyżej w rankingu, ale nie są wymagane." />
                   </div>
-                ) : categories.length === 0 ? (
-                  <div className="text-center py-16 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300">
-                    <span className="text-5xl mb-3 block">📦</span>
-                    <p className="text-gray-500 font-medium">Brak dostępnych kategorii</p>
+                  <Input
+                    placeholder="np. Next.js, Tailwind, UI/UX (oddziel przecinkami)"
+                    value={mayContain}
+                    onChange={(e) => setMayContain(e.target.value)}
+                    disabled={loading}
+                  />
+                  <p className="mt-2 text-sm text-gray-500">Preferowane, ale opcjonalne</p>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <X className="w-5 h-5 text-blue-600" />
+                    <label className="block text-base font-bold text-slate-900">
+                      Nie może zawierać
+                    </label>
+                    <Tooltip content="Zlecenia zawierające te słowa zostaną automatycznie odfiltrowane." />
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {categories.map((category) => {
-                      const isSelected = selectedCategories.includes(category);
-                      return (
-                        <label
-                          key={category}
-                          className={`group relative flex items-center p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 
-                            ${isSelected 
-                              ? 'border-violet-400 bg-gradient-to-br from-violet-50 to-fuchsia-50 shadow-md shadow-violet-100' 
-                              : 'border-gray-200 bg-white hover:border-violet-300 hover:bg-violet-50/50'
-                            }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => handleCategoryToggle(category)}
-                            className="w-5 h-5 text-violet-600 border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 transition-all"
-                          />
-                          <span className={`ml-4 text-sm font-semibold transition-colors ${isSelected ? 'text-violet-900' : 'text-gray-700'}`}>
-                            {category}
-                          </span>
-                          {isSelected && (
-                            <span className="ml-auto text-lg">✨</span>
-                          )}
-                        </label>
-                      );
-                    })}
-                  </div>
-                )}
+                  <Input
+                    placeholder="np. WordPress, PHP, Backend (oddziel przecinkami)"
+                    value={mustNotContain}
+                    onChange={(e) => setMustNotContain(e.target.value)}
+                    disabled={loading}
+                  />
+                  <p className="mt-2 text-sm text-gray-500">Wyklucz niechciane technologie</p>
+                </div>
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="p-5 bg-red-50 border-2 border-red-200 rounded-2xl shadow-sm animate-fadeInUp">
+                <div className="p-5 bg-red-50 border border-red-200 rounded-xl animate-fadeInUp">
                   <div className="flex items-start gap-3">
-                    <span className="text-xl">⚠️</span>
-                    <p className="text-sm text-red-900 font-medium flex-1">{error}</p>
+                    <span className="text-xl flex-shrink-0">⚠️</span>
+                    <p className="text-sm text-red-900 font-semibold flex-1 pt-0.5">{error}</p>
                   </div>
                 </div>
               )}
 
               {/* Success Message */}
               {success && (
-                <div className="p-5 bg-gradient-to-r from-violet-50 to-fuchsia-50 border-2 border-violet-200 rounded-2xl shadow-sm animate-fadeInUp">
+                <div className="p-5 bg-blue-50 border border-blue-200 rounded-xl animate-fadeInUp">
                   <div className="flex items-start gap-3">
-                    <span className="text-xl">🎉</span>
-                    <p className="text-sm text-violet-900 font-medium flex-1">
-                      Pomyślnie zapisano! Wkrótce otrzymasz pierwsze powiadomienia.
+                    <span className="text-xl flex-shrink-0">🎉</span>
+                    <p className="text-sm text-blue-900 font-semibold flex-1 pt-0.5">
+                      Świetnie! Będziesz otrzymywać codzienne powiadomienia ze zleceniami dopasowanymi do Twoich słów kluczowych.
                     </p>
                   </div>
                 </div>
               )}
 
               {/* Submit Button */}
-              <div className="pt-4">
+              <div className="pt-6">
                 <Button
                   type="submit"
                   variant="primary"
                   size="lg"
                   loading={loading}
-                  disabled={loading || loadingCategories}
-                  className="w-full md:w-auto"
+                  disabled={loading}
+                  className="w-full shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 text-lg font-bold flex items-center justify-center gap-2"
                 >
-                  {loading ? 'Zapisywanie...' : 'Zapisz się na powiadomienia →'}
+                  {loading ? (
+                    'Zapisywanie...'
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      Rozpocznij otrzymywanie zleceń
+                    </>
+                  )}
                 </Button>
               </div>
             </form>
           </div>
 
-          {/* Trust indicators */}
-          <div className="mt-12 text-center">
-            <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
-              <div className="flex items-center gap-2">
-                <span>✓</span>
-                <span>Zupełnie za darmo</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span>✓</span>
-                <span>Wypisz się w każdej chwili</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span>✓</span>
-                <span>Brak spamu</span>
-              </div>
+          {/* Info Box */}
+          <div className="mt-14 text-center animate-fadeIn">
+            <div className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-200">
+              <p className="text-sm text-slate-700 font-medium leading-relaxed">
+                🌟 <strong>Dla członków be free club:</strong> Otrzymuj codziennie najlepsze oferty
+                spersonalizowanych zleceń o ustalonej porze. Możliwość zmiany preferencji 
+                lub wypisania się w każdej chwili.
+              </p>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="relative border-t border-gray-200/50 mt-32 bg-white/50 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-6 py-12">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">© 2025 Gig Scope. Wszystkie prawa zastrzeżone.</p>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-md">
-                <span className="text-white text-sm font-bold">G</span>
+      {/* How It Works Modal */}
+      {showHowItWorks && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setShowHowItWorks(false)}
+        >
+          <div 
+            className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-8 md:p-12">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-3xl font-extrabold text-slate-900">Jak to działa?</h3>
+                <button
+                  onClick={() => setShowHowItWorks(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-8">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                    1
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-slate-900 mb-2">Ustaw swoje preferencje</h4>
+                    <p className="text-gray-600">
+                      Wpisz email i określ słowa kluczowe, które <strong>muszą</strong> być w zleceniu, 
+                      które <strong>mogą</strong> być (preferowane), oraz które <strong>nie mogą</strong> się pojawić.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                    2
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-slate-900 mb-2">Otrzymuj codzienne powiadomienia</h4>
+                    <p className="text-gray-600">
+                      Każdego dnia o ustalonej porze dostaniesz maila z <strong>najlepszymi ofertami</strong>, 
+                      które spełniają Twoje kryteria i pojawiły się tego dnia.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                    3
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-slate-900 mb-2">Zarządzaj subskrypcją</h4>
+                    <p className="text-gray-600">
+                      W każdym mailu znajdziesz opcję <strong>zmiany preferencji</strong> słów kluczowych 
+                      lub <strong>wypisania się</strong> z powiadomień.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-6 bg-blue-50 rounded-2xl border border-blue-200">
+                  <p className="text-sm text-slate-700 font-medium">
+                    <strong>💡 Wskazówka:</strong> Im precyzyjniejsze słowa kluczowe, tym lepiej dopasowane oferty!
+                  </p>
+                </div>
+
+                <div className="p-6 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl border border-blue-200">
+                  <p className="text-sm text-slate-700 font-medium mb-2">
+                    <strong>🔒 Dla członków be free club</strong>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Ta usługa jest dostępna tylko dla członków społeczności.{' '}
+                    <a 
+                      href="https://circle.befree.club" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 font-semibold hover:text-blue-700 underline"
+                    >
+                      Dołącz do be free club →
+                    </a>
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-center">
+                <Button
+                  onClick={() => setShowHowItWorks(false)}
+                  variant="primary"
+                  size="lg"
+                >
+                  Rozumiem, zaczynam!
+                </Button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <footer className="relative border-t border-blue-100/30 mt-32 bg-white/50 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-extrabold bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent mb-1">
+                GigScope
+              </h3>
+              <p className="text-xs text-gray-500">Najlepsze oferty freelance</p>
+            </div>
+            <p className="text-sm text-gray-600">© 2025 GigScope. All rights reserved.</p>
           </div>
         </div>
       </footer>

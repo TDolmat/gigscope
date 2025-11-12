@@ -24,13 +24,13 @@ export const Loading: React.FC<LoadingProps> = ({
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <div className="relative">
-        <div className={`animate-spin rounded-full border-violet-200 border-t-violet-600 ${outerSizes[size]}`}></div>
+        <div className={`animate-spin rounded-full border-blue-200 border-t-blue-600 ${outerSizes[size]}`}></div>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className={`bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-full animate-pulse ${innerSizes[size]}`}></div>
+          <div className={`bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full animate-pulse ${innerSizes[size]}`}></div>
         </div>
       </div>
       {text && (
-        <p className="text-gray-600 text-sm font-medium">{text}</p>
+        <p className="text-gray-700 text-sm font-semibold">{text}</p>
       )}
     </div>
   );

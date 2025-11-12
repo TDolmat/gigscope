@@ -21,13 +21,14 @@ export const Input: React.FC<InputProps> = ({
         </label>
       )}
       <input
-        className={`w-full px-4 py-3 bg-white border-2 rounded-xl text-sm transition-all duration-200 shadow-sm
+        className={`w-full px-4 py-3.5 bg-white border-2 rounded-xl text-sm font-medium transition-all duration-200 shadow-sm
           ${error 
             ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-100' 
-            : 'border-gray-200 focus:border-violet-400 focus:ring-4 focus:ring-violet-100'
+            : 'border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'
           }
-          focus:outline-none hover:border-gray-300
-          disabled:bg-gray-50 disabled:cursor-not-allowed
+          focus:outline-none hover:border-blue-300
+          disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60
+          placeholder:text-gray-400
           ${className}`}
         {...props}
       />

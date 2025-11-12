@@ -145,68 +145,61 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-violet-50/30 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-white">
       {/* Gradient mesh background */}
-      <div className="fixed inset-0 gradient-mesh pointer-events-none" />
+      <div className="fixed inset-0 gradient-mesh pointer-events-none opacity-60" />
       
-      {/* Header */}
-      <header className="relative border-b border-gray-200/50 backdrop-blur-sm bg-white/80">
-        <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-500/30 group-hover:shadow-violet-500/50 transition-all">
-                <span className="text-white text-xl font-bold">G</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
-                  Gig Scope
-                </h1>
-                <p className="text-xs text-gray-500 font-medium">Panel administracyjny</p>
-              </div>
-            </Link>
-          </div>
+      {/* Header - Sticky Glass Navbar */}
+      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="transition-all duration-200 hover:opacity-80">
+            <h1 className="text-xl font-extrabold bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent mb-0.5">
+              GigScope
+            </h1>
+            <p className="text-xs text-gray-500 font-medium">Panel zarządzania</p>
+          </Link>
           <Link href="/">
-            <Button variant="secondary" size="sm">
-              ← Powrót do strony głównej
+            <Button variant="outline" size="md">
+              ← Powrót
             </Button>
           </Link>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="relative max-w-6xl mx-auto px-6 py-12">
+      <main className="relative max-w-7xl mx-auto px-6 py-12">
         {/* Title */}
-        <div className="mb-12 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-100 text-violet-700 rounded-full text-sm font-semibold mb-4 shadow-sm">
-            <span>⚙️</span>
-            Konfiguracja systemu
+        <div className="mb-12 text-center animate-fadeInUp">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50/80 rounded-full border border-blue-100/50 mb-6">
+            <span className="text-lg">⚙️</span>
+            <span className="text-sm font-semibold text-blue-700">Panel Administracyjny</span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
             Zarządzanie konfiguracją
           </h1>
-          <p className="text-lg text-gray-600">
-            Zarządzaj kategoriami i platformami wyświetlanymi w aplikacji.
+          <p className="text-lg text-gray-600 font-medium max-w-2xl mx-auto">
+            Zarządzaj kategoriami i platformami wyświetlanymi w aplikacji
           </p>
         </div>
 
         {/* Loading State */}
         {loading ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center py-32">
             <div className="relative">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-violet-200 border-t-violet-600"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-full animate-pulse"></div>
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full animate-pulse shadow-xl"></div>
               </div>
             </div>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-8 animate-scaleIn">
             {/* Categories Section */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-gray-200/50 shadow-xl shadow-gray-200/50">
-              <div className="flex items-center gap-3 mb-8">
-                <span className="text-3xl">📂</span>
-                <h2 className="text-2xl font-bold text-gray-900">Kategorie</h2>
-              </div>
+            <div className="bg-white/90 backdrop-blur-md rounded-2xl p-8 border border-blue-100/50 shadow-xl shadow-blue-500/10">
+              <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <span className="text-2xl">📁</span>
+                Kategorie
+              </h2>
               
               {/* Add new category */}
               <div className="mb-6 flex gap-3">
@@ -225,17 +218,14 @@ export default function AdminPage() {
               {/* Categories list */}
               <div className="space-y-3">
                 {categories.length === 0 ? (
-                  <div className="text-center py-16 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300">
-                    <span className="text-5xl mb-3 block">📦</span>
-                    <p className="text-gray-500 font-medium text-sm">
-                      Brak kategorii. Dodaj pierwszą kategorię powyżej.
-                    </p>
+                  <div className="text-center py-12 text-gray-500 text-base font-medium border-2 border-dashed border-blue-200 rounded-xl bg-gradient-to-br from-slate-50 to-blue-50">
+                    Brak kategorii. Dodaj pierwszą kategorię powyżej.
                   </div>
                 ) : (
                   categories.map((category, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-3 p-4 bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 border-gray-200 hover:border-violet-300 transition-all"
+                      className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50/50 to-cyan-50/30 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-all duration-200"
                     >
                       {editingCategory === index ? (
                         <>
@@ -247,15 +237,15 @@ export default function AdminPage() {
                             autoFocus
                           />
                           <Button onClick={saveEditCategory} variant="primary" size="sm">
-                            ✓ Zapisz
+                            Zapisz
                           </Button>
                           <Button onClick={cancelEditCategory} variant="ghost" size="sm">
-                            ✕ Anuluj
+                            Anuluj
                           </Button>
                         </>
                       ) : (
                         <>
-                          <span className="flex-1 text-sm font-semibold text-gray-900">
+                          <span className="flex-1 text-base font-bold text-slate-800">
                             {category}
                           </span>
                           <Button
@@ -263,7 +253,7 @@ export default function AdminPage() {
                             variant="outline"
                             size="sm"
                           >
-                            ✏️ Edytuj
+                            Edytuj
                           </Button>
                           <Button
                             onClick={() => deleteCategory(index)}
@@ -271,7 +261,7 @@ export default function AdminPage() {
                             size="sm"
                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
-                            🗑️ Usuń
+                            Usuń
                           </Button>
                         </>
                       )}
@@ -282,11 +272,11 @@ export default function AdminPage() {
             </div>
 
             {/* Platforms Section */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-gray-200/50 shadow-xl shadow-gray-200/50">
-              <div className="flex items-center gap-3 mb-8">
-                <span className="text-3xl">🌐</span>
-                <h2 className="text-2xl font-bold text-gray-900">Platformy</h2>
-              </div>
+            <div className="bg-white/90 backdrop-blur-md rounded-2xl p-8 border border-blue-100/50 shadow-xl shadow-blue-500/10">
+              <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <span className="text-2xl">🌐</span>
+                Platformy
+              </h2>
               
               {/* Add new platform */}
               <div className="mb-6 flex gap-3">
@@ -305,17 +295,14 @@ export default function AdminPage() {
               {/* Platforms list */}
               <div className="space-y-3">
                 {platforms.length === 0 ? (
-                  <div className="text-center py-16 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300">
-                    <span className="text-5xl mb-3 block">📦</span>
-                    <p className="text-gray-500 font-medium text-sm">
-                      Brak platform. Dodaj pierwszą platformę powyżej.
-                    </p>
+                  <div className="text-center py-12 text-gray-500 text-base font-medium border-2 border-dashed border-blue-200 rounded-xl bg-gradient-to-br from-slate-50 to-blue-50">
+                    Brak platform. Dodaj pierwszą platformę powyżej.
                   </div>
                 ) : (
                   platforms.map((platform, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-3 p-4 bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 border-gray-200 hover:border-violet-300 transition-all"
+                      className="flex items-center gap-3 p-4 bg-gradient-to-r from-cyan-50/50 to-blue-50/30 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-all duration-200"
                     >
                       {editingPlatform === index ? (
                         <>
@@ -327,15 +314,15 @@ export default function AdminPage() {
                             autoFocus
                           />
                           <Button onClick={saveEditPlatform} variant="primary" size="sm">
-                            ✓ Zapisz
+                            Zapisz
                           </Button>
                           <Button onClick={cancelEditPlatform} variant="ghost" size="sm">
-                            ✕ Anuluj
+                            Anuluj
                           </Button>
                         </>
                       ) : (
                         <>
-                          <span className="flex-1 text-sm font-semibold text-gray-900">
+                          <span className="flex-1 text-base font-bold text-slate-800">
                             {platform}
                           </span>
                           <Button
@@ -343,7 +330,7 @@ export default function AdminPage() {
                             variant="outline"
                             size="sm"
                           >
-                            ✏️ Edytuj
+                            Edytuj
                           </Button>
                           <Button
                             onClick={() => deletePlatform(index)}
@@ -351,7 +338,7 @@ export default function AdminPage() {
                             size="sm"
                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
-                            🗑️ Usuń
+                            Usuń
                           </Button>
                         </>
                       )}
@@ -362,42 +349,30 @@ export default function AdminPage() {
             </div>
 
             {/* Save Button */}
-            <div className="pt-4">
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-gray-200/50 shadow-xl shadow-gray-200/50">
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <Button
-                    onClick={saveChanges}
-                    variant="primary"
-                    size="lg"
-                    loading={saving}
-                    disabled={saving}
-                    className="w-full sm:w-auto"
-                  >
-                    {saving ? 'Zapisywanie...' : '💾 Zapisz wszystkie zmiany'}
-                  </Button>
-                  
-                  {success && (
-                    <div className="px-5 py-3 bg-gradient-to-r from-violet-50 to-fuchsia-50 border-2 border-violet-200 rounded-2xl shadow-sm animate-fadeInUp">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">🎉</span>
-                        <span className="text-sm text-violet-900 font-semibold">
-                          Zapisano pomyślnie
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {error && (
-                    <div className="px-5 py-3 bg-red-50 border-2 border-red-200 rounded-2xl shadow-sm animate-fadeInUp">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">⚠️</span>
-                        <span className="text-sm text-red-900 font-semibold">
-                          {error}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
+            <div className="bg-white/90 backdrop-blur-md rounded-2xl p-8 border border-blue-100/50 shadow-xl shadow-blue-500/10">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <Button
+                  onClick={saveChanges}
+                  variant="primary"
+                  size="lg"
+                  loading={saving}
+                  disabled={saving}
+                >
+                  {saving ? 'Zapisywanie...' : 'Zapisz wszystkie zmiany'}
+                </Button>
+                
+                {success && (
+                  <div className="px-5 py-3 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-900 font-semibold flex items-center gap-2 animate-fadeInUp">
+                    <span className="text-lg">✓</span>
+                    Zapisano pomyślnie
+                  </div>
+                )}
+                
+                {error && (
+                  <div className="px-5 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-900 font-semibold animate-fadeInUp">
+                    {error}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -405,15 +380,16 @@ export default function AdminPage() {
       </main>
 
       {/* Footer */}
-      <footer className="relative border-t border-gray-200/50 mt-20 bg-white/50 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 py-12">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">© 2025 Gig Scope. Wszystkie prawa zastrzeżone.</p>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-md">
-                <span className="text-white text-sm font-bold">G</span>
-              </div>
+      <footer className="relative border-t border-blue-100/30 mt-20 bg-white/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6 py-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-extrabold bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent mb-1">
+                GigScope
+              </h3>
+              <p className="text-xs text-gray-500">Panel Administracyjny</p>
             </div>
+            <p className="text-sm text-gray-600">© 2025 GigScope. All rights reserved.</p>
           </div>
         </div>
       </footer>

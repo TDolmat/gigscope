@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gig Scope - Najlepsze oferty freelance prosto do Ciebie",
-  description: "🚀 Otrzymuj najnowsze oferty freelance prosto na swoją skrzynkę. Subskrybuj powiadomienia i bądź na bieżąco z najlepszymi zleceniami z popularnych platform freelancerskich. Zupełnie za darmo!",
-  keywords: ["freelance", "oferty", "zlecenia", "powiadomienia", "praca zdalna", "freelancer", "zdalnie"],
+  title: "GigScope - Najlepsze zlecenia spersonalizowane dla Ciebie",
+  description: "Codziennie otrzymujesz najlepsze oferty freelance dopasowane do Twoich słów kluczowych. Dla członków be free club.",
+  keywords: ["freelance", "oferty", "zlecenia", "powiadomienia", "praca zdalna", "freelancer", "be free club", "spersonalizowane oferty"],
 };
 
 export default function RootLayout({

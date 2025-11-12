@@ -88,7 +88,7 @@ export default function Home() {
             
             <button
               onClick={() => setShowHowItWorks(true)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all cursor-pointer"
             >
               <HelpCircle className="w-4 h-4" />
               Jak to działa?
@@ -290,7 +290,7 @@ export default function Home() {
                 <h3 className="text-3xl font-extrabold text-slate-900">Jak to działa?</h3>
                 <button
                   onClick={() => setShowHowItWorks(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -336,27 +336,29 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="p-6 bg-blue-50 rounded-2xl border border-blue-200">
-                  <p className="text-sm text-slate-700 font-medium">
-                    <strong>💡 Wskazówka:</strong> Im precyzyjniejsze słowa kluczowe, tym lepiej dopasowane oferty!
-                  </p>
-                </div>
+                <div className="space-y-4">
+                  <div className="p-6 bg-blue-50 rounded-2xl border border-blue-200">
+                    <p className="text-sm text-slate-700 font-medium">
+                      <strong>💡 Wskazówka:</strong> Im precyzyjniejsze słowa kluczowe, tym lepiej dopasowane oferty!
+                    </p>
+                  </div>
 
-                <div className="p-6 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl border border-blue-200">
-                  <p className="text-sm text-slate-700 font-medium mb-2">
-                    <strong>🔒 Dla członków be free club</strong>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Ta usługa jest dostępna tylko dla członków społeczności.{' '}
-                    <a 
-                      href="https://circle.befree.club" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-600 font-semibold hover:text-blue-700 underline"
-                    >
-                      Dołącz do be free club →
-                    </a>
-                  </p>
+                  <div className="p-6 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl border border-blue-200">
+                    <p className="text-sm text-slate-700 font-medium mb-2">
+                      <strong>🔒 Dla członków be free club</strong>
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Ta usługa jest dostępna tylko dla członków społeczności.{' '}
+                      <a 
+                        href="https://circle.befree.club" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 font-semibold hover:text-blue-700 underline"
+                      >
+                        Dołącz do be free club →
+                      </a>
+                    </p>
+                  </div>
                 </div>
               </div>
 

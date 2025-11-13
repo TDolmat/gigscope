@@ -71,11 +71,17 @@ class UserOfferTopicPreferences(db.Model):
 
 class Offer(db.Model):
     __tablename__ = 'offers'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String, primary_key=True)
+
+    # Image URL?
     
     title = db.Column(db.String, nullable=False)
-    description = db.Column(db.String, nullable=False)
-    topic = db.Column(db.String, nullable=False)
+    description = db.Column(db.String, nullable=True)
+    category = db.Column(db.String, nullable=False) # General category
+    specific_category = db.Column(db.String, nullable=True)
+    budget = db.Column(db.String, nullable=True)
+
+    client_name = db.Column(db.String, nullable=True)
 
     url = db.Column(db.String, nullable=False)
     platform = db.Column(db.String, nullable=False)
@@ -83,3 +89,4 @@ class Offer(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     deleted_at = db.Column(db.DateTime, nullable=True)
+    

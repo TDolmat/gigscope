@@ -1,5 +1,4 @@
-// API base URL configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+import { API_ENDPOINTS } from './config';
 
 // Generic API error class
 export class ApiError extends Error {
@@ -11,11 +10,11 @@ export class ApiError extends Error {
 
 // Generic fetch wrapper with error handling
 async function apiFetch<T>(
-  endpoint: string,
+  url: string,
   options?: RequestInit
 ): Promise<T> {
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -39,7 +38,7 @@ async function apiFetch<T>(
 // Categories API
 export const categoriesApi = {
   getCategories: async (): Promise<string[]> => {
-    const data = await apiFetch<any>('/api/categories');
+    const data = await apiFetch<any>(API_ENDPOINTS.PUBLIC.CATEGORIES);
     
     // Handle if backend returns string representation of array
     if (typeof data === 'string') {
@@ -61,11 +60,11 @@ export const categoriesApi = {
 // Config API (Admin)
 export const configApi = {
   getConfig: async (): Promise<Record<string, any>> => {
-    return apiFetch<Record<string, any>>('/admin/config');
+    return apiFetch<Record<string, any>>(API_ENDPOINTS.ADMIN.CONFIG);
   },
   
   updateConfig: async (data: Record<string, any>): Promise<any> => {
-    return apiFetch('/admin/config', {
+    return apiFetch(API_ENDPOINTS.ADMIN.CONFIG, {
       method: 'POST',
       body: JSON.stringify(data),
     });

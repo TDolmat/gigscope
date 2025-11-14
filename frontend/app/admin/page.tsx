@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Checkbox } from '@/components/ui/Checkbox';
 import Link from 'next/link';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { useAuth } from '@/app/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { LogOut } from 'lucide-react';
 
 type Section = 'dashboard' | 'settings' | 'users' | 'scrape' | 'mail';
 
@@ -31,6 +35,8 @@ const mockUsers = [
 ];
 
 export default function AdminPage() {
+  const { logout } = useAuth();
+  const router = useRouter();
   const [currentSection, setCurrentSection] = useState<Section>('dashboard');
   
   // Ustawienia ogólne
@@ -56,6 +62,11 @@ export default function AdminPage() {
   const [apiKey, setApiKey] = useState('');
   const [senderEmail, setSenderEmail] = useState('');
   const [saving, setSaving] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  };
 
   const handleSaveSettings = () => {
     setSaving(true);
@@ -302,6 +313,7 @@ export default function AdminPage() {
   };
 
   return (
+    <ProtectedRoute>
     <div className="min-h-screen bg-gray-100">
       {/* Top Header */}
       <header className="bg-white shadow-sm">
@@ -310,11 +322,21 @@ export default function AdminPage() {
             <h1 className="text-xl font-bold text-gray-900">GigScope Admin</h1>
             <p className="text-xs text-gray-500">Panel zarządzania</p>
           </div>
+          <div className="flex items-center gap-3">
           <Link href="/">
             <Button variant="outline" size="sm">
               ← Strona główna
             </Button>
           </Link>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Wyloguj
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -385,5 +407,6 @@ export default function AdminPage() {
         </main>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

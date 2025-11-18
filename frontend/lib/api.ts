@@ -11,11 +11,13 @@ export class ApiError extends Error {
 // Generic fetch wrapper with error handling
 async function apiFetch<T>(
   url: string,
-  options?: RequestInit
+  options?: RequestInit,
+  fetchFn: (input: RequestInfo, init?: RequestInit) => Promise<Response> = fetch
 ): Promise<T> {
   try {
-    const response = await fetch(url, {
+    const response = await fetchFn(url, {
       ...options,
+      credentials: 'include', // Include cookies (JWT) in requests
       headers: {
         'Content-Type': 'application/json',
         ...options?.headers,
@@ -23,7 +25,18 @@ async function apiFetch<T>(
     });
 
     if (!response.ok) {
-      throw new ApiError(response.status, `API Error: ${response.statusText}`);
+      // Try to get error message from response body
+      let errorMessage = `API Error: ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } catch (e) {
+        // If we can't parse JSON, use default message
+      }
+      
+      throw new ApiError(response.status, errorMessage);
     }
 
     return await response.json();
@@ -59,25 +72,130 @@ export const categoriesApi = {
 
 // Config API (Admin)
 export const configApi = {
-  getConfig: async (): Promise<Record<string, any>> => {
-    return apiFetch<Record<string, any>>(API_ENDPOINTS.ADMIN.CONFIG);
+  getConfig: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<Record<string, any>> => {
+    return apiFetch<Record<string, any>>(API_ENDPOINTS.ADMIN.CONFIG, {}, authenticatedFetch);
   },
   
-  updateConfig: async (data: Record<string, any>): Promise<any> => {
+  updateConfig: async (
+    data: Record<string, any>,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
     return apiFetch(API_ENDPOINTS.ADMIN.CONFIG, {
       method: 'POST',
       body: JSON.stringify(data),
-    });
+    }, authenticatedFetch);
   },
 };
 
-// Subscription API (placeholder for now)
-export const subscriptionApi = {
-  subscribe: async (email: string, categories: string[]): Promise<any> => {
-    // TODO: Replace with actual endpoint when backend is ready
-    return apiFetch('/subscribe', {
+// Admin Users API
+export const adminUsersApi = {
+  // Get all users
+  getUsers: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any[]> => {
+    return apiFetch<any[]>(API_ENDPOINTS.ADMIN.USERS, {}, authenticatedFetch);
+  },
+
+  // Update user preferences
+  updatePreferences: async (
+    userId: number,
+    mustInclude: string[],
+    canInclude: string[],
+    cannotInclude: string[],
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.USER_PREFERENCES(userId), {
+      method: 'PUT',
+      body: JSON.stringify({
+        must_include_keywords: mustInclude,
+        can_include_keywords: canInclude,
+        cannot_include_keywords: cannotInclude,
+      }),
+    }, authenticatedFetch);
+  },
+
+  // Set/update user subscription
+  setSubscription: async (
+    userId: number,
+    expiresAt: string,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.USER_SUBSCRIPTION(userId), {
       method: 'POST',
-      body: JSON.stringify({ email, categories }),
+      body: JSON.stringify({
+        expires_at: expiresAt,
+      }),
+    }, authenticatedFetch);
+  },
+
+  // Delete user subscription
+  deleteSubscription: async (
+    userId: number,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.USER_SUBSCRIPTION(userId), {
+      method: 'DELETE',
+    }, authenticatedFetch);
+  },
+};
+
+// User Subscription API
+export const userApi = {
+  // Subscribe to newsletter with keyword preferences
+  subscribe: async (
+    email: string,
+    mustContain: string,
+    mayContain: string,
+    mustNotContain: string
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.USER.SUBSCRIBE, {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        mustContain,
+        mayContain,
+        mustNotContain,
+      }),
+    });
+  },
+
+  // Get user preferences by token
+  getPreferences: async (token: string): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.USER.PREFERENCES(token), {
+      method: 'GET',
+    });
+  },
+
+  // Update user preferences by token
+  updatePreferences: async (
+    token: string,
+    mustContain: string,
+    mayContain: string,
+    mustNotContain: string
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.USER.PREFERENCES(token), {
+      method: 'PUT',
+      body: JSON.stringify({
+        mustContain,
+        mayContain,
+        mustNotContain,
+      }),
+    });
+  },
+
+  // Get unsubscribe info
+  getUnsubscribeInfo: async (token: string): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.USER.UNSUBSCRIBE(token), {
+      method: 'GET',
+    });
+  },
+
+  // Unsubscribe from newsletter
+  unsubscribe: async (token: string): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.USER.UNSUBSCRIBE(token), {
+      method: 'POST',
     });
   },
 };

@@ -4,7 +4,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Tooltip } from '@/components/ui/Tooltip';
-import { Mail, Check, Plus, X, Sparkles, HelpCircle } from 'lucide-react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+import { Mail, Check, Plus, X, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Home() {
   const [email, setEmail] = useState('');
@@ -13,7 +16,6 @@ export default function Home() {
   const [mustNotContain, setMustNotContain] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [showHowItWorks, setShowHowItWorks] = useState(false);
 
@@ -28,7 +30,6 @@ export default function Home() {
     e.preventDefault();
     setError('');
     setEmailError('');
-    setSuccess(false);
 
     // Validation
     if (!email) {
@@ -49,23 +50,35 @@ export default function Home() {
     setLoading(true);
 
     try {
-      // TODO: Replace with actual API call when backend is ready
-      // await subscriptionApi.subscribe(email, { mustContain, mayContain, mustNotContain });
+      const { userApi } = await import('@/lib/api');
+      await userApi.subscribe(email, mustContain, mayContain, mustNotContain);
       
-      // Temporary success simulation
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Show success toast
+      toast.success('Świetnie! Będziesz otrzymywać codzienne powiadomienia ze zleceniami dopasowanymi do Twoich słów kluczowych.', {
+        duration: 6000,
+      });
       
-      setSuccess(true);
+      // Clear form
       setEmail('');
       setMustContain('');
       setMayContain('');
       setMustNotContain('');
-      
-      // Reset success message after 5 seconds
-      setTimeout(() => setSuccess(false), 5000);
-    } catch (err) {
+    } catch (err: any) {
+      // Check if it's a 409 Conflict (already subscribed) - this is expected, not an error
+      if (err.status === 409) {
+        toast.warning('Ten adres email jest już zapisany do otrzymywania ofert. Jeśli chcesz zmienić preferencje lub wypisać się, użyj linków w otrzymanym mailu.', {
+          duration: 7000,
+        });
+      } else {
+        // Only log real errors
+        console.error('Subscription error:', err);
+        
+        if (err.message && err.message.includes('error')) {
+          setError(err.message);
+        } else {
       setError('Wystąpił błąd podczas zapisywania. Spróbuj ponownie.');
-      console.error('Subscription error:', err);
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -77,25 +90,7 @@ export default function Home() {
       <div className="fixed inset-0 gradient-mesh-dark pointer-events-none" />
       
       {/* Header - Sticky Glass Navbar */}
-      <header className="sticky top-0 z-50 border-b border-white/10 backdrop-blur-2xl bg-white/50 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-extrabold">
-              <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent tracking-tight">
-                GigScope
-              </span>
-            </h1>
-            
-            <button
-              onClick={() => setShowHowItWorks(true)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all cursor-pointer"
-            >
-              <HelpCircle className="w-4 h-4" />
-              Jak to działa?
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header variant="home" onHowItWorksClick={() => setShowHowItWorks(true)} />
 
       {/* Main Content */}
       <main className="relative max-w-6xl mx-auto px-6 py-16 md:py-28">
@@ -223,18 +218,6 @@ export default function Home() {
                   <div className="flex items-start gap-3">
                     <span className="text-xl flex-shrink-0">⚠️</span>
                     <p className="text-sm text-red-900 font-semibold flex-1 pt-0.5">{error}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Success Message */}
-              {success && (
-                <div className="p-5 bg-blue-50 border border-blue-200 rounded-xl animate-fadeInUp">
-                  <div className="flex items-start gap-3">
-                    <span className="text-xl flex-shrink-0">🎉</span>
-                    <p className="text-sm text-blue-900 font-semibold flex-1 pt-0.5">
-                      Świetnie! Będziesz otrzymywać codzienne powiadomienia ze zleceniami dopasowanymi do Twoich słów kluczowych.
-                    </p>
                   </div>
                 </div>
               )}
@@ -377,19 +360,7 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer className="relative border-t border-blue-100/30 mt-32 bg-white/50 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 py-12">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div>
-              <h3 className="text-lg font-extrabold bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent mb-1">
-                GigScope
-              </h3>
-              <p className="text-xs text-gray-500">Najlepsze oferty freelance</p>
-            </div>
-            <p className="text-sm text-gray-600">© 2025 GigScope. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

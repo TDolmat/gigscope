@@ -25,12 +25,22 @@ export const API_ENDPOINTS = {
   ADMIN: {
     CONFIG: `${BASE_URL}/admin/config`,
     TEST: `${BASE_URL}/admin/test`,
+    USERS: `${BASE_URL}/admin/users`,
+    USER_PREFERENCES: (userId: number) => `${BASE_URL}/admin/users/${userId}/preferences`,
+    USER_SUBSCRIPTION: (userId: number) => `${BASE_URL}/admin/users/${userId}/subscription`,
   },
   
   // Public endpoints
   PUBLIC: {
     CATEGORIES: `${BASE_URL}/api/categories`,
     TEST: `${BASE_URL}/api/test`,
+  },
+
+  // User endpoints
+  USER: {
+    SUBSCRIBE: `${BASE_URL}/user/subscribe`,
+    PREFERENCES: (token: string) => `${BASE_URL}/user/preferences/${token}`,
+    UNSUBSCRIBE: (token: string) => `${BASE_URL}/user/unsubscribe/${token}`,
   },
 } as const;
 
@@ -39,6 +49,8 @@ export const APP_ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   ADMIN: '/admin',
+  EMAIL_PREFERENCES: (token: string) => `/email-preferences/${token}`,
+  UNSUBSCRIBE: (token: string) => `/unsubscribe/${token}`,
 } as const;
 
 // Export for convenience

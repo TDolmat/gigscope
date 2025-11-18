@@ -1,4 +1,4 @@
-from api import admin, categories, scrape, auth
+from api import admin, categories, scrape, auth, users
 
 """ Add new blueprints here """
 BLUEPRINTS = [
@@ -6,5 +6,6 @@ BLUEPRINTS = [
     categories.bp,
     scrape.bp,
     auth.bp,
+    users.bp,
 ]
 

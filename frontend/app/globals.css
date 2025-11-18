@@ -55,10 +55,12 @@ body {
 }
 
 /* Focus styles with blue */
-*:focus-visible {
-  outline: 3px solid rgba(37, 99, 235, 0.5);
-  outline-offset: 2px;
-  border-radius: 8px;
+
+/* Remove outline for input elements - they use ring instead */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
 }
 
 /* Blue gradient backgrounds */
@@ -151,6 +153,17 @@ body {
   }
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -100%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
@@ -169,6 +182,10 @@ body {
 
 .animate-scaleIn {
   animation: scaleIn 0.4s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Glass effect with blue tint */
@@ -211,4 +228,52 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Sonner Toast Custom Styles */
+[data-sonner-toaster] {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+[data-sonner-toast] {
+  border-radius: 16px !important;
+  padding: 16px 20px !important;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1), 0 0 20px -5px rgba(37, 99, 235, 0.1) !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  background: linear-gradient(to bottom right, rgba(240, 253, 244, 0.95), rgba(255, 255, 255, 0.95)) !important;
+  border-color: rgba(34, 197, 94, 0.2) !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  background: linear-gradient(to bottom right, rgba(254, 242, 242, 0.95), rgba(255, 255, 255, 0.95)) !important;
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+[data-sonner-toast][data-type="warning"] {
+  background: linear-gradient(to bottom right, rgba(254, 252, 232, 0.95), rgba(255, 255, 255, 0.95)) !important;
+  border-color: rgba(234, 179, 8, 0.2) !important;
+}
+
+[data-sonner-toast][data-type="info"] {
+  background: linear-gradient(to bottom right, rgba(239, 246, 255, 0.95), rgba(255, 255, 255, 0.95)) !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+[data-sonner-toast] [data-title] {
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.5 !important;
+}
+
+[data-sonner-toast] [data-close-button] {
+  border-radius: 8px !important;
+  transition: all 0.2s !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
 }

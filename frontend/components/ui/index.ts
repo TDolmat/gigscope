@@ -5,4 +5,5 @@ export { Checkbox } from './Checkbox';
 export { Card } from './Card';
 export { Loading } from './Loading';
 export { Tooltip } from './Tooltip';
+export { Modal } from './Modal';
 

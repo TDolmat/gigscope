@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from core.config import CONFIG
-from core.models import User, UserEmailPreference, db, Config
+from core.models import User, UserEmailPreference, db
 from http import HTTPStatus
 from datetime import datetime
 from sqlalchemy import and_

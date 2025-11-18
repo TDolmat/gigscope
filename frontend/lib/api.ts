@@ -70,20 +70,39 @@ export const categoriesApi = {
   },
 };
 
-// Config API (Admin)
-export const configApi = {
-  getConfig: async (
-    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
-  ): Promise<Record<string, any>> => {
-    return apiFetch<Record<string, any>>(API_ENDPOINTS.ADMIN.CONFIG, {}, authenticatedFetch);
-  },
-  
-  updateConfig: async (
-    data: Record<string, any>,
+// Admin Dashboard API
+export const adminDashboardApi = {
+  // Get dashboard statistics
+  getStats: async (
     authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
   ): Promise<any> => {
-    return apiFetch(API_ENDPOINTS.ADMIN.CONFIG, {
-      method: 'POST',
+    return apiFetch<any>(API_ENDPOINTS.ADMIN.DASHBOARD_STATS, {}, authenticatedFetch);
+  },
+};
+
+// Admin Settings API
+export const adminSettingsApi = {
+  // Get settings
+  getSettings: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch<any>(API_ENDPOINTS.ADMIN.SETTINGS, {}, authenticatedFetch);
+  },
+
+  // Update settings
+  updateSettings: async (
+    data: {
+      enabled_platforms?: string[];
+      email_frequency?: string;
+      email_daytime?: string;
+      email_max_offers?: number;
+      mail_api_key?: string;
+      mail_sender_email?: string;
+    },
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SETTINGS, {
+      method: 'PUT',
       body: JSON.stringify(data),
     }, authenticatedFetch);
   },

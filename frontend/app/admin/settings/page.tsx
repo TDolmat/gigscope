@@ -1,30 +1,108 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { adminSettingsApi } from '@/lib/api';
+import { useAuth } from '@/app/context/AuthContext';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
-  const [frequency, setFrequency] = useState('codziennie');
+  const { authenticatedFetch } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [frequency, setFrequency] = useState('daily');
   const [maxOffers, setMaxOffers] = useState('15');
   const [platforms, setPlatforms] = useState({
-    upwork: true,
-    fiverr: true,
-    useme: true,
-    justjoinit: true,
+    upwork: false,
+    fiverr: false,
+    useme: false,
+    justjoinit: false,
     contra: false,
     rocketjobs: false,
   });
   const [saving, setSaving] = useState(false);
 
-  const handleSaveSettings = () => {
-    setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
-      alert('Ustawienia zapisane!');
-    }, 1000);
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      const data = await adminSettingsApi.getSettings(authenticatedFetch);
+      
+      // Map frequency from backend to frontend
+      const frequencyMap: Record<string, string> = {
+        'daily': 'codziennie',
+        'every_2_days': 'co2dni',
+        'weekly': 'cotydzien',
+        'disabled': 'wylacz'
+      };
+      
+      setFrequency(frequencyMap[data.email_frequency] || 'codziennie');
+      setMaxOffers(String(data.email_max_offers || 15));
+      
+      // Convert enabled_platforms array to object
+      const enabledPlatforms = data.enabled_platforms || [];
+      setPlatforms({
+        upwork: enabledPlatforms.includes('upwork'),
+        fiverr: enabledPlatforms.includes('fiverr'),
+        useme: enabledPlatforms.includes('useme'),
+        justjoinit: enabledPlatforms.includes('justjoinit'),
+        contra: enabledPlatforms.includes('contra'),
+        rocketjobs: enabledPlatforms.includes('rocketjobs'),
+      });
+    } catch (error: any) {
+      console.error('Error fetching settings:', error);
+      toast.error('Nie udało się pobrać ustawień');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleSaveSettings = async () => {
+    try {
+      setSaving(true);
+      
+      // Map frequency from frontend to backend
+      const frequencyMap: Record<string, string> = {
+        'codziennie': 'daily',
+        'co2dni': 'every_2_days',
+        'cotydzien': 'weekly',
+        'wylacz': 'disabled'
+      };
+      
+      // Convert platforms object to array of enabled platforms
+      const enabledPlatforms = Object.entries(platforms)
+        .filter(([_, enabled]) => enabled)
+        .map(([platform]) => platform);
+      
+      await adminSettingsApi.updateSettings({
+        enabled_platforms: enabledPlatforms,
+        email_frequency: frequencyMap[frequency],
+        email_max_offers: parseInt(maxOffers),
+      }, authenticatedFetch);
+      
+      toast.success('Ustawienia zostały zapisane!');
+    } catch (error: any) {
+      console.error('Error saving settings:', error);
+      toast.error('Nie udało się zapisać ustawień');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Ustawienia ogólne</h2>
+        <div className="flex items-center justify-center h-64">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

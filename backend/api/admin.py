@@ -1,55 +1,13 @@
 from flask import Blueprint, request, jsonify
 from core.config import CONFIG
-from core.models import User, UserEmailPreference, UserSubscription, db, Config
+from core.models import User, UserEmailPreference, UserSubscription, AppSettings, UserOfferEmail, Offer, db
 from http import HTTPStatus
 from flask_jwt_extended import jwt_required
-from datetime import datetime
-from sqlalchemy import and_
+from datetime import datetime, timedelta
+from sqlalchemy import and_, func
+from collections import defaultdict
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
-
-
-@bp.route('/config', methods=['GET'])
-@jwt_required()
-def get_config():
-    # Get all configs and return as a dictionary
-    configs = Config.query.all()
-    config_dict = {config.key: config.value for config in configs}
-    return jsonify(config_dict), HTTPStatus.OK
-
-
-@bp.route('/config', methods=('POST',))
-@jwt_required()
-def post_config():
-    data = request.get_json()
-    
-    if not data:
-        return jsonify({
-            'error': 'Request body must contain key-value pairs'
-        }), HTTPStatus.BAD_REQUEST
-    
-    # Fetch all existing configs once
-    existing_configs = {config.key: config for config in Config.query.all()}
-    
-    updated_configs = []
-    
-    for key, value in data.items():
-        if key in existing_configs:
-            # Update existing config
-            existing_configs[key].value = str(value)
-            updated_configs.append({'key': key, 'value': str(value), 'action': 'updated'})
-        else:
-            # Create new config
-            new_config = Config(key=key, value=str(value))
-            db.session.add(new_config)
-            updated_configs.append({'key': key, 'value': str(value), 'action': 'created'})
-    
-    db.session.commit()
-    
-    return jsonify({
-        'message': f'Successfully processed {len(updated_configs)} config(s)',
-        'configs': updated_configs
-    }), HTTPStatus.OK
 
 
 @bp.route('/users', methods=['GET'])
@@ -65,14 +23,18 @@ def get_users():
         for user in users:
             # Get active preferences
             preference = UserEmailPreference.query.filter(
-                and_(
-                    UserEmailPreference.user_id == user.id,
-                    UserEmailPreference.deleted_at.is_(None)
-                )
+                UserEmailPreference.user_id == user.id,
+                UserEmailPreference.deleted_at.is_(None)
+            ).order_by(
+                UserEmailPreference.created_at.desc()
             ).first()
             
             # Get active subscription
-            subscription = UserSubscription.query.filter_by(email=user.email).order_by(UserSubscription.expires_at.desc()).first()
+            subscription = UserSubscription.query.filter(
+                UserSubscription.email == user.email
+            ).order_by(
+                UserSubscription.expires_at.desc()
+            ).first()
             
             user_dict = {
                 'id': user.id,
@@ -248,3 +210,218 @@ def delete_user_subscription(user_id):
         db.session.rollback()
         print(f"Error deleting subscription: {str(e)}")
         return jsonify({'error': 'Wystąpił błąd podczas usuwania subskrypcji'}), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@bp.route('/settings', methods=['GET'])
+@jwt_required()
+def get_settings():
+    """
+    Get application settings.
+    """
+    try:
+        # Get or create settings (should only be one record)
+        settings = AppSettings.query.first()
+        
+        if not settings:
+            # Create default settings if none exist
+            settings = AppSettings(
+                enabled_platforms=[],
+                email_frequency=AppSettings.EmailFrequency.DAILY.value,
+                email_daytime='09:00',
+                email_max_offers=15
+            )
+            db.session.add(settings)
+            db.session.commit()
+        
+        return jsonify({
+            'id': settings.id,
+            'enabled_platforms': settings.enabled_platforms or [],
+            'email_frequency': settings.email_frequency,
+            'email_daytime': settings.email_daytime,
+            'email_max_offers': settings.email_max_offers,
+            'mail_api_key': settings.mail_api_key,
+            'mail_sender_email': settings.mail_sender_email,
+            'updated_at': settings.updated_at.isoformat() if settings.updated_at else None
+        }), HTTPStatus.OK
+        
+    except Exception as e:
+        print(f"Error fetching settings: {str(e)}")
+        return jsonify({'error': 'Wystąpił błąd podczas pobierania ustawień'}), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@bp.route('/settings', methods=['PUT'])
+@jwt_required()
+def update_settings():
+    """
+    Update application settings.
+    """
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({'error': 'No data provided'}), HTTPStatus.BAD_REQUEST
+    
+    try:
+        # Get or create settings
+        settings = AppSettings.query.first()
+        
+        if not settings:
+            settings = AppSettings()
+            db.session.add(settings)
+        
+        # Update fields if provided
+        if 'enabled_platforms' in data:
+            settings.enabled_platforms = data['enabled_platforms']
+        
+        if 'email_frequency' in data:
+            settings.email_frequency = data['email_frequency']
+        
+        if 'email_daytime' in data:
+            settings.email_daytime = data['email_daytime']
+        
+        if 'email_max_offers' in data:
+            settings.email_max_offers = int(data['email_max_offers'])
+        
+        if 'mail_api_key' in data:
+            settings.mail_api_key = data['mail_api_key']
+        
+        if 'mail_sender_email' in data:
+            settings.mail_sender_email = data['mail_sender_email']
+        
+        settings.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Ustawienia zostały zaktualizowane',
+            'settings': {
+                'id': settings.id,
+                'enabled_platforms': settings.enabled_platforms,
+                'email_frequency': settings.email_frequency,
+                'email_daytime': settings.email_daytime,
+                'email_max_offers': settings.email_max_offers,
+                'mail_api_key': settings.mail_api_key,
+                'mail_sender_email': settings.mail_sender_email,
+                'updated_at': settings.updated_at.isoformat()
+            }
+        }), HTTPStatus.OK
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error updating settings: {str(e)}")
+        return jsonify({'error': 'Wystąpił błąd podczas aktualizacji ustawień'}), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@bp.route('/dashboard/stats', methods=['GET'])
+@jwt_required()
+def get_dashboard_stats():
+    """
+    Get dashboard statistics including counts and time-series data.
+    """
+    try:
+        now = datetime.utcnow()
+        thirty_days_ago = now - timedelta(days=30)
+        
+        # 1. Active email subscribers (users with active circle subscription AND email preferences)
+        active_email_subscribers = db.session.query(func.count(func.distinct(User.id))).filter(
+            User.id.in_(
+                db.session.query(UserEmailPreference.user_id).filter(
+                    UserEmailPreference.deleted_at.is_(None)
+                )
+            ),
+            User.email.in_(
+                db.session.query(UserSubscription.email).filter(
+                    UserSubscription.expires_at > now
+                )
+            )
+        ).scalar() or 0
+        
+        # 2. Active circle subscribers
+        active_circle_subscribers = db.session.query(func.count(UserSubscription.id)).filter(
+            UserSubscription.expires_at > now
+        ).scalar() or 0
+        
+        # 3. Total sent emails
+        total_sent_emails = db.session.query(func.count(UserOfferEmail.id)).filter(
+            UserOfferEmail.sent_at.isnot(None)
+        ).scalar() or 0
+        
+        # 4. Total scraped offers
+        total_scraped_offers = db.session.query(func.count(Offer.id)).scalar() or 0
+        
+        # Time-series data for last 30 days
+        
+        # 1. Sent emails per day (last 30 days)
+        sent_emails_data = db.session.query(
+            func.date(UserOfferEmail.sent_at).label('date'),
+            func.count(UserOfferEmail.id).label('count')
+        ).filter(
+            UserOfferEmail.sent_at >= thirty_days_ago,
+            UserOfferEmail.sent_at.isnot(None)
+        ).group_by(
+            func.date(UserOfferEmail.sent_at)
+        ).all()
+        
+        # 2. Circle subscriptions created per day (last 30 days)
+        circle_subs_data = db.session.query(
+            func.date(UserSubscription.created_at).label('date'),
+            func.count(UserSubscription.id).label('count')
+        ).filter(
+            UserSubscription.created_at >= thirty_days_ago
+        ).group_by(
+            func.date(UserSubscription.created_at)
+        ).all()
+        
+        # 3. Offers scraped per day (last 30 days)
+        offers_data = db.session.query(
+            func.date(Offer.created_at).label('date'),
+            func.count(Offer.id).label('count')
+        ).filter(
+            Offer.created_at >= thirty_days_ago
+        ).group_by(
+            func.date(Offer.created_at)
+        ).all()
+        
+        # 4. GigScope subscriptions (email preferences) created per day (last 30 days)
+        gigscope_subs_data = db.session.query(
+            func.date(UserEmailPreference.created_at).label('date'),
+            func.count(UserEmailPreference.id).label('count')
+        ).filter(
+            UserEmailPreference.created_at >= thirty_days_ago
+        ).group_by(
+            func.date(UserEmailPreference.created_at)
+        ).all()
+        
+        # Format time-series data with all 30 days (fill missing days with 0)
+        def format_timeseries(data, days=30):
+            result = defaultdict(int)
+            for item in data:
+                result[item.date.isoformat()] = item.count
+            
+            # Fill all 30 days
+            formatted = []
+            for i in range(days):
+                date = (now - timedelta(days=days-i-1)).date()
+                formatted.append({
+                    'date': date.isoformat(),
+                    'count': result.get(date.isoformat(), 0)
+                })
+            
+            return formatted
+        
+        return jsonify({
+            'summary': {
+                'active_email_subscribers': active_email_subscribers,
+                'active_circle_subscribers': active_circle_subscribers,
+                'total_sent_emails': total_sent_emails,
+                'total_scraped_offers': total_scraped_offers,
+            },
+            'timeseries': {
+                'sent_emails': format_timeseries(sent_emails_data),
+                'circle_subscriptions': format_timeseries(circle_subs_data),
+                'scraped_offers': format_timeseries(offers_data),
+                'gigscope_subscriptions': format_timeseries(gigscope_subs_data),
+            }
+        }), HTTPStatus.OK
+        
+    except Exception as e:
+        print(f"Error fetching dashboard stats: {str(e)}")
+        return jsonify({'error': 'Wystąpił błąd podczas pobierania statystyk'}), HTTPStatus.INTERNAL_SERVER_ERROR

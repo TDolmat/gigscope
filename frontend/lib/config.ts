@@ -23,7 +23,8 @@ export const API_ENDPOINTS = {
   
   // Admin endpoints
   ADMIN: {
-    CONFIG: `${BASE_URL}/admin/config`,
+    DASHBOARD_STATS: `${BASE_URL}/admin/dashboard/stats`,
+    SETTINGS: `${BASE_URL}/admin/settings`,
     TEST: `${BASE_URL}/admin/test`,
     USERS: `${BASE_URL}/admin/users`,
     USER_PREFERENCES: (userId: number) => `${BASE_URL}/admin/users/${userId}/preferences`,

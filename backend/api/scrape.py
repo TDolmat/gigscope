@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from core.config import CONFIG
-from core.models import User, db, Config, Offer
+from core.models import User, db, Offer
 from http import HTTPStatus
 from scrapers.useme import UsemeScraper
 from scrapers.justjoinit import JustJoinItScraper

@@ -12,23 +12,38 @@ def uuid4_str():
     return str(uuid.uuid4())
 
 
-class Config(db.Model):
-# Transform this config (see what apporach is better key and value ojects or one object with all fields correspodning to possible config options)
-    __tablename__ = 'configs'
+class AppSettings(db.Model):
+    __tablename__ = 'app_settings'
+    id = db.Column(db.Integer, primary_key=True) # always 1
 
-    class ConfigKey(Enum):
-        ENABLED_PLATFORMS = 'ENABLED_PLATFORMS'
-        EMAIL_SENDING_FREQUENCY = "EMAIL_SENDING_FREQUENCY"
-        EMAIL_SENDING_DAYTIME = "EMAIL_SENDING_DAYTIME"
-        EMAIL_MAX_OFFERS = "EMAIL_MAX_OFFERS"
+    # Platform settings
+    class EnabledPlatforms(Enum):
+        UPWORK = 'upwork'
+        FIVERR = 'fiverr'
+        USEME = 'useme'
+        JUSTJOINIT = 'justjoinit'
+        CONTRA = 'contra'
+        ROCKETJOBS = 'rocketjobs'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    enabled_platforms = db.Column(db.JSON, default=[])
     
-    key = db.Column(db.String, nullable=False)
-    value = db.Column(db.JSON, nullable=True)
+    # Email settings  
+    class EmailFrequency(Enum):
+        DAILY = 'daily'
+        EVERY_2_DAYS = 'every_2_days'
+        WEEKLY = 'weekly'
+        DISABLED = 'disabled'
 
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    email_frequency = db.Column(db.String, default=EmailFrequency.DAILY.value)
+    email_daytime = db.Column(db.String, default='09:00')
+    email_max_offers = db.Column(db.Integer, default=15)
+    
+    # Mail provider settings
+    mail_api_key = db.Column(db.String, nullable=True)
+    mail_sender_email = db.Column(db.String, nullable=True)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class Admins(db.Model):

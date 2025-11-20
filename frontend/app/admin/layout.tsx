@@ -5,7 +5,7 @@ import { useAuth } from '@/app/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
-import { LogOut } from 'lucide-react';
+import { LogOut, ArrowLeft } from 'lucide-react';
 
 export default function AdminLayout({
   children,
@@ -38,7 +38,8 @@ export default function AdminLayout({
             <div className="flex items-center gap-3">
               <Link href="/">
                 <Button variant="outline" size="sm">
-                  ← Strona główna
+                  <ArrowLeft className="w-4 h-4 mr-1" />
+                  Strona główna
                 </Button>
               </Link>
               <Button 

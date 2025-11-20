@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
-import { User } from "lucide-react";
+import { User, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -38,7 +38,8 @@ export default function LoginPage() {
           href="/"
           className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-900 mb-12 transition-colors"
         >
-          ← Strona główna
+          <ArrowLeft className="w-4 h-4" />
+          Strona główna
         </Link>
 
         {/* Login card */}

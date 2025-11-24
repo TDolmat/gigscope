@@ -131,7 +131,7 @@ export default function Home() {
                   </label>
                   <Tooltip
                     content={
-                      <div className="max-w-xs text-left">
+                      <div className="text-left">
                         <p className="font-semibold mb-1">Dla członków be free club</p>
                         <p className="text-xs opacity-90">
                           Nie jesteś członkiem?{' '}
@@ -139,7 +139,7 @@ export default function Home() {
                             href="https://circle.befree.club" 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="underline hover:text-blue-300"
+                            className="underline hover:text-blue-300 transition-colors"
                           >
                             Dołącz tutaj
                           </a>
@@ -166,7 +166,24 @@ export default function Home() {
                     <label className="block text-base font-bold text-slate-900">
                       Musi zawierać
                     </label>
-                    <Tooltip content="Zlecenia będą zawierały wszystkie te słowa kluczowe. To główny filtr." />
+                    <Tooltip 
+                      content={
+                        <div className="text-left">
+                          <p className="font-semibold mb-2">✅ Wszystkie słowa wymagane</p>
+                          <p className="text-xs opacity-90 mb-2">
+                            Zlecenie musi zawierać <strong>KAŻDE</strong> z podanych słów kluczowych.
+                          </p>
+                          <div className="bg-white/10 rounded p-2 text-xs mb-2">
+                            <p className="font-semibold mb-1">Przykład:</p>
+                            <p className="opacity-90">React, TypeScript, Frontend</p>
+                            <p className="opacity-75 mt-1">→ Zlecenie musi zawierać React <strong>I</strong> TypeScript <strong>I</strong> Frontend</p>
+                          </div>
+                          <p className="text-xs opacity-75 border-t border-white/20 pt-2">
+                            💡 Dla platform zagranicznych wpisuj słowa po angielsku
+                          </p>
+                        </div>
+                      }
+                    />
                   </div>
                   <Input
                     placeholder="np. React, TypeScript, Frontend (oddziel przecinkami)"
@@ -174,7 +191,9 @@ export default function Home() {
                     onChange={(e) => setMustContain(e.target.value)}
                     disabled={loading}
                   />
-                  <p className="mt-2 text-sm text-gray-500">Oddziel słowa kluczowe przecinkami</p>
+                  <p className="mt-2 text-sm text-gray-600">
+                    <span className="font-semibold">Każde</span> słowo musi być w zleceniu
+                  </p>
                 </div>
 
                 <div>
@@ -182,8 +201,26 @@ export default function Home() {
                     <Plus className="w-5 h-5 text-blue-600" />
                     <label className="block text-base font-bold text-slate-900">
                       Może zawierać
+                      <span className="ml-2 text-xs font-normal text-gray-500">(główne słowa kluczowe)</span>
                     </label>
-                    <Tooltip content="Zlecenia z tymi słowami będą wyżej w rankingu, ale nie są wymagane." />
+                    <Tooltip 
+                      content={
+                        <div className="text-left">
+                          <p className="font-semibold mb-2">➕ Jedno lub więcej słów</p>
+                          <p className="text-xs opacity-90 mb-2">
+                            Zlecenie zawierające <strong>KTÓREKOLWIEK</strong> z tych słów zostanie pokazane.
+                          </p>
+                          <div className="bg-white/10 rounded p-2 text-xs mb-2">
+                            <p className="font-semibold mb-1">Przykład:</p>
+                            <p className="opacity-90">Next.js, Tailwind, UI/UX</p>
+                            <p className="opacity-75 mt-1">→ Zlecenie z Next.js <strong>LUB</strong> Tailwind <strong>LUB</strong> UI/UX zostanie pokazane</p>
+                          </div>
+                          <p className="text-xs opacity-75 border-t border-white/20 pt-2">
+                            💡 Dla platform zagranicznych wpisuj słowa po angielsku
+                          </p>
+                        </div>
+                      }
+                    />
                   </div>
                   <Input
                     placeholder="np. Next.js, Tailwind, UI/UX (oddziel przecinkami)"
@@ -191,7 +228,9 @@ export default function Home() {
                     onChange={(e) => setMayContain(e.target.value)}
                     disabled={loading}
                   />
-                  <p className="mt-2 text-sm text-gray-500">Preferowane, ale opcjonalne</p>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Wystarczy <span className="font-semibold">jedno</span> z tych słów (lub więcej)
+                  </p>
                 </div>
 
                 <div>
@@ -200,7 +239,24 @@ export default function Home() {
                     <label className="block text-base font-bold text-slate-900">
                       Nie może zawierać
                     </label>
-                    <Tooltip content="Zlecenia zawierające te słowa zostaną automatycznie odfiltrowane." />
+                    <Tooltip 
+                      content={
+                        <div className="text-left">
+                          <p className="font-semibold mb-2">❌ Żadne z tych słów</p>
+                          <p className="text-xs opacity-90 mb-2">
+                            Zlecenie zawierające <strong>KTÓREKOLWIEK</strong> z tych słów zostanie odfiltrowane.
+                          </p>
+                          <div className="bg-white/10 rounded p-2 text-xs mb-2">
+                            <p className="font-semibold mb-1">Przykład:</p>
+                            <p className="opacity-90">WordPress, PHP, Backend</p>
+                            <p className="opacity-75 mt-1">→ Jeśli zlecenie zawiera WordPress <strong>LUB</strong> PHP <strong>LUB</strong> Backend, zostanie ukryte</p>
+                          </div>
+                          <p className="text-xs opacity-75 border-t border-white/20 pt-2">
+                            💡 Dla platform zagranicznych wpisuj słowa po angielsku
+                          </p>
+                        </div>
+                      }
+                    />
                   </div>
                   <Input
                     placeholder="np. WordPress, PHP, Backend (oddziel przecinkami)"
@@ -208,7 +264,9 @@ export default function Home() {
                     onChange={(e) => setMustNotContain(e.target.value)}
                     disabled={loading}
                   />
-                  <p className="mt-2 text-sm text-gray-500">Wyklucz niechciane technologie</p>
+                  <p className="mt-2 text-sm text-gray-600">
+                    <span className="font-semibold">Żadne</span> z tych słów nie może wystąpić
+                  </p>
                 </div>
               </div>
 
@@ -319,10 +377,95 @@ export default function Home() {
                   </div>
                 </div>
 
+                {/* Keyword Logic Explanation */}
+                <div className="mt-8 pt-8 border-t border-gray-200">
+                  <h4 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <span className="text-2xl">🎯</span>
+                    Jak działają słowa kluczowe?
+                  </h4>
+                  
+                  <div className="space-y-5">
+                    <div className="bg-green-50 border-l-4 border-green-500 p-5 rounded-r-xl">
+                      <div className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h5 className="font-bold text-slate-900 mb-2">Musi zawierać (I / AND)</h5>
+                          <p className="text-sm text-gray-700 mb-3">
+                            Zlecenie musi zawierać <strong>WSZYSTKIE</strong> podane słowa kluczowe.
+                          </p>
+                          <div className="bg-white/70 rounded-lg p-3 text-sm">
+                            <p className="font-semibold text-slate-900 mb-1">Przykład:</p>
+                            <p className="text-gray-700 mb-2"><code className="bg-gray-100 px-2 py-0.5 rounded">React, TypeScript, Frontend</code></p>
+                            <p className="text-gray-600">
+                              ✅ Zlecenie: "Szukamy developera React + TypeScript do projektu frontend"
+                            </p>
+                            <p className="text-gray-600">
+                              ❌ Zlecenie: "Szukamy developera React do projektu frontend" (brak TypeScript)
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl">
+                      <div className="flex items-start gap-3">
+                        <Plus className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h5 className="font-bold text-slate-900 mb-2">Może zawierać (LUB / OR)</h5>
+                          <p className="text-sm text-gray-700 mb-3">
+                            Zlecenie zawierające <strong>JEDNO LUB WIĘCEJ</strong> z tych słów zostanie pokazane.
+                          </p>
+                          <div className="bg-white/70 rounded-lg p-3 text-sm">
+                            <p className="font-semibold text-slate-900 mb-1">Przykład:</p>
+                            <p className="text-gray-700 mb-2"><code className="bg-gray-100 px-2 py-0.5 rounded">Next.js, Tailwind, UI/UX</code></p>
+                            <p className="text-gray-600">
+                              ✅ Zlecenie z Next.js zostanie pokazane
+                            </p>
+                            <p className="text-gray-600">
+                              ✅ Zlecenie z Tailwind zostanie pokazane
+                            </p>
+                            <p className="text-gray-600">
+                              ✅ Zlecenie z Next.js + Tailwind również zostanie pokazane
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-red-50 border-l-4 border-red-500 p-5 rounded-r-xl">
+                      <div className="flex items-start gap-3">
+                        <X className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h5 className="font-bold text-slate-900 mb-2">Nie może zawierać (NIE / NOT)</h5>
+                          <p className="text-sm text-gray-700 mb-3">
+                            Zlecenia z <strong>KTÓRYMKOLWIEK</strong> z tych słów zostaną całkowicie odfiltrowane.
+                          </p>
+                          <div className="bg-white/70 rounded-lg p-3 text-sm">
+                            <p className="font-semibold text-slate-900 mb-1">Przykład:</p>
+                            <p className="text-gray-700 mb-2"><code className="bg-gray-100 px-2 py-0.5 rounded">WordPress, PHP, Backend</code></p>
+                            <p className="text-gray-600">
+                              ❌ Zlecenie z WordPress zostanie ukryte
+                            </p>
+                            <p className="text-gray-600">
+                              ❌ Zlecenie z PHP zostanie ukryte
+                            </p>
+                            <p className="text-gray-600">
+                              ❌ Zlecenie zawierające Backend również nie pojawi się w wynikach
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-4">
                   <div className="p-6 bg-blue-50 rounded-2xl border border-blue-200">
-                    <p className="text-sm text-slate-700 font-medium">
+                    <p className="text-sm text-slate-700 font-medium mb-2">
                       <strong>💡 Wskazówka:</strong> Im precyzyjniejsze słowa kluczowe, tym lepiej dopasowane oferty!
+                    </p>
+                    <p className="text-xs text-gray-600 mt-2">
+                      Pamiętaj: dla platform międzynarodowych (Upwork, Fiverr) używaj słów po angielsku, dla polskich platform (Useme) po polsku.
                     </p>
                   </div>
 

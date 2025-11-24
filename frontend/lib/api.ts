@@ -106,6 +106,26 @@ export const adminSettingsApi = {
       body: JSON.stringify(data),
     }, authenticatedFetch);
   },
+
+  // Get Apify API key (separate endpoint for security)
+  getApifyKey: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch<any>(API_ENDPOINTS.ADMIN.SETTINGS_APIFY_KEY, {}, authenticatedFetch);
+  },
+
+  // Update Apify API key (separate endpoint for security)
+  updateApifyKey: async (
+    apifyApiKey: string,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SETTINGS_APIFY_KEY, {
+      method: 'PUT',
+      body: JSON.stringify({
+        apify_api_key: apifyApiKey,
+      }),
+    }, authenticatedFetch);
+  },
 };
 
 // Admin Users API
@@ -156,6 +176,28 @@ export const adminUsersApi = {
   ): Promise<any> => {
     return apiFetch(API_ENDPOINTS.ADMIN.USER_SUBSCRIPTION(userId), {
       method: 'DELETE',
+    }, authenticatedFetch);
+  },
+};
+
+// Admin Scrape API
+export const adminScrapeApi = {
+  // Test scrape with keywords
+  testScrape: async (
+    mustContain: string[],
+    mayContain: string[],
+    mustNotContain: string[],
+    perPage: number,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE, {
+      method: 'POST',
+      body: JSON.stringify({
+        must_contain: mustContain,
+        may_contain: mayContain,
+        must_not_contain: mustNotContain,
+        per_page: perPage,
+      }),
     }, authenticatedFetch);
   },
 };

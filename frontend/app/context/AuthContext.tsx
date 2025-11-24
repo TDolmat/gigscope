@@ -2,7 +2,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { API_ENDPOINTS, APP_ROUTES } from "@/lib/config";
+import { API_ENDPOINTS, API_CONFIG } from "@/lib/config";
 
 type AuthContextType = {
   accessToken: string | null;
@@ -15,31 +15,29 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ============================================================================
-// PRODUCTION CSRF TOKEN HANDLING (Currently disabled for development)
+// CSRF TOKEN HANDLING
 // ============================================================================
-// To enable CSRF protection for production:
-// 1. In backend/app.py, set: app.config["JWT_COOKIE_CSRF_PROTECT"] = True
-// 2. Uncomment all the CSRF-related code blocks below (marked with PRODUCTION)
-// 3. Remove the development versions of login/refresh functions
+// Automatically enabled in production (controlled by API_CONFIG.CSRF_ENABLED)
+// Requires backend: JWT_COOKIE_CSRF_PROTECT = True (automatic in production)
 // ============================================================================
 
-// PRODUCTION: Uncomment this function to extract CSRF tokens from response headers
-// const extractCsrfToken = (response: Response): string | null => {
-//   return response.headers.get("X-CSRF-TOKEN") || 
-//          response.headers.get("X-CSRF-ACCESS-TOKEN") ||
-//          response.headers.get("X-CSRF-REFRESH-TOKEN");
-// };
+// Extract CSRF tokens from response headers
+const extractCsrfToken = (response: Response): string | null => {
+  return response.headers.get("X-CSRF-TOKEN") || 
+         response.headers.get("X-CSRF-ACCESS-TOKEN") ||
+         response.headers.get("X-CSRF-REFRESH-TOKEN");
+};
 
-// PRODUCTION: Uncomment this to store CSRF token in memory
-// let csrfToken: string | null = null;
+// Store CSRF token in memory (only used when CSRF_ENABLED=true)
+let csrfToken: string | null = null;
 
-// PRODUCTION: Uncomment this helper to add CSRF header to requests
-// const addCsrfHeader = (headers: Headers): Headers => {
-//   if (csrfToken) {
-//     headers.set("X-CSRF-TOKEN", csrfToken);
-//   }
-//   return headers;
-// };
+// Add CSRF header to requests (only in production)
+const addCsrfHeader = (headers: Headers): Headers => {
+  if (API_CONFIG.CSRF_ENABLED && csrfToken) {
+    headers.set("X-CSRF-TOKEN", csrfToken);
+  }
+  return headers;
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -49,28 +47,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     (async () => {
       try {
-        // DEVELOPMENT VERSION (current)
+        const headers = new Headers();
+        addCsrfHeader(headers);
+        
         const res = await fetch(API_ENDPOINTS.AUTH.REFRESH, {
           method: "POST",
           credentials: "include", // sends refresh cookie
+          headers,
         });
-
-        // PRODUCTION VERSION (uncomment and replace above when enabling CSRF):
-        // const headers = new Headers();
-        // addCsrfHeader(headers);
-        // const res = await fetch(API_ENDPOINTS.AUTH.REFRESH, {
-        //   method: "POST",
-        //   credentials: "include",
-        //   headers,
-        // });
 
         if (res.ok) {
           const data = await res.json();
           setAccessToken(data.access_token);
           
-          // PRODUCTION: Uncomment to extract and store CSRF token
-          // const token = extractCsrfToken(res);
-          // if (token) csrfToken = token;
+          // Extract and store CSRF token (only matters in production)
+          if (API_CONFIG.CSRF_ENABLED) {
+            const token = extractCsrfToken(res);
+            if (token) csrfToken = token;
+          }
         }
       } catch (err) {
         // ignore, user is just not logged in
@@ -81,23 +75,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    // DEVELOPMENT VERSION (current)
+    const headers = new Headers({ "Content-Type": "application/json" });
+    addCsrfHeader(headers);
+    
     const res = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       credentials: "include",
       body: JSON.stringify({ email, password }),
     });
-
-    // PRODUCTION VERSION (uncomment and replace above when enabling CSRF):
-    // const headers = new Headers({ "Content-Type": "application/json" });
-    // addCsrfHeader(headers);
-    // const res = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
-    //   method: "POST",
-    //   headers,
-    //   credentials: "include",
-    //   body: JSON.stringify({ email, password }),
-    // });
 
     if (!res.ok) {
       throw new Error("Login failed");
@@ -106,26 +92,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const data = await res.json();
     setAccessToken(data.access_token);
     
-    // PRODUCTION: Uncomment to extract and store CSRF token
-    // const token = extractCsrfToken(res);
-    // if (token) csrfToken = token;
+    // Extract and store CSRF token (only matters in production)
+    if (API_CONFIG.CSRF_ENABLED) {
+      const token = extractCsrfToken(res);
+      if (token) csrfToken = token;
+    }
   }, []);
 
   const refreshToken = useCallback(async () => {
-    // DEVELOPMENT VERSION (current)
+    const headers = new Headers();
+    addCsrfHeader(headers);
+    
     const res = await fetch(API_ENDPOINTS.AUTH.REFRESH, {
       method: "POST",
       credentials: "include",
+      headers,
     });
-
-    // PRODUCTION VERSION (uncomment and replace above when enabling CSRF):
-    // const headers = new Headers();
-    // addCsrfHeader(headers);
-    // const res = await fetch(API_ENDPOINTS.AUTH.REFRESH, {
-    //   method: "POST",
-    //   credentials: "include",
-    //   headers,
-    // });
 
     if (!res.ok) {
       throw new Error("Token refresh failed");
@@ -134,9 +116,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const data = await res.json();
     setAccessToken(data.access_token);
     
-    // PRODUCTION: Uncomment to extract and store CSRF token
-    // const token = extractCsrfToken(res);
-    // if (token) csrfToken = token;
+    // Extract and store CSRF token (only matters in production)
+    if (API_CONFIG.CSRF_ENABLED) {
+      const token = extractCsrfToken(res);
+      if (token) csrfToken = token;
+    }
     
     return data.access_token as string;
   }, []);
@@ -149,8 +133,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const headers = new Headers(init.headers || {});
         if (tok) headers.set("Authorization", `Bearer ${tok}`);
         
-        // PRODUCTION: Uncomment to add CSRF token to authenticated requests
-        // addCsrfHeader(headers);
+        // Add CSRF token in production
+        addCsrfHeader(headers);
         
         return fetch(input, { ...init, headers, credentials: "include" });
       };
@@ -163,8 +147,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           res = await doRequest(token);
         } catch (err) {
           setAccessToken(null);
-          // PRODUCTION: Uncomment to clear CSRF token on auth failure
-          // csrfToken = null;
+          // Clear CSRF token on auth failure
+          if (API_CONFIG.CSRF_ENABLED) {
+            csrfToken = null;
+          }
         }
       }
 
@@ -174,25 +160,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const logout = useCallback(async () => {
-    // DEVELOPMENT VERSION (current)
+    const headers = new Headers();
+    addCsrfHeader(headers);
+    
     await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
       method: "POST",
       credentials: "include",
+      headers,
     });
-    
-    // PRODUCTION VERSION (uncomment and replace above when enabling CSRF):
-    // const headers = new Headers();
-    // addCsrfHeader(headers);
-    // await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
-    //   method: "POST",
-    //   credentials: "include",
-    //   headers,
-    // });
     
     setAccessToken(null);
     
-    // PRODUCTION: Uncomment to clear CSRF token on logout
-    // csrfToken = null;
+    // Clear CSRF token on logout
+    if (API_CONFIG.CSRF_ENABLED) {
+      csrfToken = null;
+    }
   }, []);
 
   return (

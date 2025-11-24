@@ -6,10 +6,15 @@
 // Base API URL
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
+// Environment detection
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
 // API Configuration
 export const API_CONFIG = {
   BASE_URL,
   TIMEOUT: 30000, // 30 seconds
+  // CSRF protection is enabled in production (requires backend JWT_COOKIE_CSRF_PROTECT=True)
+  CSRF_ENABLED: IS_PRODUCTION,
 } as const;
 
 // API Endpoints - Full URLs ready to use

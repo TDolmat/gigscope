@@ -5,6 +5,7 @@ from apify_client import ApifyClient
 
 PLATFORM = "upwork"
 SEARCH_URL_BASE = "https://www.upwork.com/nx/search/jobs/"
+APIFY_ACTOR_ID = "XYTgO05GT5qAoSlxy"
 
 
 def get_search_url(must_contain, may_contain, must_not_contain, per_page=50, sort='recency', t=1):
@@ -47,17 +48,6 @@ def _build_search_query(must_contain, may_contain, must_not_contain):
 
 
 def apify_scrape_offers(url, api_key, print_logs=False):
-    """
-    Scrape offers from Upwork using Apify.
-    
-    Args:
-        url: The search URL to scrape
-        api_key: Apify API key
-        print_logs: Whether to print logs during scraping
-    
-    Returns:
-        Dict with 'offers' list and 'duration_millis'
-    """
     if not api_key:
         return {
             "offers": [],
@@ -65,7 +55,7 @@ def apify_scrape_offers(url, api_key, print_logs=False):
         }
     
     client = ApifyClient(api_key)
-    actor_id = "XYTgO05GT5qAoSlxy"
+    actor_id = APIFY_ACTOR_ID
 
     run_input = {
         "paymentVerified": False,

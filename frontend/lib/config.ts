@@ -25,10 +25,12 @@ export const API_ENDPOINTS = {
   ADMIN: {
     DASHBOARD_STATS: `${BASE_URL}/admin/dashboard/stats`,
     SETTINGS: `${BASE_URL}/admin/settings`,
+    SETTINGS_APIFY_KEY: `${BASE_URL}/admin/settings/apify-key`,
     TEST: `${BASE_URL}/admin/test`,
     USERS: `${BASE_URL}/admin/users`,
     USER_PREFERENCES: (userId: number) => `${BASE_URL}/admin/users/${userId}/preferences`,
     USER_SUBSCRIPTION: (userId: number) => `${BASE_URL}/admin/users/${userId}/subscription`,
+    SCRAPE: `${BASE_URL}/admin/scrape`,
   },
   
   // Public endpoints

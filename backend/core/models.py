@@ -42,6 +42,9 @@ class AppSettings(db.Model):
     mail_api_key = db.Column(db.String, nullable=True)
     mail_sender_email = db.Column(db.String, nullable=True)
     
+    # Scraper settings (encrypted)
+    apify_api_key = db.Column(db.String, nullable=True)  # Stored encrypted
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -115,7 +118,7 @@ class UserOfferEmail(db.Model):
 
     email_sent_to = db.Column(db.String, nullable=True)
     email_title = db.Column(db.String, nullable=True)
-    email_body = db.Column(db.String, nullable=True) # TODO: check later if there is text or text area instead of string
+    email_body = db.Column(db.Text, nullable=True)
 
     scheduled_at = db.Column(db.DateTime, nullable=True)
     sent_at = db.Column(db.DateTime, nullable=True)

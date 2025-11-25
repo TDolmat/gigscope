@@ -202,6 +202,58 @@ export const adminScrapeApi = {
   },
 };
 
+// Admin Mail API
+export const adminMailApi = {
+  // Send test email
+  sendTestEmail: async (
+    email: string,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MAIL_TEST, {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }, authenticatedFetch);
+  },
+
+  // Trigger sending offer emails to all users
+  sendUserOfferEmails: async (
+    baseUrl?: string,
+    circleUrl?: string,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MAIL_SEND_OFFERS, {
+      method: 'POST',
+      body: JSON.stringify({ 
+        base_url: baseUrl,
+        circle_url: circleUrl 
+      }),
+    }, authenticatedFetch);
+  },
+
+  // Get email preview
+  getPreview: async (
+    type: 'offers' | 'no_offers' | 'not_subscribed' | 'expired' | 'test',
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MAIL_PREVIEW, {
+      method: 'POST',
+      body: JSON.stringify({ type }),
+    }, authenticatedFetch);
+  },
+
+  // Send email with specific template
+  sendTemplateEmail: async (
+    type: 'offers' | 'no_offers' | 'not_subscribed' | 'expired' | 'test',
+    email: string,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MAIL_SEND_TEMPLATE, {
+      method: 'POST',
+      body: JSON.stringify({ type, email }),
+    }, authenticatedFetch);
+  },
+};
+
 // User Subscription API
 export const userApi = {
   // Subscribe to newsletter with keyword preferences

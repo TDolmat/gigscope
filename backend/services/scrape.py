@@ -5,7 +5,7 @@ from utils.encryption import decrypt_api_key
 from helpers.user_helper import is_user_subscribed, get_active_subscribed_users
 
 
-def _scrape_and_store_offers(user_email, must_contain, may_contain, must_not_contain, apify_api_key, max_offers, print_logs = False):
+def _scrape_and_store_offers(user_id, user_email, must_contain, may_contain, must_not_contain, apify_api_key, max_offers, print_logs = False):
     per_page = 10 if max_offers <= 10 else 50
 
     search_url = get_search_url(
@@ -94,6 +94,7 @@ def scrape_offers_for_user(user_id: int, print_logs: bool = False) -> dict:
         must_not_contain = preferences.cannot_include_keywords or []
         
         result = _scrape_and_store_offers(
+            user_id=user_id,
             user_email=user.email,
             must_contain=must_contain,
             may_contain=may_contain,
@@ -144,6 +145,7 @@ def scrape_offers_for_all_users(print_logs: bool = False) -> dict:
 
             try:
                 result = _scrape_and_store_offers(
+                    user_id=user_id,
                     user_email=user_email,
                     must_contain=must_contain,
                     may_contain=may_contain,

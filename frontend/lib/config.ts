@@ -36,6 +36,10 @@ export const API_ENDPOINTS = {
     USER_PREFERENCES: (userId: number) => `${BASE_URL}/admin/users/${userId}/preferences`,
     USER_SUBSCRIPTION: (userId: number) => `${BASE_URL}/admin/users/${userId}/subscription`,
     SCRAPE: `${BASE_URL}/admin/scrape`,
+    MAIL_TEST: `${BASE_URL}/admin/mail/test`,
+    MAIL_SEND_OFFERS: `${BASE_URL}/admin/mail/send-offers`,
+    MAIL_PREVIEW: `${BASE_URL}/admin/mail/preview`,
+    MAIL_SEND_TEMPLATE: `${BASE_URL}/admin/mail/send-template`,
   },
   
   // Public endpoints

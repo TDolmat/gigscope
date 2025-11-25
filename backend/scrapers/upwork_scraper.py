@@ -69,8 +69,6 @@ def apify_scrape_offers(url, api_key, print_logs=False):
         run = client.run(run["id"]).wait_for_finish()
 
     offers = list(client.dataset(run["defaultDatasetId"]).iterate_items())
-
-    print(run.items())
     
     return {
         "offers": offers, 

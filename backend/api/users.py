@@ -44,9 +44,6 @@ def subscribe():
     can_include_keywords = parse_keywords(may_contain)
     cannot_include_keywords = parse_keywords(must_not_contain)
     
-    if not must_include_keywords:
-        return jsonify({'error': 'Podaj przynajmniej jedno słowo kluczowe w sekcji "Musi zawierać"'}), HTTPStatus.BAD_REQUEST
-    
     try:
         # Check if user already exists
         user = User.query.filter_by(email=email).first()
@@ -54,10 +51,8 @@ def subscribe():
         if user:
             # User exists - check if they have active preferences
             active_preference = UserEmailPreference.query.filter(
-                and_(
                     UserEmailPreference.user_id == user.id,
                     UserEmailPreference.deleted_at.is_(None)
-                )
             ).first()
             
             if active_preference:
@@ -165,9 +160,6 @@ def update_preferences(token):
     must_include_keywords = parse_keywords(must_contain)
     can_include_keywords = parse_keywords(may_contain)
     cannot_include_keywords = parse_keywords(must_not_contain)
-    
-    if not must_include_keywords:
-        return jsonify({'error': 'Podaj przynajmniej jedno słowo kluczowe w sekcji "Musi zawierać"'}), HTTPStatus.BAD_REQUEST
     
     try:
         # Get active preferences

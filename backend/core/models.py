@@ -110,11 +110,7 @@ class UserOfferEmail(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     
     user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=True)
-
-    # KEYWORDS
-    must_include_keywords = db.Column(db.JSON, nullable=True)
-    can_include_keywords = db.Column(db.JSON, nullable=True)
-    cannot_include_keywords = db.Column(db.JSON, nullable=True)
+    offer_bundle_id = db.Column(db.Integer, nullable=True) # one to one relationship (without fk constraint, because it can be deleted)
 
     email_sent_to = db.Column(db.String, nullable=True)
     email_title = db.Column(db.String, nullable=True)
@@ -126,21 +122,39 @@ class UserOfferEmail(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow) # enrolled to the newsletter
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow) # changed keyword preferences
 
+class OfferBundle(db.Model):
+    __tablename__ = 'offer_bundles'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=True)
+    user_offer_email_id = db.Column(db.Integer, nullable=True) # one to one relationship (without fk constraint, because it can be deleted)
+
+    scrape_duration_millis = db.Column(db.Integer, nullable=True) # duration of the scrape in milliseconds
+
+    # KEYWORDS
+    must_include_keywords = db.Column(db.JSON, nullable=True)
+    can_include_keywords = db.Column(db.JSON, nullable=True)
+    cannot_include_keywords = db.Column(db.JSON, nullable=True)
+
+    scraped_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
 
 class Offer(db.Model):
     # Offer scraped from the platform
     __tablename__ = 'offers'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    user_offer_email_id = db.Column(db.Integer, db.ForeignKey(UserOfferEmail.id), nullable=True)
+    offer_bundle_id = db.Column(db.Integer, db.ForeignKey(OfferBundle.id), nullable=True)
     
     # Image URL?
     title = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=True)
     budget = db.Column(db.String, nullable=True)
-    client_name = db.Column(db.String, nullable=True)
 
-    including_keyword = db.Column(db.String, nullable=True)
+    client_name = db.Column(db.String, nullable=True)
+    client_location = db.Column(db.String, nullable=True)
 
     url = db.Column(db.String, nullable=False)
     platform = db.Column(db.String, nullable=False)

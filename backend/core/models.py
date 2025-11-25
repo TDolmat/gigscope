@@ -166,3 +166,54 @@ class Offer(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     deleted_at = db.Column(db.DateTime, nullable=True)
 
+
+class ScrapeLog(db.Model):
+    """Log for batch scraping operations"""
+    __tablename__ = 'scrape_logs'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    
+    # Timing
+    executed_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    duration_millis = db.Column(db.Integer, nullable=True)  # Total scrape duration
+    
+    # Statistics
+    total_users = db.Column(db.Integer, nullable=False, default=0)
+    successful_scrapes = db.Column(db.Integer, nullable=False, default=0)
+    failed_scrapes = db.Column(db.Integer, nullable=False, default=0)
+    total_offers_scraped = db.Column(db.Integer, nullable=False, default=0)
+    
+    # Errors stored as JSON array: [{"user_id": 1, "email": "...", "error": "..."}]
+    errors = db.Column(db.JSON, nullable=True, default=[])
+    
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+
+class MailLog(db.Model):
+    """Log for batch email sending operations"""
+    __tablename__ = 'mail_logs'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    
+    # Timing
+    executed_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    # Subscribed users stats
+    subscribed_total = db.Column(db.Integer, nullable=False, default=0)
+    subscribed_sent = db.Column(db.Integer, nullable=False, default=0)
+    subscribed_failed = db.Column(db.Integer, nullable=False, default=0)
+    subscribed_skipped = db.Column(db.Integer, nullable=False, default=0)
+    subscribed_errors = db.Column(db.JSON, nullable=True, default=[])  # [{"email": "...", "error": "..."}]
+    
+    # Expired subscription users stats
+    expired_total = db.Column(db.Integer, nullable=False, default=0)
+    expired_sent = db.Column(db.Integer, nullable=False, default=0)
+    expired_failed = db.Column(db.Integer, nullable=False, default=0)
+    expired_errors = db.Column(db.JSON, nullable=True, default=[])
+    
+    # Never subscribed users stats
+    never_subscribed_total = db.Column(db.Integer, nullable=False, default=0)
+    never_subscribed_sent = db.Column(db.Integer, nullable=False, default=0)
+    never_subscribed_failed = db.Column(db.Integer, nullable=False, default=0)
+    never_subscribed_errors = db.Column(db.JSON, nullable=True, default=[])
+    
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+

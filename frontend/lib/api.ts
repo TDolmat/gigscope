@@ -255,6 +255,46 @@ export const adminMailApi = {
   },
 };
 
+// Admin Logs API
+export const adminLogsApi = {
+  // Get all logs (scrape and mail together)
+  getLogs: async (
+    limit?: number,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    const url = limit 
+      ? `${API_ENDPOINTS.ADMIN.LOGS}?limit=${limit}` 
+      : API_ENDPOINTS.ADMIN.LOGS;
+    return apiFetch(url, {}, authenticatedFetch);
+  },
+
+  // Get scrape logs with pagination
+  getScrapeLogs: async (
+    page?: number,
+    perPage?: number,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    const params = new URLSearchParams();
+    if (page) params.append('page', String(page));
+    if (perPage) params.append('per_page', String(perPage));
+    const url = `${API_ENDPOINTS.ADMIN.LOGS_SCRAPE}${params.toString() ? '?' + params.toString() : ''}`;
+    return apiFetch(url, {}, authenticatedFetch);
+  },
+
+  // Get mail logs with pagination
+  getMailLogs: async (
+    page?: number,
+    perPage?: number,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    const params = new URLSearchParams();
+    if (page) params.append('page', String(page));
+    if (perPage) params.append('per_page', String(perPage));
+    const url = `${API_ENDPOINTS.ADMIN.LOGS_MAIL}${params.toString() ? '?' + params.toString() : ''}`;
+    return apiFetch(url, {}, authenticatedFetch);
+  },
+};
+
 // Admin Manual Runs API
 export const adminManualRunsApi = {
   // Scrape offers for all users

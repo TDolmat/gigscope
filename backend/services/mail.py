@@ -2,7 +2,7 @@ import resend
 import time
 from datetime import datetime
 from typing import List, Optional, Tuple
-from core.models import db, AppSettings, UserOfferEmail, Offer, OfferBundle
+from core.models import db, AppSettings, UserOfferEmail, Offer, OfferBundle, MailLog
 from core.config import CONFIG
 from services.mail_templates import (
     generate_offers_email,
@@ -425,6 +425,47 @@ def send_user_offer_emails(base_url: str = CONFIG.BASE_URL, circle_url: str = CO
         results["never_subscribed"]["failed"] + 
         results["expired"]["failed"]
     )
+    
+    # ==================== 6. Save MailLog ====================
+    # Collect errors for each category
+    subscribed_errors = [
+        {'email': d['email'], 'error': d.get('error', '')}
+        for d in results["subscribed"]["details"] if d.get('status') == 'failed'
+    ]
+    expired_errors = [
+        {'email': d['email'], 'error': d.get('error', '')}
+        for d in results["expired"]["details"] if d.get('status') == 'failed'
+    ]
+    never_subscribed_errors = [
+        {'email': d['email'], 'error': d.get('error', '')}
+        for d in results["never_subscribed"]["details"] if d.get('status') == 'failed'
+    ]
+    
+    try:
+        mail_log = MailLog(
+            executed_at=datetime.utcnow(),
+            # Subscribed users
+            subscribed_total=len(subscribed_users),
+            subscribed_sent=results["subscribed"]["sent"],
+            subscribed_failed=results["subscribed"]["failed"],
+            subscribed_skipped=results["subscribed"]["skipped"],
+            subscribed_errors=subscribed_errors,
+            # Expired users
+            expired_total=len(expired_users),
+            expired_sent=results["expired"]["sent"],
+            expired_failed=results["expired"]["failed"],
+            expired_errors=expired_errors,
+            # Never subscribed users
+            never_subscribed_total=len(never_subscribed_users),
+            never_subscribed_sent=results["never_subscribed"]["sent"],
+            never_subscribed_failed=results["never_subscribed"]["failed"],
+            never_subscribed_errors=never_subscribed_errors,
+        )
+        db.session.add(mail_log)
+        db.session.commit()
+    except Exception as e:
+        # Log saving failed, but don't fail the whole operation
+        print(f"Warning: Failed to save MailLog: {str(e)}")
     
     return {
         "success": total_failed == 0,

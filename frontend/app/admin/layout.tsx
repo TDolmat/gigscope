@@ -5,7 +5,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, ArrowLeft, Menu, X, LayoutDashboard, Settings, Users, Search, Mail, Home, Play } from 'lucide-react';
+import { LogOut, ArrowLeft, Menu, X, LayoutDashboard, Settings, Users, Search, Mail, Home, Play, FileText } from 'lucide-react';
 
 export default function AdminLayout({
   children,
@@ -38,6 +38,7 @@ export default function AdminLayout({
     { path: '/admin/scrape', label: 'Scrape', icon: Search },
     { path: '/admin/mail', label: 'Mail', icon: Mail },
     { path: '/admin/manual-runs', label: 'Ręczne uruchamianie', icon: Play },
+    { path: '/admin/logs', label: 'Logi', icon: FileText },
   ];
 
   return (

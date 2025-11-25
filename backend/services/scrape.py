@@ -1,5 +1,5 @@
 from datetime import datetime
-from core.models import db, User, UserEmailPreference, OfferBundle, Offer, AppSettings
+from core.models import db, User, UserEmailPreference, OfferBundle, Offer, AppSettings, ScrapeLog
 from core.config import CONFIG
 from scrapers.upwork_scraper import get_search_url, apify_scrape_offers
 from utils.encryption import decrypt_api_key
@@ -181,7 +181,26 @@ def scrape_offers_for_all_users(print_logs: bool = False) -> dict:
                 })
         
         total_duration_millis = sum(result['duration_millis'] for result in results)
-        average_duration_millis = total_duration_millis / len(active_users)
+        average_duration_millis = total_duration_millis / len(active_users) if active_users else 0
+
+        # Collect errors for the log
+        errors = [
+            {'user_id': r['user_id'], 'email': r['user_email'], 'error': r.get('error', '')}
+            for r in results if not r['success']
+        ]
+
+        # Save ScrapeLog
+        scrape_log = ScrapeLog(
+            executed_at=datetime.utcnow(),
+            duration_millis=total_duration_millis,
+            total_users=len(active_users),
+            successful_scrapes=successful,
+            failed_scrapes=failed,
+            total_offers_scraped=total_scraped_offers,
+            errors=errors
+        )
+        db.session.add(scrape_log)
+        db.session.commit()
 
         return {
             'total_users': len(active_users),

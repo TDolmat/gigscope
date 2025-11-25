@@ -44,6 +44,10 @@ export const API_ENDPOINTS = {
     MANUAL_SCRAPE_ALL: `${BASE_URL}/admin/manual-runs/scrape-all`,
     MANUAL_SEND_EMAILS: `${BASE_URL}/admin/manual-runs/send-emails`,
     MANUAL_SCRAPE_AND_SEND: `${BASE_URL}/admin/manual-runs/scrape-and-send`,
+    // Logs
+    LOGS: `${BASE_URL}/admin/logs`,
+    LOGS_SCRAPE: `${BASE_URL}/admin/logs/scrape`,
+    LOGS_MAIL: `${BASE_URL}/admin/logs/mail`,
   },
   
   // Public endpoints

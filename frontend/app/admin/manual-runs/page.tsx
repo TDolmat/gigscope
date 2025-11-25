@@ -215,7 +215,7 @@ export default function ManualRunsPage() {
               variant="secondary"
               className="w-full"
             >
-              <Search className="w-4 h-4 mr-2" />
+              {loading !== 'scrape' && <Search className="w-4 h-4 mr-2" />}
               Scrapuj oferty
             </Button>
           </AdminSection>
@@ -241,7 +241,7 @@ export default function ManualRunsPage() {
               variant="secondary"
               className="w-full"
             >
-              <Mail className="w-4 h-4 mr-2" />
+              {loading !== 'mail' && <Mail className="w-4 h-4 mr-2" />}
               Wyślij emaile
             </Button>
           </AdminSection>
@@ -267,7 +267,7 @@ export default function ManualRunsPage() {
               variant="primary"
               className="w-full"
             >
-              <Zap className="w-4 h-4 mr-2" />
+              {loading !== 'both' && <Zap className="w-4 h-4 mr-2" />}
               Scraping + Emaile
             </Button>
           </AdminSection>

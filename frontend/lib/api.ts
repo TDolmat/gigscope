@@ -255,6 +255,39 @@ export const adminMailApi = {
   },
 };
 
+// Admin Manual Runs API
+export const adminManualRunsApi = {
+  // Scrape offers for all users
+  scrapeAll: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MANUAL_SCRAPE_ALL, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }, authenticatedFetch);
+  },
+
+  // Send emails to all users
+  sendEmails: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MANUAL_SEND_EMAILS, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }, authenticatedFetch);
+  },
+
+  // Scrape and send emails to all users
+  scrapeAndSend: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MANUAL_SCRAPE_AND_SEND, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }, authenticatedFetch);
+  },
+};
+
 // User Subscription API
 export const userApi = {
   // Subscribe to newsletter with keyword preferences

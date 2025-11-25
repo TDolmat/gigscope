@@ -4,5 +4,5 @@ from flask import Blueprint
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 # Import sub-modules to register their routes
-from . import users, settings, dashboard, mail
+from . import users, settings, dashboard, mail, manual_runs
 

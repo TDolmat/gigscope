@@ -40,6 +40,10 @@ export const API_ENDPOINTS = {
     MAIL_SEND_OFFERS: `${BASE_URL}/admin/mail/send-offers`,
     MAIL_PREVIEW: `${BASE_URL}/admin/mail/preview`,
     MAIL_SEND_TEMPLATE: `${BASE_URL}/admin/mail/send-template`,
+    // Manual runs
+    MANUAL_SCRAPE_ALL: `${BASE_URL}/admin/manual-runs/scrape-all`,
+    MANUAL_SEND_EMAILS: `${BASE_URL}/admin/manual-runs/send-emails`,
+    MANUAL_SCRAPE_AND_SEND: `${BASE_URL}/admin/manual-runs/scrape-and-send`,
   },
   
   // Public endpoints

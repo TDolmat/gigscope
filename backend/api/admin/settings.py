@@ -37,6 +37,7 @@ def get_settings():
             'email_max_offers': settings.email_max_offers,
             'mail_api_key': settings.mail_api_key,
             'mail_sender_email': settings.mail_sender_email,
+            'upwork_max_offers': settings.upwork_max_offers or 50,
             'updated_at': settings.updated_at.isoformat() if settings.updated_at else None
         }), HTTPStatus.OK
         
@@ -83,6 +84,9 @@ def update_settings():
         if 'mail_sender_email' in data:
             settings.mail_sender_email = data['mail_sender_email']
         
+        if 'upwork_max_offers' in data:
+            settings.upwork_max_offers = int(data['upwork_max_offers'])
+        
         settings.updated_at = datetime.utcnow()
         db.session.commit()
         
@@ -96,6 +100,7 @@ def update_settings():
                 'email_max_offers': settings.email_max_offers,
                 'mail_api_key': settings.mail_api_key,
                 'mail_sender_email': settings.mail_sender_email,
+                'upwork_max_offers': settings.upwork_max_offers,
                 'updated_at': settings.updated_at.isoformat()
             }
         }), HTTPStatus.OK

@@ -8,10 +8,72 @@ import { adminSettingsApi } from '@/lib/api';
 import { useAuth } from '@/app/context/AuthContext';
 import { toast } from 'sonner';
 
+// Convert UTC time (HH:MM) to Polish time (Europe/Warsaw)
+function utcToPolishTime(utcTime: string): string {
+  if (!utcTime) return '09:00';
+  
+  const [hours, minutes] = utcTime.split(':').map(Number);
+  
+  // Create a date object for today with the UTC time
+  const now = new Date();
+  const utcDate = new Date(Date.UTC(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    hours,
+    minutes
+  ));
+  
+  // Format to Polish timezone
+  const polishTime = utcDate.toLocaleTimeString('pl-PL', {
+    timeZone: 'Europe/Warsaw',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+  
+  return polishTime;
+}
+
+// Convert Polish time (HH:MM) to UTC time
+function polishTimeToUtc(polishTime: string): string {
+  if (!polishTime) return '08:00';
+  
+  const [hours, minutes] = polishTime.split(':').map(Number);
+  
+  // Create a date in Polish timezone
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${polishTime}:00`;
+  
+  // Parse as Polish time and get UTC
+  const polishDate = new Date(dateStr);
+  
+  // Get the offset for Europe/Warsaw
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Warsaw',
+    timeZoneName: 'shortOffset'
+  });
+  const parts = formatter.formatToParts(polishDate);
+  const offsetPart = parts.find(p => p.type === 'timeZoneName');
+  const offsetStr = offsetPart?.value || '+01';
+  
+  // Parse offset (e.g., "GMT+1" or "GMT+2")
+  const offsetMatch = offsetStr.match(/([+-])(\d+)/);
+  const offsetHours = offsetMatch ? parseInt(offsetMatch[2]) * (offsetMatch[1] === '+' ? 1 : -1) : 1;
+  
+  // Calculate UTC hours
+  let utcHours = hours - offsetHours;
+  if (utcHours < 0) utcHours += 24;
+  if (utcHours >= 24) utcHours -= 24;
+  
+  return `${String(utcHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
 export default function SettingsPage() {
   const { authenticatedFetch } = useAuth();
   const [loading, setLoading] = useState(true);
   const [frequency, setFrequency] = useState('daily');
+  const [sendTime, setSendTime] = useState('09:00'); // Polish time (displayed)
   const [maxOffers, setMaxOffers] = useState('15');
   const [platforms, setPlatforms] = useState({
     upwork: false,
@@ -42,6 +104,11 @@ export default function SettingsPage() {
       
       setFrequency(frequencyMap[data.email_frequency] || 'codziennie');
       setMaxOffers(String(data.email_max_offers || 15));
+      
+      // Convert UTC time from backend to Polish time for display
+      if (data.email_daytime) {
+        setSendTime(utcToPolishTime(data.email_daytime));
+      }
       
       // Convert enabled_platforms array to object
       const enabledPlatforms = data.enabled_platforms || [];
@@ -78,9 +145,13 @@ export default function SettingsPage() {
         .filter(([_, enabled]) => enabled)
         .map(([platform]) => platform);
       
+      // Convert Polish time to UTC for backend
+      const utcTime = polishTimeToUtc(sendTime);
+      
       await adminSettingsApi.updateSettings({
         enabled_platforms: enabledPlatforms,
         email_frequency: frequencyMap[frequency],
+        email_daytime: utcTime,
         email_max_offers: parseInt(maxOffers),
       }, authenticatedFetch);
       
@@ -109,19 +180,36 @@ export default function SettingsPage() {
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Ustawienia ogólne</h2>
       
       <div className="space-y-6">
-        {/* Częstotliwość */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <label className="block text-sm font-semibold text-gray-900 mb-3">Częstotliwość wysyłania wiadomości</label>
-          <select 
-            value={frequency}
-            onChange={(e) => setFrequency(e.target.value)}
-            className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="codziennie">Codziennie</option>
-            <option value="co2dni">Co 2 dni</option>
-            <option value="cotydzien">Co tydzień</option>
-            <option value="wylacz">Wyłącz</option>
-          </select>
+        {/* Czas wysyłki */}
+        <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900">Czas wysyłki</h3>
+          
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Częstotliwość</label>
+            <select 
+              value={frequency}
+              onChange={(e) => setFrequency(e.target.value)}
+              className="w-full pl-4 pr-10 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="codziennie">Codziennie</option>
+              <option value="co2dni">Co 2 dni</option>
+              <option value="cotydzien">Co tydzień</option>
+              <option value="wylacz">Wyłącz</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Godzina wysyłki</label>
+            <input
+              type="time"
+              value={sendTime}
+              onChange={(e) => setSendTime(e.target.value)}
+              className="w-full pl-4 pr-10 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Czas w strefie czasowej Europa/Warszawa (polski czas lokalny)
+            </p>
+          </div>
         </div>
 
         {/* Platformy */}

@@ -98,6 +98,7 @@ export const adminSettingsApi = {
       email_max_offers?: number;
       mail_api_key?: string;
       mail_sender_email?: string;
+      upwork_max_offers?: number;
     },
     authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
   ): Promise<any> => {

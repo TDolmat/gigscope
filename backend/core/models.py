@@ -46,6 +46,7 @@ class AppSettings(db.Model):
     
     # Scraper settings (encrypted)
     apify_api_key = db.Column(db.String, nullable=True)  # Stored encrypted
+    upwork_max_offers = db.Column(db.Integer, default=50)  # Max offers to scrape from Upwork
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

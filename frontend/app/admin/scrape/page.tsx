@@ -5,22 +5,24 @@ import { useAuth } from '@/app/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { adminScrapeApi, adminSettingsApi } from '@/lib/api';
+import { toast } from 'sonner';
 
 type Tab = 'all' | 'upwork' | 'fiverr';
 
 export default function ScrapePage() {
   const { authenticatedFetch } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('upwork');
+  const [loading, setLoading] = useState(true);
   
   // Upwork configuration
   const [apifyApiKey, setApifyApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
-  const [perPage, setPerPage] = useState(10); // Default to 10 for tests
+  const [upworkMaxOffers, setUpworkMaxOffers] = useState(50);
+  const [perPage, setPerPage] = useState(10); // For testing only
   const [mustContain, setMustContain] = useState('');
   const [mayContain, setMayContain] = useState('');
   const [mustNotContain, setMustNotContain] = useState('');
   const [savingConfig, setSavingConfig] = useState(false);
-  const [configMessage, setConfigMessage] = useState('');
   
   // Testing state
   const [testing, setTesting] = useState(false);
@@ -31,21 +33,32 @@ export default function ScrapePage() {
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState<string>('');
 
-  // Load Apify API key on mount
+  // Load settings on mount
   useEffect(() => {
-    const loadApifyKey = async () => {
+    const loadSettings = async () => {
       try {
-        const data = await adminSettingsApi.getApifyKey(authenticatedFetch);
-        if (data.apify_api_key) {
-          setApifyApiKey(data.apify_api_key);
+        setLoading(true);
+        const [apifyData, settingsData] = await Promise.all([
+          adminSettingsApi.getApifyKey(authenticatedFetch),
+          adminSettingsApi.getSettings(authenticatedFetch),
+        ]);
+        
+        if (apifyData.apify_api_key) {
+          setApifyApiKey(apifyData.apify_api_key);
+        }
+        if (settingsData.upwork_max_offers) {
+          setUpworkMaxOffers(settingsData.upwork_max_offers);
         }
       } catch (err) {
-        console.error('Error loading Apify key:', err);
+        console.error('Error loading settings:', err);
+        toast.error('Nie udało się pobrać ustawień');
+      } finally {
+        setLoading(false);
       }
     };
     
     if (activeTab === 'upwork') {
-      loadApifyKey();
+      loadSettings();
     }
   }, [activeTab, authenticatedFetch]);
 
@@ -64,14 +77,16 @@ export default function ScrapePage() {
 
   const handleSaveConfig = async () => {
     setSavingConfig(true);
-    setConfigMessage('');
     
     try {
-      await adminSettingsApi.updateApifyKey(apifyApiKey, authenticatedFetch);
-      setConfigMessage('Klucz API zapisany pomyślnie!');
-      setTimeout(() => setConfigMessage(''), 3000);
+      await Promise.all([
+        adminSettingsApi.updateApifyKey(apifyApiKey, authenticatedFetch),
+        adminSettingsApi.updateSettings({ upwork_max_offers: upworkMaxOffers }, authenticatedFetch),
+      ]);
+      toast.success('Konfiguracja została zapisana!');
     } catch (err: any) {
-      setConfigMessage('Błąd: ' + (err.message || 'Nie udało się zapisać'));
+      console.error('Error saving config:', err);
+      toast.error('Nie udało się zapisać konfiguracji');
     } finally {
       setSavingConfig(false);
     }
@@ -80,10 +95,9 @@ export default function ScrapePage() {
   const handleCopyApiKey = async () => {
     try {
       await navigator.clipboard.writeText(apifyApiKey);
-      setConfigMessage('Klucz skopiowany do schowka!');
-      setTimeout(() => setConfigMessage(''), 2000);
+      toast.success('Klucz skopiowany do schowka!');
     } catch (err) {
-      setConfigMessage('Błąd kopiowania');
+      toast.error('Błąd kopiowania');
     }
   };
 
@@ -155,13 +169,20 @@ export default function ScrapePage() {
       </div>
 
       {/* Upwork Tab Content */}
-      {activeTab === 'upwork' && (
+      {activeTab === 'upwork' && loading && (
+        <div className="flex items-center justify-center h-64">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+      
+      {activeTab === 'upwork' && !loading && (
         <div className="space-y-6">
           {/* Configuration Section */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Konfiguracja</h3>
+          <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Konfiguracja</h3>
+            
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
                 Klucz API Apify
               </label>
               <div className="relative">
@@ -210,51 +231,54 @@ export default function ScrapePage() {
                 Klucz API jest bezpiecznie szyfrowany w bazie danych
               </p>
             </div>
-            <div className="mt-4 flex items-center gap-3">
-              <Button 
-                variant="primary" 
-                size="md"
-                onClick={handleSaveConfig}
-                loading={savingConfig}
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Maksymalna liczba ofert
+              </label>
+              <select
+                value={upworkMaxOffers}
+                onChange={(e) => setUpworkMaxOffers(Number(e.target.value))}
+                className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                Zapisz konfigurację
-              </Button>
-              {configMessage && (
-                <span className={`text-sm ${configMessage.includes('Błąd') ? 'text-red-600' : 'text-green-600'}`}>
-                  {configMessage}
-                </span>
-              )}
+                <option value={10}>10 ofert</option>
+                <option value={20}>20 ofert</option>
+                <option value={50}>50 ofert</option>
+              </select>
+              <p className="mt-1 text-xs text-gray-500">
+                Maksymalna liczba ofert pobieranych z Upwork podczas scrapowania
+              </p>
             </div>
+
+            <Button onClick={handleSaveConfig} loading={savingConfig} variant="primary" size="lg">
+              Zapisz konfigurację
+            </Button>
           </div>
 
-          {/* Per Page Section */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Liczba ofert</h3>
+          {/* Test Section */}
+          <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Test scrapera</h3>
+            
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Liczba ofert na stronę
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Liczba ofert do testu
               </label>
               <select
                 value={perPage}
                 onChange={(e) => setPerPage(Number(e.target.value))}
                 className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value={10}>10 ofert (domyślny test)</option>
+                <option value={10}>10 ofert (szybki test)</option>
                 <option value={20}>20 ofert</option>
-                <option value={50}>50 ofert (produkcyjny)</option>
+                <option value={50}>50 ofert</option>
               </select>
               <p className="mt-1 text-xs text-gray-500">
-                Domyślnie 10 dla testów, 50 dla scrapowania produkcyjnego
+                Tylko do testów - produkcyjne scrapowanie używa ustawień z konfiguracji
               </p>
             </div>
-          </div>
 
-          {/* Keywords Section */}
-          <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Słowa kluczowe</h3>
-            
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
                 Musi zawierać
                 <span className="text-xs text-gray-500 ml-2 font-normal">
                   (oddzielone przecinkami)
@@ -268,7 +292,7 @@ export default function ScrapePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
                 Może zawierać
                 <span className="text-xs text-gray-500 ml-2 font-normal">
                   (oddzielone przecinkami)
@@ -282,7 +306,7 @@ export default function ScrapePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
                 Nie może zawierać
                 <span className="text-xs text-gray-500 ml-2 font-normal">
                   (oddzielone przecinkami)
@@ -304,7 +328,7 @@ export default function ScrapePage() {
                 size="lg"
                 className="w-full sm:w-auto"
               >
-                {testing ? 'Testowanie...' : 'Testuj'}
+                {testing ? 'Testowanie...' : 'Testuj scrapera'}
               </Button>
             </div>
 

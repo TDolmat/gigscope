@@ -5,6 +5,7 @@ from core.models import (
     db, User, UserSubscription, UserEmailPreference, 
     UserOfferEmail, Offer, OfferBundle
 )
+from core.config import CONFIG
 
 
 def is_user_subscribed(user_id: int) -> bool:
@@ -35,7 +36,7 @@ def is_user_subscribed(user_id: int) -> bool:
     return True
 
 
-def get_subscribed_users_with_data(max_offers: int = 15) -> List[dict]:
+def get_subscribed_users_with_data(max_offers: int = CONFIG.DEFAULT_MAX_MAIL_OFFERS) -> List[dict]:
     """
     Get all users with active subscription and email preferences,
     along with their latest unsent offers.

@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from core.models import AppSettings, db
+from core.config import CONFIG
 from http import HTTPStatus
 from flask_jwt_extended import jwt_required
 from datetime import datetime
@@ -23,7 +24,7 @@ def get_settings():
                 enabled_platforms=[],
                 email_frequency=AppSettings.EmailFrequency.DAILY.value,
                 email_daytime='09:00',
-                email_max_offers=15
+                email_max_offers=CONFIG.DEFAULT_MAX_MAIL_OFFERS
             )
             db.session.add(settings)
             db.session.commit()

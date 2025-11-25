@@ -5,6 +5,8 @@ from datetime import datetime
 from enum import Enum
 import uuid
 
+from core.config import CONFIG
+
 db = SQLAlchemy()
 
 
@@ -36,7 +38,7 @@ class AppSettings(db.Model):
 
     email_frequency = db.Column(db.String, default=EmailFrequency.DAILY.value)
     email_daytime = db.Column(db.String, default='09:00')
-    email_max_offers = db.Column(db.Integer, default=15)
+    email_max_offers = db.Column(db.Integer, default=CONFIG.DEFAULT_MAX_MAIL_OFFERS)
     
     # Mail provider settings
     mail_api_key = db.Column(db.String, nullable=True)

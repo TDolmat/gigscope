@@ -1,5 +1,6 @@
 from datetime import datetime
 from core.models import db, User, UserEmailPreference, OfferBundle, Offer, AppSettings
+from core.config import CONFIG
 from scrapers.upwork_scraper import get_search_url, apify_scrape_offers
 from utils.encryption import decrypt_api_key
 from helpers.user_helper import is_user_subscribed, get_active_subscribed_users
@@ -87,7 +88,7 @@ def scrape_offers_for_user(user_id: int, print_logs: bool = False) -> dict:
         if not apify_api_key:
             raise Exception('Apify API key not configured')
         
-        max_offers = app_settings.email_max_offers or 15
+        max_offers = app_settings.email_max_offers or CONFIG.DEFAULT_MAX_MAIL_OFFERS
 
         must_contain = preferences.must_include_keywords or []
         may_contain = preferences.can_include_keywords or []
@@ -127,7 +128,7 @@ def scrape_offers_for_all_users(print_logs: bool = False) -> dict:
         app_settings = AppSettings.query.first()
         apify_api_key = decrypt_api_key(app_settings.apify_api_key)
 
-        max_offers = app_settings.email_max_offers or 15
+        max_offers = app_settings.email_max_offers or CONFIG.DEFAULT_MAX_MAIL_OFFERS
 
         if not active_users:
             raise Exception('No active subscribed users found')

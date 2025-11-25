@@ -216,7 +216,7 @@ def send_user_offer_emails(base_url: str = CONFIG.BASE_URL, circle_url: str = CO
         }
     
     app_settings = AppSettings.query.first()
-    max_offers = app_settings.email_max_offers if app_settings else 15
+    max_offers = app_settings.email_max_offers if app_settings else CONFIG.DEFAULT_MAX_MAIL_OFFERS
     
     # Results tracking
     results = {

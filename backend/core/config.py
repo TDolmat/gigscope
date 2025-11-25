@@ -25,6 +25,9 @@ class Config(NamedTuple):
     # CORS
     CORS_ORIGINS: str  # comma-separated string
 
+    # Defaults
+    DEFAULT_MAX_MAIL_OFFERS: int
+
 
 def _get_config(environment: str) -> Config:
     if environment == 'development':
@@ -46,7 +49,8 @@ def _get_config(environment: str) -> Config:
             JWT_REFRESH_TOKEN_EXPIRES=604800,  # 7 days
             
             # CORS
-            CORS_ORIGINS='http://localhost:3000,http://localhost:3001'
+            CORS_ORIGINS='http://localhost:3000,http://localhost:3001',
+            DEFAULT_MAX_MAIL_OFFERS=10
         )
     elif environment == 'testing':
         return Config(
@@ -67,7 +71,8 @@ def _get_config(environment: str) -> Config:
             JWT_REFRESH_TOKEN_EXPIRES=604800,  # 7 days
             
             # CORS
-            CORS_ORIGINS='http://localhost:3000,http://localhost:3001'
+            CORS_ORIGINS='http://localhost:3000,http://localhost:3001',
+            DEFAULT_MAX_MAIL_OFFERS=10
         )
     elif environment == 'production':
         return Config(
@@ -88,7 +93,8 @@ def _get_config(environment: str) -> Config:
             JWT_REFRESH_TOKEN_EXPIRES=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', '604800')),  # Default 7 days
             
             # CORS
-            CORS_ORIGINS=os.getenv('CORS_ORIGINS', 'http://localhost:3000')
+            CORS_ORIGINS=os.getenv('CORS_ORIGINS', 'http://localhost:3000'),
+            DEFAULT_MAX_MAIL_OFFERS=int(os.getenv('DEFAULT_MAX_MAIL_OFFERS', '10'))
         )
 
 env = os.getenv('FLASK_ENV') or 'development'

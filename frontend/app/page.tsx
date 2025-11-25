@@ -42,11 +42,6 @@ export default function Home() {
       return;
     }
 
-    if (!mustContain.trim()) {
-      setError('Podaj przynajmniej jedno słowo kluczowe w sekcji "Musi zawierać"');
-      return;
-    }
-
     setLoading(true);
 
     try {

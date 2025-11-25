@@ -78,9 +78,6 @@ def update_user_preferences(user_id):
     can_include = data.get('can_include_keywords', [])
     cannot_include = data.get('cannot_include_keywords', [])
     
-    if not must_include:
-        return jsonify({'error': 'must_include_keywords jest wymagane'}), HTTPStatus.BAD_REQUEST
-    
     try:
         user = User.query.get(user_id)
         if not user:

@@ -87,11 +87,6 @@ export default function UsersPage() {
       const canInclude = editCanInclude.split(',').map(k => k.trim()).filter(k => k);
       const cannotInclude = editCannotInclude.split(',').map(k => k.trim()).filter(k => k);
 
-      if (mustInclude.length === 0) {
-        toast.error('Podaj przynajmniej jedno słowo w "Musi zawierać"');
-        return;
-      }
-
       await adminUsersApi.updatePreferences(userId, mustInclude, canInclude, cannotInclude, authenticatedFetch);
       toast.success('Preferencje zostały zaktualizowane');
       setEditingUser(null);

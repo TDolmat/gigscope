@@ -56,11 +56,6 @@ export default function EmailPreferencesPage() {
     e.preventDefault();
     setError('');
 
-    if (!mustContain.trim()) {
-      setError('Podaj przynajmniej jedno słowo kluczowe w sekcji "Musi zawierać"');
-      return;
-    }
-
     setLoading(true);
 
     try {

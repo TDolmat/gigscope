@@ -88,10 +88,10 @@ export default function Home() {
       <Header variant="home" onHowItWorksClick={() => setShowHowItWorks(true)} />
 
       {/* Main Content */}
-      <main className="relative max-w-6xl mx-auto px-6 py-16 md:py-28">
+      <main className="relative max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16 md:py-28">
         {/* Hero Section */}
-        <div className="text-center mb-24 animate-fadeInUp">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50/80 text-blue-700 rounded-full text-sm font-semibold mb-8 border border-blue-100/50">
+        <div className="text-center mb-12 sm:mb-24 animate-fadeInUp">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-50/80 text-blue-700 rounded-full text-xs sm:text-sm font-semibold mb-6 sm:mb-8 border border-blue-100/50">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
@@ -99,7 +99,7 @@ export default function Home() {
             Codzienne powiadomienia
           </div>
           
-          <h2 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-7 leading-tight tracking-tight">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-extrabold text-slate-900 mb-4 sm:mb-7 leading-tight tracking-tight">
             Najlepsze zlecenia
             <br />
             <span className="text-gradient-blue">
@@ -107,7 +107,7 @@ export default function Home() {
             </span>
           </h2>
           
-          <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-medium">
+          <p className="text-base sm:text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-medium px-2">
             Codziennie otrzymuj <span className="text-blue-600 font-bold">najlepsze oferty</span> dopasowane 
             do Twoich potrzeb i preferencji
           </p>
@@ -115,13 +115,13 @@ export default function Home() {
 
         {/* Subscription Form */}
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl shadow-blue-500/10 border border-blue-100/50 p-8 md:p-14 animate-scaleIn">
-            <form onSubmit={handleSubmit} className="space-y-12">
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl shadow-blue-500/10 border border-blue-100/50 p-5 sm:p-8 md:p-14 animate-scaleIn">
+            <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-12">
               {/* Email Input */}
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Mail className="w-5 h-5 text-blue-600" />
-                  <label className="block text-base font-bold text-slate-900">
+                <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  <label className="block text-sm sm:text-base font-bold text-slate-900">
                     Twój adres email
                   </label>
                   <Tooltip
@@ -154,11 +154,11 @@ export default function Home() {
               </div>
 
               {/* Keywords Section */}
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Check className="w-5 h-5 text-blue-600" />
-                    <label className="block text-base font-bold text-slate-900">
+                  <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                    <Check className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                    <label className="block text-sm sm:text-base font-bold text-slate-900">
                       Musi zawierać
                     </label>
                     <Tooltip 
@@ -186,18 +186,18 @@ export default function Home() {
                     onChange={(e) => setMustContain(e.target.value)}
                     disabled={loading}
                   />
-                  <p className="mt-2 text-sm text-gray-600">
+                  <p className="mt-2 text-xs sm:text-sm text-gray-600">
                     <span className="font-semibold">Każde</span> słowo musi być w zleceniu
                   </p>
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Plus className="w-5 h-5 text-blue-600" />
-                    <label className="block text-base font-bold text-slate-900">
+                  <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3">
+                    <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                    <label className="block text-sm sm:text-base font-bold text-slate-900">
                       Może zawierać
-                      <span className="ml-2 text-xs font-normal text-gray-500">(główne słowa kluczowe)</span>
                     </label>
+                    <span className="text-xs font-normal text-gray-500">(główne słowa kluczowe)</span>
                     <Tooltip 
                       content={
                         <div className="text-left">
@@ -223,15 +223,15 @@ export default function Home() {
                     onChange={(e) => setMayContain(e.target.value)}
                     disabled={loading}
                   />
-                  <p className="mt-2 text-sm text-gray-600">
+                  <p className="mt-2 text-xs sm:text-sm text-gray-600">
                     Wystarczy <span className="font-semibold">jedno</span> z tych słów (lub więcej)
                   </p>
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <X className="w-5 h-5 text-blue-600" />
-                    <label className="block text-base font-bold text-slate-900">
+                  <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                    <X className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                    <label className="block text-sm sm:text-base font-bold text-slate-900">
                       Nie może zawierać
                     </label>
                     <Tooltip 
@@ -259,7 +259,7 @@ export default function Home() {
                     onChange={(e) => setMustNotContain(e.target.value)}
                     disabled={loading}
                   />
-                  <p className="mt-2 text-sm text-gray-600">
+                  <p className="mt-2 text-xs sm:text-sm text-gray-600">
                     <span className="font-semibold">Żadne</span> z tych słów nie może wystąpić
                   </p>
                 </div>
@@ -267,29 +267,29 @@ export default function Home() {
 
               {/* Error Message */}
               {error && (
-                <div className="p-5 bg-red-50 border border-red-200 rounded-xl animate-fadeInUp">
+                <div className="p-4 sm:p-5 bg-red-50 border border-red-200 rounded-xl animate-fadeInUp">
                   <div className="flex items-start gap-3">
-                    <span className="text-xl flex-shrink-0">⚠️</span>
-                    <p className="text-sm text-red-900 font-semibold flex-1 pt-0.5">{error}</p>
+                    <span className="text-lg sm:text-xl flex-shrink-0">⚠️</span>
+                    <p className="text-xs sm:text-sm text-red-900 font-semibold flex-1 pt-0.5">{error}</p>
                   </div>
                 </div>
               )}
 
               {/* Submit Button */}
-              <div className="pt-6">
+              <div className="pt-2 sm:pt-6">
                 <Button
                   type="submit"
                   variant="primary"
                   size="lg"
                   loading={loading}
                   disabled={loading}
-                  className="w-full shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 text-lg font-bold flex items-center justify-center gap-2"
+                  className="w-full shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 text-sm sm:text-lg font-bold flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     'Zapisywanie...'
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5" />
+                      <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                       Rozpocznij otrzymywanie zleceń
                     </>
                   )}
@@ -299,9 +299,9 @@ export default function Home() {
           </div>
 
           {/* Info Box */}
-          <div className="mt-14 text-center animate-fadeIn">
-            <div className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-200">
-              <p className="text-sm text-slate-700 font-medium leading-relaxed">
+          <div className="mt-8 sm:mt-14 text-center animate-fadeIn">
+            <div className="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl sm:rounded-2xl border border-blue-200">
+              <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
                 🌟 <strong>Dla członków be free club:</strong> Otrzymuj codziennie najlepsze oferty
                 spersonalizowanych zleceń o ustalonej porze. Możliwość zmiany preferencji 
                 lub wypisania się w każdej chwili.
@@ -314,58 +314,58 @@ export default function Home() {
       {/* How It Works Modal */}
       {showHowItWorks && (
         <div 
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn"
           onClick={() => setShowHowItWorks(false)}
         >
           <div 
-            className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
+            className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-8 md:p-12">
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-3xl font-extrabold text-slate-900">Jak to działa?</h3>
+            <div className="p-5 sm:p-8 md:p-12">
+              <div className="flex items-center justify-between mb-6 sm:mb-8">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Jak to działa?</h3>
                 <button
                   onClick={() => setShowHowItWorks(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                  className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer p-1"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
               </div>
 
-              <div className="space-y-8">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+              <div className="space-y-6 sm:space-y-8">
+                <div className="flex gap-3 sm:gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg text-sm sm:text-base">
                     1
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-2">Ustaw swoje preferencje</h4>
-                    <p className="text-gray-600">
+                    <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-1.5 sm:mb-2">Ustaw swoje preferencje</h4>
+                    <p className="text-sm sm:text-base text-gray-600">
                       Wpisz email i określ słowa kluczowe, które <strong>muszą</strong> być w zleceniu, 
                       które <strong>mogą</strong> być (preferowane), oraz które <strong>nie mogą</strong> się pojawić.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                <div className="flex gap-3 sm:gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg text-sm sm:text-base">
                     2
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-2">Otrzymuj codzienne powiadomienia</h4>
-                    <p className="text-gray-600">
+                    <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-1.5 sm:mb-2">Otrzymuj codzienne powiadomienia</h4>
+                    <p className="text-sm sm:text-base text-gray-600">
                       Każdego dnia o ustalonej porze dostaniesz maila z <strong>najlepszymi ofertami</strong>, 
                       które spełniają Twoje kryteria i pojawiły się tego dnia.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                <div className="flex gap-3 sm:gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg text-sm sm:text-base">
                     3
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-2">Zarządzaj subskrypcją</h4>
-                    <p className="text-gray-600">
+                    <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-1.5 sm:mb-2">Zarządzaj subskrypcją</h4>
+                    <p className="text-sm sm:text-base text-gray-600">
                       W każdym mailu znajdziesz opcję <strong>zmiany preferencji</strong> słów kluczowych 
                       lub <strong>wypisania się</strong> z powiadomień.
                     </p>
@@ -373,28 +373,28 @@ export default function Home() {
                 </div>
 
                 {/* Keyword Logic Explanation */}
-                <div className="mt-8 pt-8 border-t border-gray-200">
-                  <h4 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                    <span className="text-2xl">🎯</span>
+                <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200">
+                  <h4 className="text-lg sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6 flex items-center gap-2">
+                    <span className="text-xl sm:text-2xl">🎯</span>
                     Jak działają słowa kluczowe?
                   </h4>
                   
-                  <div className="space-y-5">
-                    <div className="bg-green-50 border-l-4 border-green-500 p-5 rounded-r-xl">
-                      <div className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-4 sm:space-y-5">
+                    <div className="bg-green-50 border-l-4 border-green-500 p-4 sm:p-5 rounded-r-xl">
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <h5 className="font-bold text-slate-900 mb-2">Musi zawierać (I / AND)</h5>
-                          <p className="text-sm text-gray-700 mb-3">
+                          <h5 className="font-bold text-slate-900 mb-1.5 sm:mb-2 text-sm sm:text-base">Musi zawierać (I / AND)</h5>
+                          <p className="text-xs sm:text-sm text-gray-700 mb-2 sm:mb-3">
                             Zlecenie musi zawierać <strong>WSZYSTKIE</strong> podane słowa kluczowe.
                           </p>
-                          <div className="bg-white/70 rounded-lg p-3 text-sm">
+                          <div className="bg-white/70 rounded-lg p-2 sm:p-3 text-xs sm:text-sm">
                             <p className="font-semibold text-slate-900 mb-1">Przykład:</p>
-                            <p className="text-gray-700 mb-2"><code className="bg-gray-100 px-2 py-0.5 rounded">React, TypeScript, Frontend</code></p>
-                            <p className="text-gray-600">
+                            <p className="text-gray-700 mb-2"><code className="bg-gray-100 px-1.5 sm:px-2 py-0.5 rounded text-xs">React, TypeScript, Frontend</code></p>
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               ✅ Zlecenie: "Szukamy developera React + TypeScript do projektu frontend"
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               ❌ Zlecenie: "Szukamy developera React do projektu frontend" (brak TypeScript)
                             </p>
                           </div>
@@ -402,24 +402,24 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl">
-                      <div className="flex items-start gap-3">
-                        <Plus className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 sm:p-5 rounded-r-xl">
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <h5 className="font-bold text-slate-900 mb-2">Może zawierać (LUB / OR)</h5>
-                          <p className="text-sm text-gray-700 mb-3">
+                          <h5 className="font-bold text-slate-900 mb-1.5 sm:mb-2 text-sm sm:text-base">Może zawierać (LUB / OR)</h5>
+                          <p className="text-xs sm:text-sm text-gray-700 mb-2 sm:mb-3">
                             Zlecenie zawierające <strong>JEDNO LUB WIĘCEJ</strong> z tych słów zostanie pokazane.
                           </p>
-                          <div className="bg-white/70 rounded-lg p-3 text-sm">
+                          <div className="bg-white/70 rounded-lg p-2 sm:p-3 text-xs sm:text-sm">
                             <p className="font-semibold text-slate-900 mb-1">Przykład:</p>
-                            <p className="text-gray-700 mb-2"><code className="bg-gray-100 px-2 py-0.5 rounded">Next.js, Tailwind, UI/UX</code></p>
-                            <p className="text-gray-600">
+                            <p className="text-gray-700 mb-2"><code className="bg-gray-100 px-1.5 sm:px-2 py-0.5 rounded text-xs">Next.js, Tailwind, UI/UX</code></p>
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               ✅ Zlecenie z Next.js zostanie pokazane
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               ✅ Zlecenie z Tailwind zostanie pokazane
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               ✅ Zlecenie z Next.js + Tailwind również zostanie pokazane
                             </p>
                           </div>
@@ -427,24 +427,24 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="bg-red-50 border-l-4 border-red-500 p-5 rounded-r-xl">
-                      <div className="flex items-start gap-3">
-                        <X className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div className="bg-red-50 border-l-4 border-red-500 p-4 sm:p-5 rounded-r-xl">
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <X className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <h5 className="font-bold text-slate-900 mb-2">Nie może zawierać (NIE / NOT)</h5>
-                          <p className="text-sm text-gray-700 mb-3">
+                          <h5 className="font-bold text-slate-900 mb-1.5 sm:mb-2 text-sm sm:text-base">Nie może zawierać (NIE / NOT)</h5>
+                          <p className="text-xs sm:text-sm text-gray-700 mb-2 sm:mb-3">
                             Zlecenia z <strong>KTÓRYMKOLWIEK</strong> z tych słów zostaną całkowicie odfiltrowane.
                           </p>
-                          <div className="bg-white/70 rounded-lg p-3 text-sm">
+                          <div className="bg-white/70 rounded-lg p-2 sm:p-3 text-xs sm:text-sm">
                             <p className="font-semibold text-slate-900 mb-1">Przykład:</p>
-                            <p className="text-gray-700 mb-2"><code className="bg-gray-100 px-2 py-0.5 rounded">WordPress, PHP, Backend</code></p>
-                            <p className="text-gray-600">
+                            <p className="text-gray-700 mb-2"><code className="bg-gray-100 px-1.5 sm:px-2 py-0.5 rounded text-xs">WordPress, PHP, Backend</code></p>
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               ❌ Zlecenie z WordPress zostanie ukryte
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               ❌ Zlecenie z PHP zostanie ukryte
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               ❌ Zlecenie zawierające Backend również nie pojawi się w wynikach
                             </p>
                           </div>
@@ -454,9 +454,9 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="p-6 bg-blue-50 rounded-2xl border border-blue-200">
-                    <p className="text-sm text-slate-700 font-medium mb-2">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="p-4 sm:p-6 bg-blue-50 rounded-xl sm:rounded-2xl border border-blue-200">
+                    <p className="text-xs sm:text-sm text-slate-700 font-medium mb-1.5 sm:mb-2">
                       <strong>💡 Wskazówka:</strong> Im precyzyjniejsze słowa kluczowe, tym lepiej dopasowane oferty!
                     </p>
                     <p className="text-xs text-gray-600 mt-2">
@@ -464,11 +464,11 @@ export default function Home() {
                     </p>
                   </div>
 
-                  <div className="p-6 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl border border-blue-200">
-                    <p className="text-sm text-slate-700 font-medium mb-2">
+                  <div className="p-4 sm:p-6 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl sm:rounded-2xl border border-blue-200">
+                    <p className="text-xs sm:text-sm text-slate-700 font-medium mb-1.5 sm:mb-2">
                       <strong>🔒 Dla członków be free club</strong>
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs sm:text-sm text-gray-600">
                       Ta usługa jest dostępna tylko dla członków społeczności.{' '}
                       <a 
                         href="https://circle.befree.club" 
@@ -483,11 +483,12 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="mt-8 flex justify-center">
+              <div className="mt-6 sm:mt-8 flex justify-center">
                 <Button
                   onClick={() => setShowHowItWorks(false)}
                   variant="primary"
                   size="lg"
+                  className="w-full sm:w-auto"
                 >
                   Rozumiem, zaczynam!
                 </Button>

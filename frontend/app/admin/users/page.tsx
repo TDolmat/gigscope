@@ -74,6 +74,17 @@ export default function UsersPage() {
     });
   };
 
+  const formatDateShort = (isoString: string | null): string => {
+    if (!isoString) return '-';
+    const date = new Date(isoString);
+    return date.toLocaleDateString('pl-PL', {
+      timeZone: 'Europe/Warsaw',
+      year: '2-digit',
+      month: '2-digit',
+      day: '2-digit',
+    });
+  };
+
   const handleEditPreferences = (user: UserData) => {
     setEditingUser(user.id);
     setEditMustInclude(user.preferences?.must_include_keywords?.join(', ') || '');
@@ -154,7 +165,7 @@ export default function UsersPage() {
   if (loading) {
     return (
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Użytkownicy</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Użytkownicy</h2>
         <div className="flex items-center justify-center h-64">
           <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
@@ -164,12 +175,13 @@ export default function UsersPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">Użytkownicy</h2>
-        <p className="text-gray-600">Zarządzaj użytkownikami i ich subskrypcjami</p>
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Użytkownicy</h2>
+        <p className="text-sm text-gray-600">Zarządzaj użytkownikami i ich subskrypcjami</p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
@@ -360,6 +372,161 @@ export default function UsersPage() {
         </div>
       </div>
 
+      {/* Mobile Card View */}
+      <div className="lg:hidden space-y-4">
+        {users.map((user) => (
+          <div key={user.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            {/* User Header */}
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{user.email}</p>
+                <p className="text-xs text-gray-500 mt-0.5">Utworzono: {formatDateShort(user.created_at)}</p>
+              </div>
+              <div className="flex items-center gap-1 ml-2">
+                {editingUser !== user.id && (
+                  <button
+                    onClick={() => handleEditPreferences(user)}
+                    className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                )}
+                {editingSubscription !== user.id && (
+                  <>
+                    <button
+                      onClick={() => handleEditSubscription(user)}
+                      className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                    >
+                      <Calendar className="w-4 h-4" />
+                    </button>
+                    {user.subscription && (
+                      <button
+                        onClick={() => handleDeleteSubscription(user.id)}
+                        className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Subscription Status */}
+            <div className="mb-3">
+              {editingSubscription === user.id ? (
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-600">Wygaśnięcie subskrypcji</label>
+                  <Input
+                    type="datetime-local"
+                    value={editExpiresAt}
+                    onChange={(e) => setEditExpiresAt(e.target.value)}
+                    className="text-sm"
+                  />
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={() => handleSaveSubscription(user.id)}>
+                      <Check className="w-3 h-3 mr-1" />
+                      Zapisz
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => setEditingSubscription(null)}>
+                      <X className="w-3 h-3 mr-1" />
+                      Anuluj
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  {user.subscription ? (
+                    <>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                        user.subscription.is_active
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {user.subscription.is_active ? 'Aktywna' : 'Wygasła'}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        do {formatDateShort(user.subscription.expires_at)}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-xs text-gray-400">Brak subskrypcji</span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Preferences */}
+            <div className="border-t border-gray-100 pt-3">
+              {editingUser === user.id ? (
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Musi zawierać"
+                    value={editMustInclude}
+                    onChange={(e) => setEditMustInclude(e.target.value)}
+                    className="text-sm"
+                  />
+                  <Input
+                    placeholder="Może zawierać"
+                    value={editCanInclude}
+                    onChange={(e) => setEditCanInclude(e.target.value)}
+                    className="text-sm"
+                  />
+                  <Input
+                    placeholder="Nie może zawierać"
+                    value={editCannotInclude}
+                    onChange={(e) => setEditCannotInclude(e.target.value)}
+                    className="text-sm"
+                  />
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={() => handleSavePreferences(user.id)}>
+                      <Check className="w-3 h-3 mr-1" />
+                      Zapisz
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => setEditingUser(null)}>
+                      <X className="w-3 h-3 mr-1" />
+                      Anuluj
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-xs text-gray-600 space-y-1">
+                  {user.preferences ? (
+                    <>
+                      {user.preferences.must_include_keywords?.length > 0 && (
+                        <div className="flex items-start gap-1">
+                          <span className="font-semibold text-green-600 flex-shrink-0">✓</span>
+                          <span className="break-words">{user.preferences.must_include_keywords.join(', ')}</span>
+                        </div>
+                      )}
+                      {user.preferences.can_include_keywords?.length > 0 && (
+                        <div className="flex items-start gap-1">
+                          <span className="font-semibold text-blue-600 flex-shrink-0">+</span>
+                          <span className="break-words">{user.preferences.can_include_keywords.join(', ')}</span>
+                        </div>
+                      )}
+                      {user.preferences.cannot_include_keywords?.length > 0 && (
+                        <div className="flex items-start gap-1">
+                          <span className="font-semibold text-red-600 flex-shrink-0">✗</span>
+                          <span className="break-words">{user.preferences.cannot_include_keywords.join(', ')}</span>
+                        </div>
+                      )}
+                      {!user.preferences.must_include_keywords?.length && 
+                       !user.preferences.can_include_keywords?.length && 
+                       !user.preferences.cannot_include_keywords?.length && (
+                        <span className="text-gray-400">Brak słów kluczowych</span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-gray-400">Brak preferencji</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
       {users.length === 0 && !loading && (
         <div className="text-center py-12 text-gray-500">
           Brak użytkowników w bazie danych
@@ -379,4 +546,3 @@ export default function UsersPage() {
     </div>
   );
 }
-

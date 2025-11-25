@@ -100,7 +100,7 @@ export default function MailPage() {
   if (loading) {
     return (
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Ustawienia Maili</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Ustawienia Maili</h2>
         <div className="flex items-center justify-center h-64">
           <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
@@ -110,12 +110,12 @@ export default function MailPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Ustawienia Maili</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Ustawienia Maili</h2>
       
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Konfiguracja */}
-        <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
-          <h3 className="font-semibold text-gray-900">Konfiguracja bramki</h3>
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 space-y-4">
+          <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Konfiguracja bramki</h3>
           
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">Klucz API</label>
@@ -137,20 +137,21 @@ export default function MailPage() {
             />
           </div>
 
-          <Button onClick={handleSaveMailSettings} loading={savingMail} variant="primary" size="lg">
+          <Button onClick={handleSaveMailSettings} loading={savingMail} variant="primary" size="lg" className="w-full sm:w-auto">
             Zapisz ustawienia
           </Button>
         </div>
 
         {/* Podgląd szablonów */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Podgląd i test szablonów</h3>
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+          <h3 className="font-semibold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base">Podgląd i test szablonów</h3>
           
-          <div className="flex flex-wrap gap-2 mb-4">
+          {/* Template buttons - scrollable on mobile */}
+          <div className="flex flex-wrap gap-2 mb-4 overflow-x-auto pb-1">
             <button
               onClick={() => handleSelectType('offers')}
               disabled={loadingPreview}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                 previewType === 'offers'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -161,7 +162,7 @@ export default function MailPage() {
             <button
               onClick={() => handleSelectType('no_offers')}
               disabled={loadingPreview}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                 previewType === 'no_offers'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -172,7 +173,7 @@ export default function MailPage() {
             <button
               onClick={() => handleSelectType('not_subscribed')}
               disabled={loadingPreview}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                 previewType === 'not_subscribed'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -183,7 +184,7 @@ export default function MailPage() {
             <button
               onClick={() => handleSelectType('expired')}
               disabled={loadingPreview}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                 previewType === 'expired'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -194,7 +195,7 @@ export default function MailPage() {
             <button
               onClick={() => handleSelectType('test')}
               disabled={loadingPreview}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                 previewType === 'test'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -203,7 +204,7 @@ export default function MailPage() {
               Testowy
             </button>
             {loadingPreview && (
-              <div className="flex items-center text-gray-500 text-sm">
+              <div className="flex items-center text-gray-500 text-xs sm:text-sm">
                 <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -213,7 +214,8 @@ export default function MailPage() {
             )}
           </div>
           
-          <div className="flex gap-2 mb-4">
+          {/* Send template form */}
+          <div className="flex flex-col sm:flex-row gap-2 mb-4">
             <Input
               type="email"
               value={templateEmail}
@@ -227,6 +229,7 @@ export default function MailPage() {
               variant="primary"
               size="sm"
               disabled={!mailApiKey || !mailSenderEmail || !templateEmail || !previewType}
+              className="w-full sm:w-auto"
             >
               Wyślij szablon
             </Button>
@@ -239,14 +242,14 @@ export default function MailPage() {
           )}
           
           {!previewType && (
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-xs sm:text-sm text-gray-500 mb-4">
               Wybierz typ szablonu aby zobaczyć podgląd
             </p>
           )}
           
           {previewHtml && (
             <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <div className="bg-gray-100 px-4 py-2 text-sm text-gray-600 border-b">
+              <div className="bg-gray-100 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-600 border-b">
                 Podgląd: {previewType === 'offers' ? 'Email z ofertami' : 
                          previewType === 'no_offers' ? 'Brak ofert' :
                          previewType === 'not_subscribed' ? 'Bez subskrypcji' :
@@ -254,7 +257,7 @@ export default function MailPage() {
               </div>
               <iframe
                 srcDoc={previewHtml}
-                className="w-full h-[600px] bg-white"
+                className="w-full h-[400px] sm:h-[600px] bg-white"
                 title="Email Preview"
               />
             </div>

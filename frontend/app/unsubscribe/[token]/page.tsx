@@ -77,10 +77,10 @@ export default function UnsubscribePage() {
 
   if (loadingData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Ładowanie...</p>
+          <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium text-sm sm:text-base">Ładowanie...</p>
         </div>
       </div>
     );
@@ -89,19 +89,20 @@ export default function UnsubscribePage() {
   if (notFound) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white">
-        <div className="max-w-2xl mx-auto px-6 py-16">
-          <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl shadow-red-500/10 border border-red-100/50 p-8 md:p-14 text-center">
-            <div className="text-6xl mb-6">⚠️</div>
-            <h1 className="text-3xl font-extrabold text-slate-900 mb-4">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl shadow-red-500/10 border border-red-100/50 p-6 sm:p-8 md:p-14 text-center">
+            <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">⚠️</div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3 sm:mb-4">
               Nieprawidłowy link
             </h1>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">
               Link do wypisania się jest nieprawidłowy lub wygasł.
             </p>
             <Button
               onClick={() => router.push('/')}
               variant="primary"
               size="lg"
+              className="w-full sm:w-auto"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Wróć do strony głównej
@@ -120,34 +121,35 @@ export default function UnsubscribePage() {
         {/* Header */}
         <Header variant="default" />
 
-        <main className="relative max-w-2xl mx-auto px-6 py-16">
-          <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl shadow-blue-500/10 border border-blue-100/50 p-8 md:p-14 text-center">
-            <div className="text-6xl mb-6">✓</div>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
+        <main className="relative max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl shadow-blue-500/10 border border-blue-100/50 p-6 sm:p-8 md:p-14 text-center">
+            <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">✓</div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-3 sm:mb-4">
               Zostałeś wypisany
             </h1>
-            <p className="text-lg text-gray-600 mb-4">
-              Adres <strong className="text-slate-900">{email}</strong> został usunięty z listy mailingowej.
+            <p className="text-base sm:text-lg text-gray-600 mb-3 sm:mb-4">
+              Adres <strong className="text-slate-900 break-all">{email}</strong> został usunięty z listy mailingowej.
             </p>
-            <p className="text-base text-gray-500 mb-8">
+            <p className="text-sm sm:text-base text-gray-500 mb-6 sm:mb-8">
               Nie będziesz już otrzymywać powiadomień o nowych ofertach.
             </p>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8">
-              <p className="text-sm text-slate-700 font-medium mb-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
+              <p className="text-xs sm:text-sm text-slate-700 font-medium mb-3 sm:mb-4">
                 <strong>Zmiana zdania?</strong>
               </p>
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
                 Jeśli oferty były źle dobrane, może zmiana słów kluczowych pomoże? 
                 Możesz wrócić do strony głównej i zapisać się ponownie z innymi preferencjami.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <Button
                 onClick={() => router.push('/')}
                 variant="primary"
                 size="lg"
+                className="w-full sm:w-auto"
               >
                 <Mail className="w-4 h-4 mr-2" />
                 Zapisz się ponownie
@@ -157,17 +159,18 @@ export default function UnsubscribePage() {
                 onClick={() => router.push('/')}
                 variant="secondary"
                 size="lg"
+                className="w-full sm:w-auto"
               >
-              Wróć do strony głównej
-            </Button>
+                Wróć do strony głównej
+              </Button>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
 
-      {/* Footer */}
-      <Footer />
-    </div>
-  );
+        {/* Footer */}
+        <Footer />
+      </div>
+    );
   }
 
   return (
@@ -178,44 +181,44 @@ export default function UnsubscribePage() {
       <Header variant="default" />
 
       {/* Main Content */}
-      <main className="relative max-w-2xl mx-auto px-6 py-16">
-        <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl shadow-blue-500/10 border border-blue-100/50 p-8 md:p-14">
-          <div className="text-center mb-8">
-            <div className="text-6xl mb-4">😢</div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
+      <main className="relative max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl shadow-blue-500/10 border border-blue-100/50 p-6 sm:p-8 md:p-14">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">😢</div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-3 sm:mb-4">
               Przykro nam, że chcesz odejść
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-gray-600">
               Czy na pewno chcesz wypisać się z newslettera dla adresu:
             </p>
-            <p className="text-xl font-bold text-slate-900 mt-2">
+            <p className="text-lg sm:text-xl font-bold text-slate-900 mt-2 break-all">
               {email}
             </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-5 bg-red-50 border border-red-200 rounded-xl animate-fadeInUp">
+            <div className="mb-4 sm:mb-6 p-4 sm:p-5 bg-red-50 border border-red-200 rounded-xl animate-fadeInUp">
               <div className="flex items-start gap-3">
-                <span className="text-xl flex-shrink-0">⚠️</span>
-                <p className="text-sm text-red-900 font-semibold flex-1 pt-0.5">{error}</p>
+                <span className="text-lg sm:text-xl flex-shrink-0">⚠️</span>
+                <p className="text-xs sm:text-sm text-red-900 font-semibold flex-1 pt-0.5">{error}</p>
               </div>
             </div>
           )}
 
           {/* Info Box */}
-          <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-2xl">
-            <p className="text-sm text-slate-700 font-medium mb-3">
+          <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-blue-50 border border-blue-200 rounded-xl sm:rounded-2xl">
+            <p className="text-xs sm:text-sm text-slate-700 font-medium mb-2 sm:mb-3">
               <strong>💡 Zanim odejdziesz...</strong>
             </p>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
               Jeśli oferty nie pasują do Twoich oczekiwań, może warto po prostu zmienić słowa kluczowe? 
               Dzięki temu otrzymasz oferty lepiej dopasowane do Twoich potrzeb.
             </p>
           </div>
 
           {/* Action Buttons */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <Button
               onClick={handleUnsubscribe}
               variant="secondary"
@@ -244,15 +247,14 @@ export default function UnsubscribePage() {
               className="w-full"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-            Wróć do strony głównej
-          </Button>
+              Wróć do strony głównej
+            </Button>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
 
-    {/* Footer */}
-    <Footer />
-  </div>
-);
+      {/* Footer */}
+      <Footer />
+    </div>
+  );
 }
-

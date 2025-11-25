@@ -139,17 +139,17 @@ export default function ScrapePage() {
 
   return (
     <div className="overflow-x-hidden">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Scrape Test</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Scrape Test</h2>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
-        <nav className="-mb-px flex space-x-8">
+      <div className="border-b border-gray-200 mb-4 sm:mb-6 overflow-x-auto">
+        <nav className="-mb-px flex space-x-4 sm:space-x-8 min-w-max">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                py-4 px-1 border-b-2 font-medium text-sm transition-colors relative
+                py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors relative whitespace-nowrap
                 ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
@@ -159,7 +159,7 @@ export default function ScrapePage() {
             >
               {tab.label}
               {tab.comingSoon && (
-                <span className="ml-2 text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">
+                <span className="ml-1.5 sm:ml-2 text-[10px] sm:text-xs bg-gray-200 text-gray-600 px-1.5 sm:px-2 py-0.5 rounded">
                   wkrótce
                 </span>
               )}
@@ -176,10 +176,10 @@ export default function ScrapePage() {
       )}
       
       {activeTab === 'upwork' && !loading && (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Configuration Section */}
-          <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Konfiguracja</h3>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Konfiguracja</h3>
             
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -202,7 +202,7 @@ export default function ScrapePage() {
                     className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
                     title="Kopiuj klucz"
                   >
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                   </button>
@@ -215,11 +215,11 @@ export default function ScrapePage() {
                     title={showApiKey ? 'Ukryj klucz' : 'Pokaż klucz'}
                   >
                     {showApiKey ? (
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                       </svg>
                     ) : (
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
@@ -250,14 +250,14 @@ export default function ScrapePage() {
               </p>
             </div>
 
-            <Button onClick={handleSaveConfig} loading={savingConfig} variant="primary" size="lg">
+            <Button onClick={handleSaveConfig} loading={savingConfig} variant="primary" size="lg" className="w-full sm:w-auto">
               Zapisz konfigurację
             </Button>
           </div>
 
           {/* Test Section */}
-          <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Test scrapera</h3>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Test scrapera</h3>
             
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -320,7 +320,7 @@ export default function ScrapePage() {
             </div>
 
             {/* Test Button */}
-            <div className="pt-4">
+            <div className="pt-2 sm:pt-4">
               <Button 
                 onClick={handleTest} 
                 loading={testing} 
@@ -334,9 +334,9 @@ export default function ScrapePage() {
 
             {/* Loading State */}
             {testing && (
-              <div className="flex items-center justify-center py-8">
+              <div className="flex items-center justify-center py-6 sm:py-8">
                 <div className="text-center">
-                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                  <div className="inline-block animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-blue-600 mb-4"></div>
                   <p className="text-sm text-gray-600">
                     Czas trwania: {(elapsedTime / 1000).toFixed(1)}s
                   </p>
@@ -346,25 +346,25 @@ export default function ScrapePage() {
 
             {/* Error Message */}
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-xs sm:text-sm text-red-600">{error}</p>
               </div>
             )}
           </div>
 
           {/* Results Section */}
           {results && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Search URL */}
               {results.search_url && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">URL zapytania</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">URL zapytania</h3>
+                  <div className="bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200">
                     <a
                       href={results.search_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:text-blue-800 break-all underline"
+                      className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 break-all underline"
                     >
                       {results.search_url}
                     </a>
@@ -373,41 +373,41 @@ export default function ScrapePage() {
               )}
 
               {/* Summary */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Podsumowanie</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-600">Znaleziono ofert</p>
-                    <p className="text-2xl font-bold text-blue-600">{results.count}</p>
+              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Podsumowanie</h3>
+                <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                  <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+                    <p className="text-xs sm:text-sm text-gray-600">Znaleziono ofert</p>
+                    <p className="text-xl sm:text-2xl font-bold text-blue-600">{results.count}</p>
                   </div>
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-600">Czas scrapowania</p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {results.scrape_time_ms ? `${(results.scrape_time_ms/1000).toFixed(2)} s` : 'N/A'}
+                  <div className="bg-green-50 p-3 sm:p-4 rounded-lg">
+                    <p className="text-xs sm:text-sm text-gray-600">Czas scrapowania</p>
+                    <p className="text-xl sm:text-2xl font-bold text-green-600">
+                      {results.scrape_time_ms ? `${(results.scrape_time_ms/1000).toFixed(1)}s` : 'N/A'}
                     </p>
                   </div>
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-600">Platforma</p>
-                    <p className="text-2xl font-bold text-purple-600">Upwork</p>
+                  <div className="bg-purple-50 p-3 sm:p-4 rounded-lg">
+                    <p className="text-xs sm:text-sm text-gray-600">Platforma</p>
+                    <p className="text-xl sm:text-2xl font-bold text-purple-600">Upwork</p>
                   </div>
                 </div>
               </div>
 
               {/* Parsed Output */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                   Wyniki ({results.count} ofert)
                 </h3>
-                <div className="max-h-96 overflow-y-auto overflow-x-hidden border border-gray-200 rounded-lg">
+                <div className="max-h-80 sm:max-h-96 overflow-y-auto overflow-x-hidden border border-gray-200 rounded-lg">
                   {results.parsed && results.parsed.length > 0 ? (
                     <div className="divide-y divide-gray-200">
                       {results.parsed.map((offer: any, index: number) => (
-                        <div key={index} className="p-4 hover:bg-gray-50">
-                          <h4 className="font-semibold text-gray-900 mb-2 break-words">{offer.title}</h4>
-                          <p className="text-sm text-gray-600 mb-2 break-words whitespace-pre-wrap">
+                        <div key={index} className="p-3 sm:p-4 hover:bg-gray-50">
+                          <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base break-words">{offer.title}</h4>
+                          <p className="text-xs sm:text-sm text-gray-600 mb-2 break-words whitespace-pre-wrap line-clamp-3">
                             {offer.description}
                           </p>
-                          <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+                          <div className="flex flex-wrap gap-2 sm:gap-4 text-[10px] sm:text-xs text-gray-500">
                             {offer.budget && (
                               <span className="flex items-center">
                                 <span className="font-medium">Budżet:</span>&nbsp;{offer.budget}
@@ -430,7 +430,7 @@ export default function ScrapePage() {
                               href={offer.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block break-all"
+                              className="text-[10px] sm:text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block break-all"
                             >
                               Zobacz ofertę →
                             </a>
@@ -439,7 +439,7 @@ export default function ScrapePage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="p-8 text-center text-gray-500">
+                    <div className="p-8 text-center text-gray-500 text-sm">
                       Brak ofert do wyświetlenia
                     </div>
                   )}
@@ -447,10 +447,10 @@ export default function ScrapePage() {
               </div>
 
               {/* Raw Output */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Wyniki (raw)</h3>
-                <div className="max-h-96 overflow-y-auto overflow-x-hidden">
-                  <pre className="text-xs bg-gray-50 p-4 rounded-lg border border-gray-200 whitespace-pre-wrap break-words">
+              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Wyniki (raw)</h3>
+                <div className="max-h-80 sm:max-h-96 overflow-y-auto overflow-x-hidden">
+                  <pre className="text-[10px] sm:text-xs bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200 whitespace-pre-wrap break-words">
                     {results.raw}
                   </pre>
                 </div>
@@ -462,11 +462,11 @@ export default function ScrapePage() {
 
       {/* Other Tabs (Empty for now) */}
       {activeTab === 'all' && (
-        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+        <div className="bg-white rounded-lg shadow-sm p-8 sm:p-12 text-center">
           <div className="max-w-md mx-auto">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Wkrótce dostępne</h3>
-            <p className="text-gray-500">
+            <div className="text-4xl sm:text-6xl mb-4">🔍</div>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Wkrótce dostępne</h3>
+            <p className="text-sm text-gray-500">
               Funkcja przeszukiwania wszystkich platform jednocześnie zostanie wkrótce dodana
             </p>
           </div>
@@ -474,11 +474,11 @@ export default function ScrapePage() {
       )}
 
       {activeTab === 'fiverr' && (
-        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+        <div className="bg-white rounded-lg shadow-sm p-8 sm:p-12 text-center">
           <div className="max-w-md mx-auto">
-            <div className="text-6xl mb-4">💼</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Wkrótce dostępne</h3>
-            <p className="text-gray-500">
+            <div className="text-4xl sm:text-6xl mb-4">💼</div>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Wkrótce dostępne</h3>
+            <p className="text-sm text-gray-500">
               Scraper dla platformy Fiverr jest w trakcie implementacji
             </p>
           </div>
@@ -487,4 +487,3 @@ export default function ScrapePage() {
     </div>
   );
 }
-

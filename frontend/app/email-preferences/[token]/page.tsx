@@ -74,10 +74,10 @@ export default function EmailPreferencesPage() {
 
   if (loadingData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Ładowanie preferencji...</p>
+          <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium text-sm sm:text-base">Ładowanie preferencji...</p>
         </div>
       </div>
     );
@@ -86,19 +86,20 @@ export default function EmailPreferencesPage() {
   if (notFound) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white">
-        <div className="max-w-2xl mx-auto px-6 py-16">
-          <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl shadow-red-500/10 border border-red-100/50 p-8 md:p-14 text-center">
-            <div className="text-6xl mb-6">⚠️</div>
-            <h1 className="text-3xl font-extrabold text-slate-900 mb-4">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl shadow-red-500/10 border border-red-100/50 p-6 sm:p-8 md:p-14 text-center">
+            <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">⚠️</div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3 sm:mb-4">
               Nieprawidłowy link
             </h1>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">
               Link do zarządzania preferencjami jest nieprawidłowy lub wygasł.
             </p>
             <Button
               onClick={() => router.push('/')}
               variant="primary"
               size="lg"
+              className="w-full sm:w-auto"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Wróć do strony głównej
@@ -117,25 +118,25 @@ export default function EmailPreferencesPage() {
       <Header variant="default" />
 
       {/* Main Content */}
-      <main className="relative max-w-4xl mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 leading-tight tracking-tight">
+      <main className="relative max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 mb-3 sm:mb-4 leading-tight tracking-tight">
             Zarządzaj swoimi
             <br />
             <span className="text-gradient-blue">
               preferencjami
             </span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-2">
             Zaktualizuj słowa kluczowe, aby otrzymywać jeszcze lepiej dopasowane oferty
           </p>
         </div>
 
-        <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl shadow-blue-500/10 border border-blue-100/50 p-8 md:p-14">
-          <form onSubmit={handleSubmit} className="space-y-12">
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl shadow-blue-500/10 border border-blue-100/50 p-5 sm:p-8 md:p-14">
+          <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-12">
             {/* Email (read-only) */}
             <div>
-              <label className="block text-base font-bold text-slate-900 mb-3">
+              <label className="block text-sm sm:text-base font-bold text-slate-900 mb-2 sm:mb-3">
                 Adres email
               </label>
               <Input
@@ -144,17 +145,17 @@ export default function EmailPreferencesPage() {
                 disabled
                 className="bg-gray-50"
               />
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-xs sm:text-sm text-gray-500">
                 Nie można zmienić adresu email
               </p>
             </div>
 
             {/* Keywords Section */}
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Check className="w-5 h-5 text-blue-600" />
-                  <label className="block text-base font-bold text-slate-900">
+                <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                  <Check className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  <label className="block text-sm sm:text-base font-bold text-slate-900">
                     Musi zawierać
                   </label>
                   <Tooltip content="Zlecenia będą zawierały wszystkie te słowa kluczowe. To główny filtr." />
@@ -165,13 +166,13 @@ export default function EmailPreferencesPage() {
                   onChange={(e) => setMustContain(e.target.value)}
                   disabled={loading}
                 />
-                <p className="mt-2 text-sm text-gray-500">Oddziel słowa kluczowe przecinkami</p>
+                <p className="mt-2 text-xs sm:text-sm text-gray-500">Oddziel słowa kluczowe przecinkami</p>
               </div>
 
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Plus className="w-5 h-5 text-blue-600" />
-                  <label className="block text-base font-bold text-slate-900">
+                <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                  <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  <label className="block text-sm sm:text-base font-bold text-slate-900">
                     Może zawierać
                   </label>
                   <Tooltip content="Zlecenia z tymi słowami będą wyżej w rankingu, ale nie są wymagane." />
@@ -182,13 +183,13 @@ export default function EmailPreferencesPage() {
                   onChange={(e) => setMayContain(e.target.value)}
                   disabled={loading}
                 />
-                <p className="mt-2 text-sm text-gray-500">Preferowane, ale opcjonalne</p>
+                <p className="mt-2 text-xs sm:text-sm text-gray-500">Preferowane, ale opcjonalne</p>
               </div>
 
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <X className="w-5 h-5 text-blue-600" />
-                  <label className="block text-base font-bold text-slate-900">
+                <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  <label className="block text-sm sm:text-base font-bold text-slate-900">
                     Nie może zawierać
                   </label>
                   <Tooltip content="Zlecenia zawierające te słowa zostaną automatycznie odfiltrowane." />
@@ -199,35 +200,35 @@ export default function EmailPreferencesPage() {
                   onChange={(e) => setMustNotContain(e.target.value)}
                   disabled={loading}
                 />
-                <p className="mt-2 text-sm text-gray-500">Wyklucz niechciane technologie</p>
+                <p className="mt-2 text-xs sm:text-sm text-gray-500">Wyklucz niechciane technologie</p>
               </div>
             </div>
 
-              {/* Error Message */}
-              {error && (
-                <div className="p-5 bg-red-50 border border-red-200 rounded-xl animate-fadeInUp">
-                  <div className="flex items-start gap-3">
-                    <span className="text-xl flex-shrink-0">⚠️</span>
-                    <p className="text-sm text-red-900 font-semibold flex-1 pt-0.5">{error}</p>
-                  </div>
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 sm:p-5 bg-red-50 border border-red-200 rounded-xl animate-fadeInUp">
+                <div className="flex items-start gap-3">
+                  <span className="text-lg sm:text-xl flex-shrink-0">⚠️</span>
+                  <p className="text-xs sm:text-sm text-red-900 font-semibold flex-1 pt-0.5">{error}</p>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Submit Button */}
-            <div className="pt-6">
+            {/* Submit Button */}
+            <div className="pt-2 sm:pt-6">
               <Button
                 type="submit"
                 variant="primary"
                 size="lg"
                 loading={loading}
                 disabled={loading}
-                className="w-full shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 text-lg font-bold flex items-center justify-center gap-2"
+                className="w-full shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 text-sm sm:text-lg font-bold flex items-center justify-center gap-2"
               >
                 {loading ? (
                   'Zapisywanie...'
                 ) : (
                   <>
-                    <Sparkles className="w-5 h-5" />
+                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                     Zapisz preferencje
                   </>
                 )}
@@ -237,9 +238,9 @@ export default function EmailPreferencesPage() {
         </div>
 
         {/* Info Box */}
-        <div className="mt-8 text-center">
-          <div className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-200">
-            <p className="text-sm text-slate-700 font-medium">
+        <div className="mt-6 sm:mt-8 text-center">
+          <div className="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl sm:rounded-2xl border border-blue-200">
+            <p className="text-xs sm:text-sm text-slate-700 font-medium">
               💡 <strong>Wskazówka:</strong> Im precyzyjniejsze słowa kluczowe, tym lepiej dopasowane oferty otrzymasz!
             </p>
           </div>
@@ -251,4 +252,3 @@ export default function EmailPreferencesPage() {
     </div>
   );
 }
-

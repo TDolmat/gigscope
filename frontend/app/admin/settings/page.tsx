@@ -73,7 +73,7 @@ export default function SettingsPage() {
   const { authenticatedFetch } = useAuth();
   const [loading, setLoading] = useState(true);
   const [frequency, setFrequency] = useState('daily');
-  const [sendTime, setSendTime] = useState('09:00'); // Polish time (displayed)
+  const [sendTime, setSendTime] = useState('09:00');
   const [maxOffers, setMaxOffers] = useState('15');
   const [platforms, setPlatforms] = useState({
     upwork: false,
@@ -94,7 +94,6 @@ export default function SettingsPage() {
       setLoading(true);
       const data = await adminSettingsApi.getSettings(authenticatedFetch);
       
-      // Map frequency from backend to frontend
       const frequencyMap: Record<string, string> = {
         'daily': 'codziennie',
         'every_2_days': 'co2dni',
@@ -105,12 +104,10 @@ export default function SettingsPage() {
       setFrequency(frequencyMap[data.email_frequency] || 'codziennie');
       setMaxOffers(String(data.email_max_offers || 15));
       
-      // Convert UTC time from backend to Polish time for display
       if (data.email_daytime) {
         setSendTime(utcToPolishTime(data.email_daytime));
       }
       
-      // Convert enabled_platforms array to object
       const enabledPlatforms = data.enabled_platforms || [];
       setPlatforms({
         upwork: enabledPlatforms.includes('upwork'),
@@ -132,7 +129,6 @@ export default function SettingsPage() {
     try {
       setSaving(true);
       
-      // Map frequency from frontend to backend
       const frequencyMap: Record<string, string> = {
         'codziennie': 'daily',
         'co2dni': 'every_2_days',
@@ -140,12 +136,10 @@ export default function SettingsPage() {
         'wylacz': 'disabled'
       };
       
-      // Convert platforms object to array of enabled platforms
       const enabledPlatforms = Object.entries(platforms)
         .filter(([_, enabled]) => enabled)
         .map(([platform]) => platform);
       
-      // Convert Polish time to UTC for backend
       const utcTime = polishTimeToUtc(sendTime);
       
       await adminSettingsApi.updateSettings({
@@ -167,7 +161,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Ustawienia ogólne</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Ustawienia ogólne</h2>
         <div className="flex items-center justify-center h-64">
           <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
@@ -177,19 +171,18 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Ustawienia ogólne</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Ustawienia ogólne</h2>
       
-      <div className="space-y-6">
-        {/* Czas wysyłki */}
-        <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Czas wysyłki</h3>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 space-y-4">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">Czas wysyłki</h3>
           
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">Częstotliwość</label>
             <select 
               value={frequency}
               onChange={(e) => setFrequency(e.target.value)}
-              className="w-full pl-4 pr-10 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             >
               <option value="codziennie">Codziennie</option>
               <option value="co2dni">Co 2 dni</option>
@@ -204,7 +197,7 @@ export default function SettingsPage() {
               type="time"
               value={sendTime}
               onChange={(e) => setSendTime(e.target.value)}
-              className="w-full pl-4 pr-10 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             />
             <p className="mt-1 text-xs text-gray-500">
               Czas w strefie czasowej Europa/Warszawa (polski czas lokalny)
@@ -212,10 +205,9 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Platformy */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <label className="block text-sm font-semibold text-gray-900 mb-4">Platformy do scrapowania</label>
-          <div className="space-y-3">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+          <label className="block text-sm font-semibold text-gray-900 mb-3 sm:mb-4">Platformy do scrapowania</label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {Object.entries(platforms).map(([key, value]) => (
               <Checkbox
                 key={key}
@@ -228,9 +220,8 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Max ofert */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <label className="block text-sm font-semibold text-gray-900 mb-3">Maksymalna liczba ofert w mailu</label>
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+          <label className="block text-sm font-semibold text-gray-900 mb-2 sm:mb-3">Maksymalna liczba ofert w mailu</label>
           <Input
             type="number"
             value={maxOffers}
@@ -240,7 +231,7 @@ export default function SettingsPage() {
           />
         </div>
 
-        <Button onClick={handleSaveSettings} loading={saving} variant="primary" size="lg">
+        <Button onClick={handleSaveSettings} loading={saving} variant="primary" size="lg" className="w-full sm:w-auto">
           Zapisz ustawienia
         </Button>
       </div>

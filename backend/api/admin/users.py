@@ -7,7 +7,7 @@ from sqlalchemy import and_
 from . import bp
 
 
-@bp.route('/users', methods=['GET'])
+@bp.route('/users', methods=['GET']),
 @jwt_required()
 def get_users():
     """

@@ -17,9 +17,9 @@ Pełna dokumentacja deployment do produkcji znajduje się w:
 git clone https://github.com/TWOJ_USER/gigscope.git
 cd gigscope
 
-# 2. Utwórz i wypełnij .env.production
-cp env.production.template .env.production
-nano .env.production
+# 2. Utwórz i wypełnij .env
+cp env.template .env
+nano .env
 
 # 3. Start Docker Compose
 docker compose up -d --build
@@ -107,7 +107,7 @@ Backend używa konfiguracji z `backend/core/config.py` (development mode).
 #### Production
 Skopiuj szablon, wygeneruj klucze i wypełnij wartości:
 ```bash
-cp env.production.template .env.production
+cp env.template .env
 
 # Wygeneruj bezpieczne klucze
 python3 -c "import secrets; print(secrets.token_hex(32))"  # SECRET_KEY
@@ -115,7 +115,7 @@ python3 -c "import secrets; print(secrets.token_hex(32))"  # JWT_SECRET_KEY
 python3 -c "import secrets; print(secrets.token_urlsafe(32)[:32])"  # ENCRYPTION_KEY
 python3 -c "import secrets; print(secrets.token_urlsafe(24))"  # POSTGRES_PASSWORD
 
-nano .env.production  # Edytuj i wklej wygenerowane klucze
+nano .env  # Edytuj i wklej wygenerowane klucze
 ```
 
 ---
@@ -140,7 +140,7 @@ gigscope/
 │
 ├── docker-compose.yml   # Orkiestracja kontenerów
 ├── Caddyfile           # Reverse proxy config
-├── env.production.template  # Environment template
+├── env.template  # Environment template
 └── DEPLOYMENT.md       # Production deployment guide
 ```
 

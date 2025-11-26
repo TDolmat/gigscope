@@ -36,7 +36,7 @@ services:
     container_name: gigscope_backend
     restart: unless-stopped
     env_file:
-      - .env.production
+      - .env
     environment:
       FLASK_ENV: production
     depends_on:

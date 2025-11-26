@@ -123,11 +123,11 @@ cd gigscope
 **Uwaga:** Używamy `/var/www/` jako standardowej lokalizacji dla aplikacji webowych.
 Alternatywnie możesz użyć `/srv/gigscope` lub `/home/deploy/gigscope`.
 
-### 2. Utwórz plik `.env.production`
+### 2. Utwórz plik `.env`
 
 ```bash
-cp env.production.template .env.production
-nano .env.production
+cp env.template .env
+nano .env
 ```
 
 ### 3. Wygeneruj bezpieczne klucze
@@ -150,7 +150,7 @@ python3 -c "import secrets; print('POSTGRES_PASSWORD=' + secrets.token_urlsafe(2
 
 Skopiuj wygenerowane wartości.
 
-### 4. Wypełnij `.env.production`
+### 4. Wypełnij `.env`
 
 Przykładowa zawartość (wypełnij własnymi wartościami):
 
@@ -200,7 +200,7 @@ DEFAULT_MAX_MAIL_OFFERS=10
 ### 5. Zabezpiecz plik .env
 
 ```bash
-chmod 600 .env.production
+chmod 600 .env
 ```
 
 ---
@@ -401,7 +401,7 @@ docker compose logs
 ```
 
 **Najczęstsze przyczyny:**
-- Błędne zmienne środowiskowe w `.env.production`
+- Błędne zmienne środowiskowe w `.env`
 - Port 80/443 już zajęty przez inny proces
 - Brak miejsca na dysku
 
@@ -439,7 +439,7 @@ docker compose exec backend env | grep DATABASE_URL
 ```
 
 **Rozwiązanie:**
-- Upewnij się że `DATABASE_URL` w `.env.production` używa `postgres:5432` (nazwa serwisu, nie localhost)
+- Upewnij się że `DATABASE_URL` w `.env` używa `postgres:5432` (nazwa serwisu, nie localhost)
 - Sprawdź czy hasło jest poprawne
 
 ---
@@ -555,7 +555,7 @@ W razie problemów:
 
 - [ ] DNS wskazuje na IP serwera
 - [ ] Docker i Docker Compose zainstalowane
-- [ ] `.env.production` utworzony z bezpiecznymi kluczami
+- [ ] `.env` utworzony z bezpiecznymi kluczami
 - [ ] `docker compose up -d --build` wykonane
 - [ ] Migracje bazy danych uruchomione
 - [ ] Certyfikat SSL pobrany przez Caddy

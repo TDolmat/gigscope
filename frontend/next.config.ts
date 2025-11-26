@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
   
   // Optional: Disable telemetry in production
   // (already set via ENV in Dockerfile, but good to have here too)
+  
+  // Experimental: Ensure proper handling of client components
+  experimental: {
+    // This helps with routing issues in production
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
 };
 
 export default nextConfig;

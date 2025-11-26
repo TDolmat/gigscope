@@ -10,7 +10,7 @@ from flask_jwt_extended import (
 import bcrypt
 from core.models import Admins, db
 
-bp = Blueprint("auth", __name__, url_prefix='/api/auth')
+bp = Blueprint("auth", __name__, url_prefix='/auth')
 
 
 def verify_admin(email, password):

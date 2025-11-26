@@ -5,7 +5,7 @@ from http import HTTPStatus
 from datetime import datetime
 from sqlalchemy import and_
 
-bp = Blueprint('user', __name__, url_prefix='/api/user')
+bp = Blueprint('user', __name__, url_prefix='/user')
 
 
 def parse_keywords(keywords_string):

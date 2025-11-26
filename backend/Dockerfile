@@ -24,9 +24,6 @@ RUN pip install --no-cache-dir gunicorn
 # Copy application code
 COPY . .
 
-# Make entrypoint executable
-RUN chmod +x entrypoint.sh
-
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
@@ -38,6 +35,6 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
     CMD python -c "import requests; requests.get('http://localhost:5000/api/health', timeout=5)" || exit 1
 
-# Run entrypoint (migrations + gunicorn)
-CMD ["./entrypoint.sh"]
+# Default command (can be overridden by docker-compose)
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "app:app"]
 

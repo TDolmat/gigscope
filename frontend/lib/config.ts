@@ -33,14 +33,14 @@ export const API_ENDPOINTS = {
   
   // Admin endpoints
   ADMIN: {
-    DASHBOARD_STATS: `${BASE_URL}/admin/dashboard/stats`,
+    DASHBOARD_STATS: `${BASE_URL}/api/admin/dashboard/stats`,
     SETTINGS: `${BASE_URL}/api/admin/settings`,
     SETTINGS_APIFY_KEY: `${BASE_URL}/api/admin/settings/apify-key`,
     TEST: `${BASE_URL}/api/admin/test`,
     USERS: `${BASE_URL}/api/admin/users`,
-    USER_PREFERENCES: (userId: number) => `${BASE_URL}/admin/users/${userId}/preferences`,
+    USER_PREFERENCES: (userId: number) => `${BASE_URL}/api/admin/users/${userId}/preferences`,
     USER_SUBSCRIPTION: (userId: number) => `${BASE_URL}/api/admin/users/${userId}/subscription`,
-    SCRAPE: `${BASE_URL}/admin/scrape`,
+    SCRAPE: `${BASE_URL}/api/admin/scrape`,
     MAIL_TEST: `${BASE_URL}/api/admin/mail/test`,
     MAIL_SEND_OFFERS: `${BASE_URL}/api/admin/mail/send-offers`,
     MAIL_PREVIEW: `${BASE_URL}/api/admin/mail/preview`,

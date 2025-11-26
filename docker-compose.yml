@@ -63,11 +63,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # This is baked into the build (NEXT_PUBLIC_* must be set at build time)
+        NEXT_PUBLIC_API_URL: https://gigscope.pl/api
     container_name: gigscope_frontend
     restart: unless-stopped
     environment:
-      # Next.js needs to know the backend API URL
-      NEXT_PUBLIC_API_URL: https://gigscope.pl/api
       NODE_ENV: production
     depends_on:
       backend:

@@ -7,6 +7,13 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Build arguments (passed from docker-compose)
+ARG NEXT_PUBLIC_API_URL=https://gigscope.pl/api
+
+# Set as environment variable for build
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_TELEMETRY_DISABLED=1
+
 # Copy package files
 COPY package.json package-lock.json ./
 
@@ -15,9 +22,6 @@ RUN npm ci
 
 # Copy all files needed for build
 COPY . .
-
-# Set environment for build
-ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build Next.js application
 RUN npm run build

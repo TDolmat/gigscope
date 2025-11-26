@@ -4,7 +4,7 @@
  */
 
 // Base API URL
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
 // Environment detection
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
@@ -26,40 +26,40 @@ export const API_CONFIG = {
 export const API_ENDPOINTS = {
   // Auth endpoints
   AUTH: {
-    LOGIN: `${BASE_URL}/api/auth/login`,
-    LOGOUT: `${BASE_URL}/api/auth/logout`,
-    REFRESH: `${BASE_URL}/api/auth/refresh`,
+    LOGIN: `${BASE_URL}/auth/login`,
+    LOGOUT: `${BASE_URL}/auth/logout`,
+    REFRESH: `${BASE_URL}/auth/refresh`,
   },
   
   // Admin endpoints
   ADMIN: {
-    DASHBOARD_STATS: `${BASE_URL}/api/admin/dashboard/stats`,
-    SETTINGS: `${BASE_URL}/api/admin/settings`,
-    SETTINGS_APIFY_KEY: `${BASE_URL}/api/admin/settings/apify-key`,
-    TEST: `${BASE_URL}/api/admin/test`,
-    USERS: `${BASE_URL}/api/admin/users`,
-    USER_PREFERENCES: (userId: number) => `${BASE_URL}/api/admin/users/${userId}/preferences`,
-    USER_SUBSCRIPTION: (userId: number) => `${BASE_URL}/api/admin/users/${userId}/subscription`,
-    SCRAPE: `${BASE_URL}/api/admin/scrape`,
-    MAIL_TEST: `${BASE_URL}/api/admin/mail/test`,
-    MAIL_SEND_OFFERS: `${BASE_URL}/api/admin/mail/send-offers`,
-    MAIL_PREVIEW: `${BASE_URL}/api/admin/mail/preview`,
-    MAIL_SEND_TEMPLATE: `${BASE_URL}/api/admin/mail/send-template`,
+    DASHBOARD_STATS: `${BASE_URL}/admin/dashboard/stats`,
+    SETTINGS: `${BASE_URL}/admin/settings`,
+    SETTINGS_APIFY_KEY: `${BASE_URL}/admin/settings/apify-key`,
+    TEST: `${BASE_URL}/admin/test`,
+    USERS: `${BASE_URL}/admin/users`,
+    USER_PREFERENCES: (userId: number) => `${BASE_URL}/admin/users/${userId}/preferences`,
+    USER_SUBSCRIPTION: (userId: number) => `${BASE_URL}/admin/users/${userId}/subscription`,
+    SCRAPE: `${BASE_URL}/admin/scrape`,
+    MAIL_TEST: `${BASE_URL}/admin/mail/test`,
+    MAIL_SEND_OFFERS: `${BASE_URL}/admin/mail/send-offers`,
+    MAIL_PREVIEW: `${BASE_URL}/admin/mail/preview`,
+    MAIL_SEND_TEMPLATE: `${BASE_URL}/admin/mail/send-template`,
     // Manual runs
-    MANUAL_SCRAPE_ALL: `${BASE_URL}/api/admin/manual-runs/scrape-all`,
-    MANUAL_SEND_EMAILS: `${BASE_URL}/api/admin/manual-runs/send-emails`,
-    MANUAL_SCRAPE_AND_SEND: `${BASE_URL}/api/admin/manual-runs/scrape-and-send`,
+    MANUAL_SCRAPE_ALL: `${BASE_URL}/admin/manual-runs/scrape-all`,
+    MANUAL_SEND_EMAILS: `${BASE_URL}/admin/manual-runs/send-emails`,
+    MANUAL_SCRAPE_AND_SEND: `${BASE_URL}/admin/manual-runs/scrape-and-send`,
     // Logs
-    LOGS: `${BASE_URL}/api/admin/logs`,
-    LOGS_SCRAPE: `${BASE_URL}/api/admin/logs/scrape`,
-    LOGS_MAIL: `${BASE_URL}/api/admin/logs/mail`,
+    LOGS: `${BASE_URL}/admin/logs`,
+    LOGS_SCRAPE: `${BASE_URL}/admin/logs/scrape`,
+    LOGS_MAIL: `${BASE_URL}/admin/logs/mail`,
   },
 
   // User endpoints
   USER: {
-    SUBSCRIBE: `${BASE_URL}/api/user/subscribe`,
-    PREFERENCES: (token: string) => `${BASE_URL}/api/user/preferences/${token}`,
-    UNSUBSCRIBE: (token: string) => `${BASE_URL}/api/user/unsubscribe/${token}`,
+    SUBSCRIBE: `${BASE_URL}/user/subscribe`,
+    PREFERENCES: (token: string) => `${BASE_URL}/user/preferences/${token}`,
+    UNSUBSCRIBE: (token: string) => `${BASE_URL}/user/unsubscribe/${token}`,
   },
 } as const;
 

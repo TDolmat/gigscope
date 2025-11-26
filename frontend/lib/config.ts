@@ -9,6 +9,11 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 // Environment detection
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
+// External links
+export const EXTERNAL_LINKS = {
+  BEFREE_CLUB: 'https://befreeclub.pl',
+} as const;
+
 // API Configuration
 export const API_CONFIG = {
   BASE_URL,
@@ -78,6 +83,7 @@ export const config = {
   api: API_CONFIG,
   endpoints: API_ENDPOINTS,
   routes: APP_ROUTES,
+  externalLinks: EXTERNAL_LINKS,
 } as const;
 
 export default config;

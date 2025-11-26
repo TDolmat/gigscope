@@ -9,6 +9,7 @@ import { Footer } from '@/components/Footer';
 import { HowItWorksModal } from '@/components/HowItWorksModal';
 import { Mail, Check, Plus, X, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import { EXTERNAL_LINKS } from '@/lib/config';
 
 export default function Home() {
   const [email, setEmail] = useState('');
@@ -158,6 +159,14 @@ export default function Home() {
                 spersonalizowanych zleceń o ustalonej porze. Możliwość zmiany preferencji 
                 lub wypisania się w każdej chwili.
               </p>
+              <a 
+                href={EXTERNAL_LINKS.BEFREE_CLUB}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 mt-3 text-xs sm:text-sm text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+              >
+                Nie jesteś członkiem? Dołącz do klubu →
+              </a>
             </div>
           </div>
         </div>
@@ -218,7 +227,7 @@ function EmailField({ email, onChange, error, disabled }: EmailFieldProps) {
               <p className="text-xs opacity-90">
                 Nie jesteś członkiem?{' '}
                       <a 
-                        href="https://circle.befree.club" 
+                        href={EXTERNAL_LINKS.BEFREE_CLUB} 
                         target="_blank" 
                         rel="noopener noreferrer"
                   className="underline hover:text-blue-300 transition-colors"

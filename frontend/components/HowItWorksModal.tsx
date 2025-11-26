@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/Button';
 import { Check, Plus, X } from 'lucide-react';
+import { EXTERNAL_LINKS } from '@/lib/config';
 
 interface HowItWorksModalProps {
   isOpen: boolean;
@@ -123,7 +124,7 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
                 <p className="text-xs sm:text-sm text-gray-600">
                   Ta usługa jest dostępna tylko dla członków społeczności.{' '}
                   <a 
-                    href="https://circle.befree.club" 
+                    href={EXTERNAL_LINKS.BEFREE_CLUB} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-blue-600 font-semibold hover:text-blue-700 underline"

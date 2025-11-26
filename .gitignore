@@ -72,7 +72,8 @@ instance/
 
 # Local settings / secrets (12-factor: use env vars or a secrets manager)
 *.env
-*.env.*        # e.g., .env.local, .env.development
+.env.*         # e.g., .env.local, .env.development, .env.production
+.env.production
 .envrc         # direnv
 secrets.*.json
 secrets.json

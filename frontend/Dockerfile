@@ -1,40 +1,29 @@
 # Frontend Dockerfile - Next.js Multi-stage Build
 
 # ============================================================================
-# Stage 1: Dependencies
+# Stage 1: Builder (install deps + build)
 # ============================================================================
-FROM node:20-alpine AS deps
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm ci --only=production --ignore-scripts
-
-# ============================================================================
-# Stage 2: Builder
-# ============================================================================
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
+# Install ALL dependencies (including devDependencies for build)
+RUN npm ci
 
 # Copy all files needed for build
 COPY . .
 
-# Set production environment for build
-ENV NODE_ENV=production
+# Set environment for build
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build Next.js application
 RUN npm run build
 
 # ============================================================================
-# Stage 3: Runner (Production)
+# Stage 2: Runner (Production)
 # ============================================================================
 FROM node:20-alpine AS runner
 

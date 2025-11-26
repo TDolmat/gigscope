@@ -1,0 +1,68 @@
+# Frontend .dockerignore - exclude files not needed in Docker image
+
+# Dependencies (will be installed fresh)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js build output (will be built in container)
+.next/
+out/
+
+# Environment files (will be passed via docker-compose)
+.env
+.env.*
+*.env.local
+*.env.production
+*.env.development
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+README.md
+docs/
+
+# Tests
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+coverage/
+.nyc_output/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Vercel (if you ever deployed there before)
+.vercel/
+
+# ESLint cache
+.eslintcache
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional: exclude public assets if they're large
+# (but usually you want these in the image)
+# public/large-files/
+

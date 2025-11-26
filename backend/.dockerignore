@@ -1,0 +1,76 @@
+# Backend .dockerignore - exclude files not needed in Docker image
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Environment files (will be passed via docker-compose)
+.env
+.env.*
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+
+# Tests
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs (will be mounted as volume if needed)
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database files (should never be in image)
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Build artifacts (if any)
+dist/
+build/
+*.egg-info/
+
+# Migrations (we run these separately)
+# Note: Keep this commented if you want migrations in the image
+# migrations/
+
+# Old/deprecated code
+old/
+deprecated/
+backup/
+*.bak
+

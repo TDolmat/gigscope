@@ -77,6 +77,10 @@ instance/
 secrets.*.json
 secrets.json
 
+# EXCEPTION: Allow .example files (templates to be committed)
+!.env.production.example
+!*.env.example
+
 ############################
 # TOOLING / EDITORS / IDEs
 ############################

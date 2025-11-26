@@ -1,0 +1,30 @@
+# Root .dockerignore
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.*
+env.production.template
+
+# Scripts (not needed in containers)
+deploy.sh
+generate-keys.py
+
+# OS
+.DS_Store
+Thumbs.db
+

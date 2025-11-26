@@ -54,12 +54,6 @@ export const API_ENDPOINTS = {
     LOGS_SCRAPE: `${BASE_URL}/admin/logs/scrape`,
     LOGS_MAIL: `${BASE_URL}/admin/logs/mail`,
   },
-  
-  // Public endpoints
-  PUBLIC: {
-    CATEGORIES: `${BASE_URL}/api/categories`,
-    TEST: `${BASE_URL}/api/test`,
-  },
 
   // User endpoints
   USER: {

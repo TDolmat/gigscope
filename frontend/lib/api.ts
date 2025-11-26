@@ -48,28 +48,6 @@ async function apiFetch<T>(
   }
 }
 
-// Categories API
-export const categoriesApi = {
-  getCategories: async (): Promise<string[]> => {
-    const data = await apiFetch<any>(API_ENDPOINTS.PUBLIC.CATEGORIES);
-    
-    // Handle if backend returns string representation of array
-    if (typeof data === 'string') {
-      try {
-        // Convert Python-style list string to proper JSON
-        const jsonString = data.replace(/'/g, '"');
-        return JSON.parse(jsonString);
-      } catch (e) {
-        console.error('Failed to parse categories string:', data);
-        return [];
-      }
-    }
-    
-    // If already an array, return it
-    return Array.isArray(data) ? data : [];
-  },
-};
-
 // Admin Dashboard API
 export const adminDashboardApi = {
   // Get dashboard statistics

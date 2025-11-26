@@ -111,10 +111,17 @@ ufw status
 ### 1. Sklonuj repozytorium
 
 ```bash
-cd /opt
+# Utwórz katalog dla aplikacji webowych (jeśli nie istnieje)
+mkdir -p /var/www
+
+# Sklonuj repo
+cd /var/www
 git clone https://github.com/TWOJ_USER/gigscope.git
 cd gigscope
 ```
+
+**Uwaga:** Używamy `/var/www/` jako standardowej lokalizacji dla aplikacji webowych.
+Alternatywnie możesz użyć `/srv/gigscope` lub `/home/deploy/gigscope`.
 
 ### 2. Utwórz plik `.env.production`
 
@@ -203,7 +210,7 @@ chmod 600 .env.production
 ### 1. Zbuduj i uruchom kontenery
 
 ```bash
-cd /opt/gigscope
+cd /var/www/gigscope
 docker compose up -d --build
 ```
 
@@ -328,7 +335,7 @@ docker compose restart frontend
 ### Aktualizacja aplikacji (po zmianach w kodzie)
 
 ```bash
-cd /opt/gigscope
+cd /var/www/gigscope
 
 # Pobierz najnowszy kod
 git pull origin main
@@ -530,7 +537,7 @@ Możesz dodać do crontaba automatyczne sprawdzanie statusu:
 crontab -e
 
 # Sprawdzaj co 5 minut czy wszystko działa
-*/5 * * * * cd /opt/gigscope && docker compose ps | grep -q "Up (healthy)" || docker compose restart
+*/5 * * * * cd /var/www/gigscope && docker compose ps | grep -q "Up (healthy)" || docker compose restart
 ```
 
 ---

@@ -123,9 +123,7 @@ docker-compose.override.yml
 # LOGS / RUNTIME / TEMP
 ############################
 
-logs/
-*.log
-log/
+
 tmp/
 temp/
 *.pid

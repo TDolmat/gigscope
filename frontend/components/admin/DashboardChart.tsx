@@ -1,5 +1,5 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatDateForChart } from '@/lib/dateUtils';
 
 interface ChartDataPoint {
@@ -24,7 +24,7 @@ export function DashboardChart({ title, data, color }: DashboardChartProps) {
       </h3>
       <div className="h-[200px] sm:h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
+          <AreaChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis 
               dataKey="date" 
@@ -47,15 +47,17 @@ export function DashboardChart({ title, data, color }: DashboardChartProps) {
                 fontSize: '12px' 
               }}
             />
-            <Line 
+            <Area 
               type="monotone" 
               dataKey="count" 
               stroke={color} 
               strokeWidth={2}
-              dot={{ fill: color, r: 3 }}
-              activeDot={{ r: 5 }}
+              fill={color}
+              fillOpacity={0.1}
+              dot={{ fill: color, r: 3, fillOpacity: 1 }}
+              activeDot={{ r: 5, fillOpacity: 1 }}
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
       </div>
     </div>

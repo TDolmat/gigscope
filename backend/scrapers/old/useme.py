@@ -147,6 +147,4 @@ class UsemeScraper(OfferScraperBase):
                 
                 offers.append(offer)
             
-            # TODO: Add publication date and valid until date (it requires to scrape the job page)
-            # or only valid until date (does not require to scrape the job page)
         return offers

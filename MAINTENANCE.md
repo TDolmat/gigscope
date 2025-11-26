@@ -33,13 +33,24 @@ docker compose exec backend flask db upgrade
 
 ```bash
 # Zaloguj się do konsoli PostgreSQL
-docker compose exec postgres psql -U gigscope -d gigscope_prod
+# Użyj wartości POSTGRES_USER i POSTGRES_DB z Twojego pliku .env
+docker compose exec postgres psql -U TWOJ_USER -d TWOJ_DB
 
-# Przydatne komendy SQL:
-\dt                    # Lista tabel
-\d nazwa_tabeli        # Struktura tabeli
-SELECT * FROM users;   # Przykładowe zapytanie
-\q                     # Wyjście
+# Przykład (jeśli w .env masz POSTGRES_USER=gigscope i POSTGRES_DB=gigscope_prod):
+docker compose exec postgres psql -U gigscope -d gigscope_prod
+```
+
+**Sprawdź swoje dane w `.env`:**
+```bash
+cat .env | grep POSTGRES
+```
+
+**Przydatne komendy SQL (po zalogowaniu):**
+```sql
+\dt                    -- Lista tabel
+\d nazwa_tabeli        -- Struktura tabeli
+SELECT * FROM users;   -- Przykładowe zapytanie
+\q                     -- Wyjście
 ```
 
 ---
@@ -96,5 +107,20 @@ docker compose exec postgres pg_dump -U gigscope gigscope_prod > backup_$(date +
 
 # Przywróć backup
 cat backup_YYYYMMDD.sql | docker compose exec -T postgres psql -U gigscope gigscope_prod
+```
+
+---
+
+## 👤 Tworzenie admina
+
+```bash
+# Tryb interaktywny (zapyta o email i hasło)
+docker compose exec backend python create_admin.py
+
+# Tryb bezpośredni
+docker compose exec backend python create_admin.py admin@gigscope.pl TwojeHaslo123
+
+# Lista wszystkich adminów
+docker compose exec backend python create_admin.py --list
 ```
 

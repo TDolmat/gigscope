@@ -24,6 +24,9 @@ RUN pip install --no-cache-dir gunicorn
 # Copy application code
 COPY . .
 
+# Make entrypoint executable
+RUN chmod +x entrypoint.sh
+
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
@@ -32,9 +35,9 @@ USER appuser
 EXPOSE 5000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
     CMD python -c "import requests; requests.get('http://localhost:5000/api/health', timeout=5)" || exit 1
 
-# Run Gunicorn
-CMD ["gunicorn", "-c", "gunicorn.conf.py", "app:app"]
+# Run entrypoint (migrations + gunicorn)
+CMD ["./entrypoint.sh"]
 

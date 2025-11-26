@@ -3,8 +3,10 @@
  * Centralized place for all app constants and environment variables
  */
 
-// Base API URL
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+// Base API URL - includes /api prefix
+// Production: https://gigscope.pl/api (set via NEXT_PUBLIC_API_URL)
+// Development: http://localhost:5001/api
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
 // Environment detection
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
@@ -50,10 +52,11 @@ export const API_ENDPOINTS = {
     LOGS_MAIL: `${BASE_URL}/admin/logs/mail`,
   },
   
-  // Public endpoints
+  // Public endpoints (under /api prefix)
   PUBLIC: {
-    CATEGORIES: `${BASE_URL}/api/categories`,
-    TEST: `${BASE_URL}/api/test`,
+    CATEGORIES: `${BASE_URL}/categories`,
+    TEST: `${BASE_URL}/test`,
+    HEALTH: `${BASE_URL}/health`,
   },
 
   // User endpoints

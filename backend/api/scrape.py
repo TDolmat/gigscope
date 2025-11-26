@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from services.scrape import scrape_offers_for_user, scrape_offers_for_all_users
 from helpers.user_helper import is_user_subscribed
 
-bp = Blueprint('scrape', __name__, url_prefix='/scrape')
+bp = Blueprint('scrape', __name__, url_prefix='/api/scrape')
 
 
 @bp.route('/trigger', methods=['POST'])

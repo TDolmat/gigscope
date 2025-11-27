@@ -31,6 +31,8 @@ docker compose exec backend flask db upgrade
 
 ## 🗄️ Dostęp do bazy danych (PostgreSQL)
 
+### Metoda 1: Konsola na serwerze (psql)
+
 ```bash
 # Zaloguj się do konsoli PostgreSQL
 # Użyj wartości POSTGRES_USER i POSTGRES_DB z Twojego pliku .env
@@ -52,6 +54,49 @@ cat .env | grep POSTGRES
 SELECT * FROM users;   -- Przykładowe zapytanie
 \q                     -- Wyjście
 ```
+
+### Metoda 2: TablePlus / DBeaver przez SSH Tunneling 🖥️
+
+Możesz połączyć się z bazą produkcyjną przez graficzny klient (TablePlus, DBeaver, pgAdmin) używając SSH tunneling.
+
+#### Opcja A: Wbudowany SSH w TablePlus
+
+1. **Utwórz nowe połączenie** → wybierz PostgreSQL
+2. **Zakładka General:**
+   - Host: `127.0.0.1` lub `localhost`
+   - Port: `5433` *(lokalny port, żeby nie kolidować z lokalnym Postgres)*
+   - User: `gigscope` (lub z .env: `POSTGRES_USER`)
+   - Password: (hasło z .env: `POSTGRES_PASSWORD`)
+   - Database: `gigscope_prod` (lub z .env: `POSTGRES_DB`)
+
+3. **Zakładka SSH:**
+   - ✅ Włącz "Over SSH"
+   - Server: `151.80.147.100`
+   - User: `ubuntu`
+   - Auth: Key (wybierz swój klucz SSH)
+   - Local Port: `5433`
+   - Remote Host: `127.0.0.1`
+   - Remote Port: `5432`
+
+4. **Test Connection** → **Connect**
+
+#### Opcja B: Ręczny SSH Tunnel + połączenie
+
+```bash
+# Terminal 1: Utwórz tunel SSH (lokalny 5433 → zdalny 5432)
+ssh -L 5433:127.0.0.1:5432 ubuntu@151.80.147.100
+
+# Zostaw to okno otwarte!
+```
+
+W TablePlus/DBeaver utwórz zwykłe połączenie PostgreSQL:
+- Host: `localhost`
+- Port: `5433`
+- User: `gigscope`
+- Password: (z .env)
+- Database: `gigscope_prod`
+
+> ⚠️ **Bezpieczeństwo:** Port 5432 jest dostępny TYLKO przez SSH tunnel (127.0.0.1), nie z internetu.
 
 ---
 

@@ -17,6 +17,10 @@ services:
       POSTGRES_MAX_CONNECTIONS: "100"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    # Expose port only on localhost (for SSH tunneling with TablePlus, DBeaver, etc.)
+    # NOT accessible from internet - only via SSH tunnel
+    ports:
+      - "127.0.0.1:5432:5432"
     networks:
       - db_network
     healthcheck:

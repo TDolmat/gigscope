@@ -59,34 +59,38 @@ SELECT * FROM users;   -- Przykładowe zapytanie
 
 Możesz połączyć się z bazą produkcyjną przez graficzny klient (TablePlus, DBeaver, pgAdmin) używając SSH tunneling.
 
-#### Opcja A: Wbudowany SSH w TablePlus
+#### Opcja A: Wbudowany SSH w TablePlus (ZALECANE ✅)
 
 1. **Utwórz nowe połączenie** → wybierz PostgreSQL
-2. **Zakładka General:**
-   - Host: `127.0.0.1` lub `localhost`
-   - Port: `5433` *(lokalny port, żeby nie kolidować z lokalnym Postgres)*
-   - User: `gigscope` (lub z .env: `POSTGRES_USER`)
-   - Password: (hasło z .env: `POSTGRES_PASSWORD`)
-   - Database: `gigscope_prod` (lub z .env: `POSTGRES_DB`)
 
-3. **Zakładka SSH:**
+2. **Sekcja PostgreSQL (góra):**
+   - Host: `127.0.0.1` lub `localhost`
+   - Port: `5432` ⚠️ **(port NA SERWERZE, nie lokalny!)**
+   - User: `gigscope` (z .env: `POSTGRES_USER`)
+   - Password: *hasło z .env na serwerze: `POSTGRES_PASSWORD`*
+   - Database: `gigscope_prod` (z .env: `POSTGRES_DB`)
+   - SSL mode: `PREFERRED`
+
+3. **Sekcja "Over SSH" (dół):**
    - ✅ Włącz "Over SSH"
    - Server: `151.80.147.100`
+   - Port: `22`
    - User: `ubuntu`
-   - Auth: Key (wybierz swój klucz SSH)
-   - Local Port: `5433`
-   - Remote Host: `127.0.0.1`
-   - Remote Port: `5432`
+   - **Password**: *hasło SSH do serwera* (lub użyj klucza SSH - zaznacz "Use SSH key")
 
 4. **Test Connection** → **Connect**
+
+**Jak pobrać hasło do bazy z serwera:**
+```bash
+ssh ubuntu@151.80.147.100
+cat /var/www/gigscope/.env | grep POSTGRES_PASSWORD
+```
 
 #### Opcja B: Ręczny SSH Tunnel + połączenie
 
 ```bash
-# Terminal 1: Utwórz tunel SSH (lokalny 5433 → zdalny 5432)
+# Terminal (zostaw otwarte): Utwórz tunel SSH (lokalny 5433 → zdalny 5432)
 ssh -L 5433:127.0.0.1:5432 ubuntu@151.80.147.100
-
-# Zostaw to okno otwarte!
 ```
 
 W TablePlus/DBeaver utwórz zwykłe połączenie PostgreSQL:

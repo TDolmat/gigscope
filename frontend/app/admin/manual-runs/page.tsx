@@ -181,11 +181,11 @@ export default function ManualRunsPage() {
       
       <div className="space-y-4 sm:space-y-6">
         {/* Warning banner */}
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-amber-900/20 border border-amber-700 rounded-lg p-4 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-semibold text-amber-800">Uwaga</h4>
-            <p className="text-xs sm:text-sm text-amber-700 mt-1">
+            <h4 className="text-sm font-semibold text-amber-300">Uwaga</h4>
+            <p className="text-xs sm:text-sm text-amber-400/80 mt-1">
               Te operacje są przeznaczone do ręcznego uruchamiania poza harmonogramem. 
               Upewnij się, że rozumiesz konsekwencje przed uruchomieniem.
             </p>
@@ -197,14 +197,14 @@ export default function ManualRunsPage() {
           {/* Scrape all */}
           <AdminSection className="flex flex-col h-full">
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2.5 bg-blue-100 rounded-lg">
-                <Search className="w-5 h-5 text-blue-600" />
+              <div className="p-2.5 bg-yellow-400/10 rounded-lg">
+                <Search className="w-5 h-5 text-yellow-400" />
               </div>
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+              <h3 className="text-base sm:text-lg font-semibold text-white">
                 Scraping ofert
               </h3>
             </div>
-            <p className="text-xs sm:text-sm text-gray-600 mb-4 flex-grow">
+            <p className="text-xs sm:text-sm text-gray-400 mb-4 flex-grow">
               Uruchom scraping ofert z Upwork dla wszystkich aktywnych subskrybentów. 
               Oferty zostaną zapisane w bazie danych.
             </p>
@@ -223,14 +223,14 @@ export default function ManualRunsPage() {
           {/* Send emails */}
           <AdminSection className="flex flex-col h-full">
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2.5 bg-emerald-100 rounded-lg">
-                <Mail className="w-5 h-5 text-emerald-600" />
+              <div className="p-2.5 bg-yellow-400/10 rounded-lg">
+                <Mail className="w-5 h-5 text-yellow-400" />
               </div>
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+              <h3 className="text-base sm:text-lg font-semibold text-white">
                 Wysyłka emaili
               </h3>
             </div>
-            <p className="text-xs sm:text-sm text-gray-600 mb-4 flex-grow">
+            <p className="text-xs sm:text-sm text-gray-400 mb-4 flex-grow">
               Wyślij emaile z ofertami do wszystkich użytkowników. Emaile zostaną 
               wysłane tylko jeśli są dostępne niewysłane oferty.
             </p>
@@ -247,16 +247,16 @@ export default function ManualRunsPage() {
           </AdminSection>
 
           {/* Both */}
-          <AdminSection className="flex flex-col h-full border-2 border-purple-200">
+          <AdminSection className="flex flex-col h-full border-2 border-yellow-500/30">
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2.5 bg-purple-100 rounded-lg">
-                <Zap className="w-5 h-5 text-purple-600" />
+              <div className="p-2.5 bg-yellow-400/10 rounded-lg">
+                <Zap className="w-5 h-5 text-yellow-400" />
               </div>
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+              <h3 className="text-base sm:text-lg font-semibold text-white">
                 Pełny proces
               </h3>
             </div>
-            <p className="text-xs sm:text-sm text-gray-600 mb-4 flex-grow">
+            <p className="text-xs sm:text-sm text-gray-400 mb-4 flex-grow">
               Uruchom pełny proces: najpierw scraping ofert dla wszystkich użytkowników, 
               a następnie automatyczna wysyłka emaili.
             </p>
@@ -278,17 +278,17 @@ export default function ManualRunsPage() {
           <AdminSection title="Ostatni wynik">
             <div className={`flex items-start gap-3 p-4 rounded-lg ${
               lastResult.success 
-                ? 'bg-emerald-50 border border-emerald-200' 
-                : 'bg-red-50 border border-red-200'
+                ? 'bg-emerald-900/20 border border-emerald-700' 
+                : 'bg-red-900/20 border border-red-700'
             }`}>
               {lastResult.success ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
               ) : (
-                <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
               )}
               <div className="flex-grow">
                 <p className={`text-sm font-medium ${
-                  lastResult.success ? 'text-emerald-800' : 'text-red-800'
+                  lastResult.success ? 'text-emerald-300' : 'text-red-300'
                 }`}>
                   {lastResult.message}
                 </p>
@@ -363,11 +363,11 @@ export default function ManualRunsPage() {
           <AdminSection>
             <div className="flex items-center justify-center py-8">
               <div className="flex flex-col items-center gap-3">
-                <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin h-8 w-8 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-300">
                   {loading === 'scrape' && 'Scrapowanie ofert...'}
                   {loading === 'mail' && 'Wysyłanie emaili...'}
                   {loading === 'both' && 'Scrapowanie i wysyłanie...'}
@@ -405,11 +405,11 @@ interface DetailCardProps {
 
 function DetailCard({ icon: Icon, label, value }: DetailCardProps) {
   return (
-    <div className="flex items-center gap-2 bg-white/50 rounded-lg px-3 py-2">
-      <Icon className="w-4 h-4 text-gray-500" />
+    <div className="flex items-center gap-2 bg-gray-700 rounded-lg px-3 py-2">
+      <Icon className="w-4 h-4 text-gray-400" />
       <div>
-        <p className="text-xs text-gray-500">{label}</p>
-        <p className="text-sm font-medium text-gray-900">{value}</p>
+        <p className="text-xs text-gray-400">{label}</p>
+        <p className="text-sm font-medium text-white">{value}</p>
       </div>
     </div>
   );

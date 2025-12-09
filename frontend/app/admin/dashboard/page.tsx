@@ -52,7 +52,7 @@ export default function DashboardPage() {
     return (
       <div>
         <PageHeader title="Dashboard" />
-        <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">
+        <div className="bg-[#2B2E33] rounded-[1rem] border border-white/10 p-8 text-center text-white/50">
           Brak danych do wyświetlenia
         </div>
       </div>
@@ -69,7 +69,7 @@ export default function DashboardPage() {
           title="Aktywni subskrybenci maili"
           value={stats.summary.active_email_subscribers}
           icon={Mail}
-          colorScheme="blue"
+          colorScheme="brand"
         />
         <StatCard
           title="Aktywni subskrybenci Circle"
@@ -81,7 +81,7 @@ export default function DashboardPage() {
           title="Wysłane maile z ofertami"
           value={stats.summary.total_sent_emails}
           icon={TrendingUp}
-          colorScheme="purple"
+          colorScheme="brand"
         />
         <StatCard
           title="Zescrapowane oferty"
@@ -96,22 +96,22 @@ export default function DashboardPage() {
         <DashboardChart
           title="Wysłane maile (ostatnie 30 dni)"
           data={stats.timeseries.sent_emails}
-          color="#8b5cf6"
+          color="#F1E388"
         />
         <DashboardChart
           title="Subskrypcje Circle (ostatnie 30 dni)"
           data={stats.timeseries.circle_subscriptions}
-          color="#10b981"
+          color="#22C55E"
         />
         <DashboardChart
           title="Scrapowane oferty dziennie (ostatnie 30 dni)"
           data={stats.timeseries.scraped_offers}
-          color="#f97316"
+          color="#F97316"
         />
         <DashboardChart
-          title="Subskrypcje GigScope (ostatnie 30 dni)"
+          title="Subskrypcje AI Scoper (ostatnie 30 dni)"
           data={stats.timeseries.gigscope_subscriptions}
-          color="#3b82f6"
+          color="#E5D77A"
         />
       </div>
     </div>

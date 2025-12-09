@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Check, Plus, X } from 'lucide-react';
 import { EXTERNAL_LINKS } from '@/lib/config';
@@ -14,19 +15,19 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn"
+      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn"
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
+        className="bg-[#2B2E33] rounded-[1rem] sm:rounded-[1.5rem] border border-white/10 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-5 sm:p-8 md:p-12">
           <div className="flex items-center justify-between mb-6 sm:mb-8">
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Jak to działa?</h3>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-white">Jak to działa?</h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer p-1"
+              className="text-white/50 hover:text-white transition-colors cursor-pointer p-1"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
@@ -38,8 +39,8 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
               number={1} 
               title="Ustaw swoje preferencje"
               description={<>
-                Wpisz email i określ słowa kluczowe, które <strong>muszą</strong> być w zleceniu, 
-                które <strong>mogą</strong> być (preferowane), oraz które <strong>nie mogą</strong> się pojawić.
+                Wpisz email i określ słowa kluczowe, które <strong className="text-white">muszą</strong> być w zleceniu, 
+                które <strong className="text-white">mogą</strong> być (preferowane), oraz które <strong className="text-white">nie mogą</strong> się pojawić.
               </>}
             />
 
@@ -47,7 +48,7 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
               number={2} 
               title="Otrzymuj codzienne powiadomienia"
               description={<>
-                Każdego dnia o ustalonej porze dostaniesz maila z <strong>najlepszymi ofertami</strong>, 
+                Każdego dnia o ustalonej porze dostaniesz maila z <strong className="text-white">najlepszymi ofertami</strong>, 
                 które spełniają Twoje kryteria i pojawiły się tego dnia.
               </>}
             />
@@ -56,14 +57,14 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
               number={3} 
               title="Zarządzaj subskrypcją"
               description={<>
-                W każdym mailu znajdziesz opcję <strong>zmiany preferencji</strong> słów kluczowych 
-                lub <strong>wypisania się</strong> z powiadomień.
+                W każdym mailu znajdziesz opcję <strong className="text-white">zmiany preferencji</strong> słów kluczowych 
+                lub <strong className="text-white">wypisania się</strong> z powiadomień.
               </>}
             />
 
             {/* Keyword Logic Explanation */}
-            <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200">
-              <h4 className="text-lg sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6 flex items-center gap-2">
+            <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-white/10">
+              <h4 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-2">
                 <span className="text-xl sm:text-2xl">🎯</span>
                 Jak działają słowa kluczowe?
               </h4>
@@ -72,7 +73,7 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
                 <KeywordExplanation 
                   type="must"
                   title="Musi zawierać (I / AND)"
-                  description={<>Zlecenie musi zawierać <strong>WSZYSTKIE</strong> podane słowa kluczowe.</>}
+                  description={<>Zlecenie musi zawierać <strong className="text-white">WSZYSTKIE</strong> podane słowa kluczowe.</>}
                   example="React, TypeScript, Frontend"
                   examples={[
                     { text: 'Zlecenie: "Szukamy developera React + TypeScript do projektu frontend"', isValid: true },
@@ -83,7 +84,7 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
                 <KeywordExplanation 
                   type="may"
                   title="Może zawierać (LUB / OR)"
-                  description={<>Zlecenie zawierające <strong>JEDNO LUB WIĘCEJ</strong> z tych słów zostanie pokazane.</>}
+                  description={<>Zlecenie zawierające <strong className="text-white">JEDNO LUB WIĘCEJ</strong> z tych słów zostanie pokazane.</>}
                   example="Next.js, Tailwind, UI/UX"
                   examples={[
                     { text: 'Zlecenie z Next.js zostanie pokazane', isValid: true },
@@ -95,7 +96,7 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
                 <KeywordExplanation 
                   type="not"
                   title="Nie może zawierać (NIE / NOT)"
-                  description={<>Zlecenia z <strong>KTÓRYMKOLWIEK</strong> z tych słów zostaną całkowicie odfiltrowane.</>}
+                  description={<>Zlecenia z <strong className="text-white">KTÓRYMKOLWIEK</strong> z tych słów zostaną całkowicie odfiltrowane.</>}
                   example="WordPress, PHP, Backend"
                   examples={[
                     { text: 'Zlecenie z WordPress zostanie ukryte', isValid: false },
@@ -108,31 +109,16 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
 
             {/* Tips */}
             <div className="space-y-3 sm:space-y-4">
-              <div className="p-4 sm:p-6 bg-blue-50 rounded-xl sm:rounded-2xl border border-blue-200">
-                <p className="text-xs sm:text-sm text-slate-700 font-medium mb-1.5 sm:mb-2">
-                  <strong>💡 Wskazówka:</strong> Im precyzyjniejsze słowa kluczowe, tym lepiej dopasowane oferty!
+              <div className="p-4 sm:p-6 bg-[#F1E388]/10 rounded-[1rem] border border-[#F1E388]/20">
+                <p className="text-xs sm:text-sm text-white/80 font-medium mb-1.5 sm:mb-2">
+                  <strong className="text-[#F1E388]">💡 Wskazówka:</strong> Im precyzyjniejsze słowa kluczowe, tym lepiej dopasowane oferty!
                 </p>
-                <p className="text-xs text-gray-600 mt-2">
+                <p className="text-xs text-white/50 mt-2">
                   Pamiętaj: dla platform międzynarodowych (Upwork, Fiverr) używaj słów po angielsku, dla polskich platform (Useme) po polsku.
                 </p>
               </div>
 
-              <div className="p-4 sm:p-6 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl sm:rounded-2xl border border-blue-200">
-                <p className="text-xs sm:text-sm text-slate-700 font-medium mb-1.5 sm:mb-2">
-                  <strong>🔒 Dla członków be free club</strong>
-                </p>
-                <p className="text-xs sm:text-sm text-gray-600">
-                  Ta usługa jest dostępna tylko dla członków społeczności.{' '}
-                  <a 
-                    href={EXTERNAL_LINKS.BEFREE_CLUB} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 font-semibold hover:text-blue-700 underline"
-                  >
-                    Dołącz do be free club →
-                  </a>
-                </p>
-              </div>
+
             </div>
           </div>
 
@@ -163,12 +149,12 @@ interface StepProps {
 function Step({ number, title, description }: StepProps) {
   return (
     <div className="flex gap-3 sm:gap-4">
-      <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg text-sm sm:text-base">
+      <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-[#F1E388] rounded-full flex items-center justify-center text-[#191B1F] font-bold shadow-lg text-sm sm:text-base">
         {number}
       </div>
       <div>
-        <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-1.5 sm:mb-2">{title}</h4>
-        <p className="text-sm sm:text-base text-gray-600">{description}</p>
+        <h4 className="text-base sm:text-lg font-bold text-white mb-1.5 sm:mb-2">{title}</h4>
+        <p className="text-sm sm:text-base text-white/70">{description}</p>
       </div>
     </div>
   );
@@ -184,28 +170,28 @@ interface KeywordExplanationProps {
 
 function KeywordExplanation({ type, title, description, example, examples }: KeywordExplanationProps) {
   const styles = {
-    must: { bg: 'bg-green-50', border: 'border-green-500', icon: Check, iconColor: 'text-green-600' },
-    may: { bg: 'bg-blue-50', border: 'border-blue-500', icon: Plus, iconColor: 'text-blue-600' },
-    not: { bg: 'bg-red-50', border: 'border-red-500', icon: X, iconColor: 'text-red-600' },
+    must: { bg: 'bg-green-500/10', border: 'border-green-500/30', borderLeft: 'border-l-green-500', icon: Check, iconColor: 'text-green-400' },
+    may: { bg: 'bg-[#60A5FA]/10', border: 'border-[#60A5FA]/30', borderLeft: 'border-l-[#60A5FA]', icon: Plus, iconColor: 'text-[#60A5FA]' },
+    not: { bg: 'bg-red-500/10', border: 'border-red-500/30', borderLeft: 'border-l-red-500', icon: X, iconColor: 'text-red-400' },
   };
 
   const style = styles[type];
   const Icon = style.icon;
 
   return (
-    <div className={`${style.bg} border-l-4 ${style.border} p-4 sm:p-5 rounded-r-xl`}>
+    <div className={`${style.bg} border-l-4 ${style.borderLeft} p-4 sm:p-5 rounded-r-[0.75rem]`}>
       <div className="flex items-start gap-2 sm:gap-3">
         <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${style.iconColor} flex-shrink-0 mt-0.5`} />
         <div>
-          <h5 className="font-bold text-slate-900 mb-1.5 sm:mb-2 text-sm sm:text-base">{title}</h5>
-          <p className="text-xs sm:text-sm text-gray-700 mb-2 sm:mb-3">{description}</p>
-          <div className="bg-white/70 rounded-lg p-2 sm:p-3 text-xs sm:text-sm">
-            <p className="font-semibold text-slate-900 mb-1">Przykład:</p>
-            <p className="text-gray-700 mb-2">
-              <code className="bg-gray-100 px-1.5 sm:px-2 py-0.5 rounded text-xs">{example}</code>
+          <h5 className="font-bold text-white mb-1.5 sm:mb-2 text-sm sm:text-base">{title}</h5>
+          <p className="text-xs sm:text-sm text-white/70 mb-2 sm:mb-3">{description}</p>
+          <div className="bg-white/5 rounded-lg p-2 sm:p-3 text-xs sm:text-sm">
+            <p className="font-semibold text-white mb-1">Przykład:</p>
+            <p className="text-white/70 mb-2">
+              <code className="bg-white/10 px-1.5 sm:px-2 py-0.5 rounded text-xs text-[#F1E388]">{example}</code>
             </p>
             {examples.map((ex, idx) => (
-              <p key={idx} className="text-gray-600 text-xs sm:text-sm">
+              <p key={idx} className="text-white/60 text-xs sm:text-sm">
                 {ex.isValid ? '✅' : '❌'} {ex.text}
               </p>
             ))}
@@ -215,4 +201,3 @@ function KeywordExplanation({ type, title, description, example, examples }: Key
     </div>
   );
 }
-

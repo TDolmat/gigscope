@@ -11,7 +11,8 @@ const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 // External links
 export const EXTERNAL_LINKS = {
-  BEFREE_CLUB: 'https://befreeclub.pl',
+  BE_FREE_CLUB: 'https://www.befreeclub.pro/',
+  BE_FREE_CLUB_JOIN: 'https://www.befreeclub.pl',
 } as const;
 
 // API Configuration

@@ -18,34 +18,37 @@ interface DashboardChartProps {
  */
 export function DashboardChart({ title, data, color }: DashboardChartProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-      <h3 className="text-sm sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+    <div className="bg-[#2B2E33] rounded-[1rem] border border-white/10 p-4 sm:p-6">
+      <h3 className="text-sm sm:text-lg font-semibold text-white mb-3 sm:mb-4">
         {title}
       </h3>
       <div className="h-[200px] sm:h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis 
               dataKey="date" 
               tickFormatter={formatDateForChart}
-              stroke="#6b7280"
+              stroke="rgba(255,255,255,0.4)"
               style={{ fontSize: '10px' }}
-              tick={{ fontSize: 10 }}
+              tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.5)' }}
             />
             <YAxis 
-              stroke="#6b7280" 
+              stroke="rgba(255,255,255,0.4)" 
               style={{ fontSize: '10px' }} 
-              tick={{ fontSize: 10 }} 
+              tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.5)' }} 
               width={30} 
             />
             <Tooltip 
               labelFormatter={formatDateForChart}
               contentStyle={{ 
                 borderRadius: '8px', 
-                border: '1px solid #e5e7eb', 
+                border: '1px solid rgba(255,255,255,0.1)', 
+                backgroundColor: '#2B2E33',
+                color: '#FFFFFF',
                 fontSize: '12px' 
               }}
+              labelStyle={{ color: '#FFFFFF' }}
             />
             <Area 
               type="monotone" 
@@ -53,7 +56,7 @@ export function DashboardChart({ title, data, color }: DashboardChartProps) {
               stroke={color} 
               strokeWidth={2}
               fill={color}
-              fillOpacity={0.1}
+              fillOpacity={0.15}
               dot={{ fill: color, r: 3, fillOpacity: 1 }}
               activeDot={{ r: 5, fillOpacity: 1 }}
             />
@@ -63,4 +66,3 @@ export function DashboardChart({ title, data, color }: DashboardChartProps) {
     </div>
   );
 }
-

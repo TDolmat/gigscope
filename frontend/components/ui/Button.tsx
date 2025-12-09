@@ -16,13 +16,17 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = 'font-semibold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center shadow-sm hover:shadow-md active:scale-[0.98] cursor-pointer';
+  const baseStyles = 'font-semibold rounded-[1rem] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center active:scale-[0.98] cursor-pointer';
   
   const variants = {
-    primary: 'bg-gradient-to-r from-blue-500 to-blue-400 text-white hover:from-blue-600 hover:to-blue-500 shadow-blue-500/30 hover:shadow-lg hover:shadow-blue-500/40',
-    secondary: 'bg-white text-gray-900 hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300',
-    outline: 'border-2 border-blue-200 text-blue-700 hover:border-blue-300 hover:bg-blue-50',
-    ghost: 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+    // Primary: Brand yellow with dark text + glow
+    primary: 'bg-[#F1E388] text-[#191B1F] hover:bg-[#E5D77C] hover:brightness-105 shadow-[0_0_30px_rgba(241,227,136,0.4)] hover:shadow-[0_0_40px_rgba(241,227,136,0.55)]',
+    // Secondary: Light gray with dark text  
+    secondary: 'bg-[#E5E7EB] text-[#191B1F] hover:bg-[#D1D5DB]',
+    // Outline: Transparent with brand border
+    outline: 'border-2 border-[#F1E388]/50 text-[#F1E388] hover:border-[#F1E388] hover:bg-[#F1E388]/10',
+    // Ghost: Transparent with subtle hover
+    ghost: 'text-white/70 hover:text-white hover:bg-white/10'
   };
   
   const sizes = {

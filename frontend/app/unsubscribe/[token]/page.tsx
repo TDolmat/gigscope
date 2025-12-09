@@ -7,7 +7,6 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ArrowLeft, Mail, Settings } from 'lucide-react';
 import { userApi } from '@/lib/api';
-import { APP_ROUTES } from '@/lib/config';
 import { toast } from 'sonner';
 
 export default function UnsubscribePage() {
@@ -68,19 +67,12 @@ export default function UnsubscribePage() {
     }
   };
 
-  const handleGoToPreferences = () => {
-    // Extract token from unsubscribe token and navigate to preferences
-    // In a real app, you might need to get the preferences token from the API
-    // For now, we'll just go to home
-    router.push('/');
-  };
-
   if (loadingData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#191B1F] flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium text-sm sm:text-base">Ładowanie...</p>
+          <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-[#F1E388] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/70 font-medium text-sm sm:text-base">Ładowanie...</p>
         </div>
       </div>
     );
@@ -88,14 +80,14 @@ export default function UnsubscribePage() {
 
   if (notFound) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white">
+      <div className="min-h-screen bg-[#191B1F]">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl shadow-red-500/10 border border-red-100/50 p-6 sm:p-8 md:p-14 text-center">
+          <div className="bg-[#2B2E33] rounded-[1rem] sm:rounded-[1.5rem] border border-red-500/30 p-6 sm:p-8 md:p-14 text-center">
             <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">⚠️</div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3 sm:mb-4">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-3 sm:mb-4">
               Nieprawidłowy link
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">
+            <p className="text-base sm:text-lg text-white/70 mb-6 sm:mb-8">
               Link do wypisania się jest nieprawidłowy lub wygasł.
             </p>
             <Button
@@ -115,30 +107,30 @@ export default function UnsubscribePage() {
 
   if (success || alreadyUnsubscribed) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white">
-        <div className="fixed inset-0 gradient-mesh-dark pointer-events-none" />
+      <div className="min-h-screen bg-[#191B1F]">
+        <div className="fixed inset-0 bg-pattern pointer-events-none" />
         
         {/* Header */}
         <Header variant="default" />
 
         <main className="relative max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl shadow-blue-500/10 border border-blue-100/50 p-6 sm:p-8 md:p-14 text-center">
-            <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">✓</div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-3 sm:mb-4">
+          <div className="bg-[#2B2E33] rounded-[1rem] sm:rounded-[1.5rem] border border-white/10 p-6 sm:p-8 md:p-14 text-center">
+            <div className="text-5xl sm:text-6xl mb-4 sm:mb-6 text-[#F1E388]">✓</div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-3 sm:mb-4">
               Zostałeś wypisany
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 mb-3 sm:mb-4">
-              Adres <strong className="text-slate-900 break-all">{email}</strong> został usunięty z listy mailingowej.
+            <p className="text-base sm:text-lg text-white/70 mb-3 sm:mb-4">
+              Adres <strong className="text-white break-all">{email}</strong> został usunięty z listy mailingowej.
             </p>
-            <p className="text-sm sm:text-base text-gray-500 mb-6 sm:mb-8">
+            <p className="text-sm sm:text-base text-white/50 mb-6 sm:mb-8">
               Nie będziesz już otrzymywać powiadomień o nowych ofertach.
             </p>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
-              <p className="text-xs sm:text-sm text-slate-700 font-medium mb-3 sm:mb-4">
-                <strong>Zmiana zdania?</strong>
+            <div className="bg-[#60A5FA]/10 border border-[#60A5FA]/20 rounded-[1rem] p-4 sm:p-6 mb-6 sm:mb-8">
+              <p className="text-xs sm:text-sm text-white/80 font-medium mb-3 sm:mb-4">
+                <strong className="text-[#60A5FA]">Zmiana zdania?</strong>
               </p>
-              <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+              <p className="text-xs sm:text-sm text-white/60 mb-3 sm:mb-4">
                 Jeśli oferty były źle dobrane, może zmiana słów kluczowych pomoże? 
                 Możesz wrócić do strony głównej i zapisać się ponownie z innymi preferencjami.
               </p>
@@ -174,44 +166,44 @@ export default function UnsubscribePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-white">
-      <div className="fixed inset-0 gradient-mesh-dark pointer-events-none" />
+    <div className="min-h-screen bg-[#191B1F]">
+      <div className="fixed inset-0 bg-pattern pointer-events-none" />
       
       {/* Header */}
       <Header variant="default" />
 
       {/* Main Content */}
       <main className="relative max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl shadow-blue-500/10 border border-blue-100/50 p-6 sm:p-8 md:p-14">
+        <div className="bg-[#2B2E33] rounded-[1rem] sm:rounded-[1.5rem] border border-white/10 p-6 sm:p-8 md:p-14">
           <div className="text-center mb-6 sm:mb-8">
             <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">😢</div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-3 sm:mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-3 sm:mb-4">
               Przykro nam, że chcesz odejść
             </h2>
-            <p className="text-base sm:text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-white/70">
               Czy na pewno chcesz wypisać się z newslettera dla adresu:
             </p>
-            <p className="text-lg sm:text-xl font-bold text-slate-900 mt-2 break-all">
+            <p className="text-lg sm:text-xl font-bold text-[#F1E388] mt-2 break-all">
               {email}
             </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 sm:mb-6 p-4 sm:p-5 bg-red-50 border border-red-200 rounded-xl animate-fadeInUp">
+            <div className="mb-4 sm:mb-6 p-4 sm:p-5 bg-red-500/10 border border-red-500/30 rounded-[1rem] animate-fadeInUp">
               <div className="flex items-start gap-3">
                 <span className="text-lg sm:text-xl flex-shrink-0">⚠️</span>
-                <p className="text-xs sm:text-sm text-red-900 font-semibold flex-1 pt-0.5">{error}</p>
+                <p className="text-xs sm:text-sm text-red-400 font-semibold flex-1 pt-0.5">{error}</p>
               </div>
             </div>
           )}
 
           {/* Info Box */}
-          <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-blue-50 border border-blue-200 rounded-xl sm:rounded-2xl">
-            <p className="text-xs sm:text-sm text-slate-700 font-medium mb-2 sm:mb-3">
-              <strong>💡 Zanim odejdziesz...</strong>
+          <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-[#60A5FA]/10 border border-[#60A5FA]/20 rounded-[1rem]">
+            <p className="text-xs sm:text-sm text-white/80 font-medium mb-2 sm:mb-3">
+              <strong className="text-[#60A5FA]">💡 Zanim odejdziesz...</strong>
             </p>
-            <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+            <p className="text-xs sm:text-sm text-white/60 mb-3 sm:mb-4">
               Jeśli oferty nie pasują do Twoich oczekiwań, może warto po prostu zmienić słowa kluczowe? 
               Dzięki temu otrzymasz oferty lepiej dopasowane do Twoich potrzeb.
             </p>

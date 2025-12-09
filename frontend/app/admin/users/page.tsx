@@ -149,23 +149,23 @@ export default function UsersPage() {
       <PageHeader title="Użytkownicy" description="Zarządzaj użytkownikami i ich subskrypcjami" />
 
       {/* Desktop Table View */}
-      <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="hidden lg:block bg-[#2B2E33] rounded-[1rem] border border-white/10 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-[#191B1F] border-b border-white/10">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Preferencje</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Subskrypcja</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Data utworzenia</th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Akcje</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-white/50 uppercase tracking-wider">Email</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-white/50 uppercase tracking-wider">Preferencje</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-white/50 uppercase tracking-wider">Subskrypcja</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-white/50 uppercase tracking-wider">Data utworzenia</th>
+                <th className="px-6 py-3 text-right text-xs font-semibold text-white/50 uppercase tracking-wider">Akcje</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-white/5">
               {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={user.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900">{user.email}</div>
+                    <div className="text-sm font-medium text-white">{user.email}</div>
                   </td>
                   <td className="px-6 py-4">
                     <UserPreferencesCell 
@@ -192,7 +192,7 @@ export default function UsersPage() {
                     />
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-600">{formatDateTime(user.created_at)}</div>
+                    <div className="text-sm text-white/50">{formatDateTime(user.created_at)}</div>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <UserActionsCell 
@@ -239,7 +239,7 @@ export default function UsersPage() {
       </div>
 
       {users.length === 0 && !loading && (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-white/50">
           Brak użytkowników w bazie danych
         </div>
       )}
@@ -292,21 +292,21 @@ function UserPreferencesCell({
   }
 
   return (
-    <div className="text-sm text-gray-600 space-y-1">
+    <div className="text-sm text-white/60 space-y-1">
       {user.preferences ? (
         <>
           {user.preferences.must_include_keywords?.length > 0 && (
-            <div><span className="font-semibold text-green-600">✓ </span>{user.preferences.must_include_keywords.join(', ')}</div>
+            <div><span className="font-semibold text-green-400">✓ </span>{user.preferences.must_include_keywords.join(', ')}</div>
           )}
           {user.preferences.can_include_keywords?.length > 0 && (
-            <div><span className="font-semibold text-blue-600">+ </span>{user.preferences.can_include_keywords.join(', ')}</div>
+            <div><span className="font-semibold text-[#60A5FA]">+ </span>{user.preferences.can_include_keywords.join(', ')}</div>
           )}
           {user.preferences.cannot_include_keywords?.length > 0 && (
-            <div><span className="font-semibold text-red-600">✗ </span>{user.preferences.cannot_include_keywords.join(', ')}</div>
+            <div><span className="font-semibold text-red-400">✗ </span>{user.preferences.cannot_include_keywords.join(', ')}</div>
           )}
         </>
       ) : (
-        <span className="text-gray-400">Brak preferencji</span>
+        <span className="text-white/30">Brak preferencji</span>
       )}
     </div>
   );
@@ -340,15 +340,15 @@ function UserSubscriptionCell({ user, isEditing, editExpiresAt, onExpiresAtChang
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-              user.subscription.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              user.subscription.is_active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
             }`}>
               {user.subscription.is_active ? 'Aktywna' : 'Wygasła'}
             </span>
           </div>
-          <div className="text-xs text-gray-600">Do: {formatDateTime(user.subscription.expires_at)}</div>
+          <div className="text-xs text-white/50">Do: {formatDateTime(user.subscription.expires_at)}</div>
         </div>
       ) : (
-        <span className="text-gray-400">Brak subskrypcji</span>
+        <span className="text-white/30">Brak subskrypcji</span>
       )}
     </div>
   );
@@ -370,7 +370,7 @@ function UserActionsCell({ user, isEditingPreferences, isEditingSubscription, on
       {!isEditingSubscription && (
         <>
           <Button size="sm" variant="ghost" onClick={onEditSubscription}><Calendar className="w-4 h-4" /></Button>
-          {user.subscription && <Button size="sm" variant="ghost" onClick={onDeleteSubscription}><Trash2 className="w-4 h-4 text-red-600" /></Button>}
+          {user.subscription && <Button size="sm" variant="ghost" onClick={onDeleteSubscription}><Trash2 className="w-4 h-4 text-red-400" /></Button>}
         </>
       )}
     </div>
@@ -406,109 +406,109 @@ function UserMobileCard({
   onCancelPreferences, onCancelSubscription, onDeleteSubscription
 }: UserMobileCardProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-            {/* User Header */}
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{user.email}</p>
-                <p className="text-xs text-gray-500 mt-0.5">Utworzono: {formatDateShort(user.created_at)}</p>
-              </div>
-              <div className="flex items-center gap-1 ml-2">
+    <div className="bg-[#2B2E33] rounded-[1rem] border border-white/10 p-4">
+      {/* User Header */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-white truncate">{user.email}</p>
+          <p className="text-xs text-white/40 mt-0.5">Utworzono: {formatDateShort(user.created_at)}</p>
+        </div>
+        <div className="flex items-center gap-1 ml-2">
           {!isEditingPreferences && (
-            <button onClick={onEditPreferences} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded">
-                    <Edit className="w-4 h-4" />
-                  </button>
-                )}
+            <button onClick={onEditPreferences} className="p-1.5 text-white/40 hover:text-[#F1E388] hover:bg-white/5 rounded">
+              <Edit className="w-4 h-4" />
+            </button>
+          )}
           {!isEditingSubscription && (
-                  <>
-              <button onClick={onEditSubscription} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded">
-                      <Calendar className="w-4 h-4" />
-                    </button>
-                    {user.subscription && (
-                <button onClick={onDeleteSubscription} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
+            <>
+              <button onClick={onEditSubscription} className="p-1.5 text-white/40 hover:text-[#F1E388] hover:bg-white/5 rounded">
+                <Calendar className="w-4 h-4" />
+              </button>
+              {user.subscription && (
+                <button onClick={onDeleteSubscription} className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
 
-            {/* Subscription Status */}
-            <div className="mb-3">
+      {/* Subscription Status */}
+      <div className="mb-3">
         {isEditingSubscription ? (
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-600">Wygaśnięcie subskrypcji</label>
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-white/50">Wygaśnięcie subskrypcji</label>
             <Input type="datetime-local" value={editExpiresAt} onChange={(e) => onExpiresAtChange(e.target.value)} className="text-sm" />
-                  <div className="flex gap-2">
+            <div className="flex gap-2">
               <Button size="sm" onClick={onSaveSubscription}><Check className="w-3 h-3 mr-1" />Zapisz</Button>
               <Button size="sm" variant="secondary" onClick={onCancelSubscription}><X className="w-3 h-3 mr-1" />Anuluj</Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  {user.subscription ? (
-                    <>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                  user.subscription.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {user.subscription.is_active ? 'Aktywna' : 'Wygasła'}
-                      </span>
-                <span className="text-xs text-gray-500">do {formatDateShort(user.subscription.expires_at)}</span>
-                    </>
-                  ) : (
-                    <span className="text-xs text-gray-400">Brak subskrypcji</span>
-                  )}
-                </div>
-              )}
             </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            {user.subscription ? (
+              <>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                  user.subscription.is_active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                }`}>
+                  {user.subscription.is_active ? 'Aktywna' : 'Wygasła'}
+                </span>
+                <span className="text-xs text-white/40">do {formatDateShort(user.subscription.expires_at)}</span>
+              </>
+            ) : (
+              <span className="text-xs text-white/30">Brak subskrypcji</span>
+            )}
+          </div>
+        )}
+      </div>
 
-            {/* Preferences */}
-            <div className="border-t border-gray-100 pt-3">
+      {/* Preferences */}
+      <div className="border-t border-white/5 pt-3">
         {isEditingPreferences ? (
-                <div className="space-y-2">
+          <div className="space-y-2">
             <Input placeholder="Musi zawierać" value={editMustInclude} onChange={(e) => onMustIncludeChange(e.target.value)} className="text-sm" />
             <Input placeholder="Może zawierać" value={editCanInclude} onChange={(e) => onCanIncludeChange(e.target.value)} className="text-sm" />
             <Input placeholder="Nie może zawierać" value={editCannotInclude} onChange={(e) => onCannotIncludeChange(e.target.value)} className="text-sm" />
-                  <div className="flex gap-2">
+            <div className="flex gap-2">
               <Button size="sm" onClick={onSavePreferences}><Check className="w-3 h-3 mr-1" />Zapisz</Button>
               <Button size="sm" variant="secondary" onClick={onCancelPreferences}><X className="w-3 h-3 mr-1" />Anuluj</Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-xs text-gray-600 space-y-1">
-                  {user.preferences ? (
-                    <>
-                      {user.preferences.must_include_keywords?.length > 0 && (
-                        <div className="flex items-start gap-1">
-                          <span className="font-semibold text-green-600 flex-shrink-0">✓</span>
-                          <span className="break-words">{user.preferences.must_include_keywords.join(', ')}</span>
-                        </div>
-                      )}
-                      {user.preferences.can_include_keywords?.length > 0 && (
-                        <div className="flex items-start gap-1">
-                          <span className="font-semibold text-blue-600 flex-shrink-0">+</span>
-                          <span className="break-words">{user.preferences.can_include_keywords.join(', ')}</span>
-                        </div>
-                      )}
-                      {user.preferences.cannot_include_keywords?.length > 0 && (
-                        <div className="flex items-start gap-1">
-                          <span className="font-semibold text-red-600 flex-shrink-0">✗</span>
-                          <span className="break-words">{user.preferences.cannot_include_keywords.join(', ')}</span>
-                        </div>
-                      )}
-                      {!user.preferences.must_include_keywords?.length && 
-                       !user.preferences.can_include_keywords?.length && 
-                       !user.preferences.cannot_include_keywords?.length && (
-                        <span className="text-gray-400">Brak słów kluczowych</span>
-                      )}
-                    </>
-                  ) : (
-                    <span className="text-gray-400">Brak preferencji</span>
-                  )}
-                </div>
-              )}
             </div>
+          </div>
+        ) : (
+          <div className="text-xs text-white/50 space-y-1">
+            {user.preferences ? (
+              <>
+                {user.preferences.must_include_keywords?.length > 0 && (
+                  <div className="flex items-start gap-1">
+                    <span className="font-semibold text-green-400 flex-shrink-0">✓</span>
+                    <span className="break-words">{user.preferences.must_include_keywords.join(', ')}</span>
+                  </div>
+                )}
+                {user.preferences.can_include_keywords?.length > 0 && (
+                  <div className="flex items-start gap-1">
+                    <span className="font-semibold text-[#60A5FA] flex-shrink-0">+</span>
+                    <span className="break-words">{user.preferences.can_include_keywords.join(', ')}</span>
+                  </div>
+                )}
+                {user.preferences.cannot_include_keywords?.length > 0 && (
+                  <div className="flex items-start gap-1">
+                    <span className="font-semibold text-red-400 flex-shrink-0">✗</span>
+                    <span className="break-words">{user.preferences.cannot_include_keywords.join(', ')}</span>
+                  </div>
+                )}
+                {!user.preferences.must_include_keywords?.length && 
+                 !user.preferences.can_include_keywords?.length && 
+                 !user.preferences.cannot_include_keywords?.length && (
+                  <span className="text-white/30">Brak słów kluczowych</span>
+                )}
+              </>
+            ) : (
+              <span className="text-white/30">Brak preferencji</span>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

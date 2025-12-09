@@ -89,8 +89,8 @@ export default function LogsPage() {
           title="Logi operacji" 
           description="Historia scrapowania ofert i wysyłki emaili"
         />
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-center" style={{ height: '40vh' }}>
-          <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <div className="bg-cards-background rounded-xl shadow-xl shadow-black/20 border border-gray-700 flex items-center justify-center" style={{ height: '40vh' }}>
+          <svg className="animate-spin h-8 w-8 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
@@ -109,38 +109,38 @@ export default function LogsPage() {
       <div className="space-y-4">
         {/* Scrape Logs Section */}
         <div 
-          className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+          className="bg-cards-background rounded-xl shadow-xl shadow-black/20 border border-gray-700 overflow-hidden"
           style={{ height: '38vh', minHeight: '280px' }}
         >
           {/* Section Header - fixed */}
-          <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-200 bg-white">
-            <div className="p-2 bg-emerald-100 rounded-lg">
-              <Search className="w-5 h-5 text-emerald-600" />
+          <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-700 bg-cards-background">
+            <div className="p-2 bg-yellow-400/10 rounded-lg">
+              <Search className="w-5 h-5 text-yellow-400" />
             </div>
-            <h3 className="text-base font-bold text-gray-900">Logi scrapowania</h3>
+            <h3 className="text-base font-bold text-white">Logi scrapowania</h3>
           </div>
           
           {/* Table wrapper - scrollable both directions */}
           <div style={{ height: 'calc(38vh - 60px)', minHeight: '220px', overflow: 'auto' }}>
             {scrapeLogs.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
-                <FileText className="w-12 h-12 text-gray-300 mb-3" />
-                <p className="text-gray-500">Brak logów scrapowania</p>
+                <FileText className="w-12 h-12 text-gray-600 mb-3" />
+                <p className="text-gray-400">Brak logów scrapowania</p>
               </div>
             ) : (
               <table style={{ minWidth: '600px', width: '100%' }}>
-                <thead className="bg-gray-50 sticky top-0" style={{ zIndex: 10 }}>
-                  <tr className="border-b-2 border-gray-200">
-                    <th className="text-left px-5 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider bg-gray-50" style={{ width: '180px' }}>
+                <thead className="bg-gray-800 sticky top-0" style={{ zIndex: 10 }}>
+                  <tr className="border-b-2 border-gray-700">
+                    <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-800" style={{ width: '180px' }}>
                       Data i godzina
                     </th>
-                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider bg-gray-50">
+                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-800">
                       Czas trwania
                     </th>
-                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider bg-gray-50">
+                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-800">
                       Użytkownicy
                     </th>
-                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider bg-gray-50">
+                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-800">
                       Oferty
                     </th>
                   </tr>
@@ -155,13 +155,13 @@ export default function LogsPage() {
                     return (
                       <tr 
                         key={log.id} 
-                        className={`hover:bg-blue-50/50 transition-colors ${!isLast ? 'border-b border-gray-100' : ''}`}
+                        className={`hover:bg-gray-700/50 transition-colors ${!isLast ? 'border-b border-gray-700' : ''}`}
                       >
-                        <td className="px-5 py-3 text-sm text-gray-900 font-medium whitespace-nowrap" style={{ width: '180px' }}>
+                        <td className="px-5 py-3 text-sm text-white font-medium whitespace-nowrap" style={{ width: '180px' }}>
                           {formatDateTime(log.executed_at)}
                         </td>
                         <td className="px-5 py-3 text-center">
-                          <span className="text-sm text-gray-700 bg-gray-100 px-3 py-1.5 rounded-lg font-medium">
+                          <span className="text-sm text-gray-300 bg-gray-700 px-3 py-1.5 rounded-lg font-medium">
                             {durationSeconds}s
                           </span>
                         </td>
@@ -174,7 +174,7 @@ export default function LogsPage() {
                           />
                         </td>
                         <td className="px-5 py-3 text-center">
-                          <span className="text-sm font-bold text-gray-900">{log.total_offers_scraped}</span>
+                          <span className="text-sm font-bold text-white">{log.total_offers_scraped}</span>
                         </td>
                       </tr>
                     );
@@ -187,41 +187,41 @@ export default function LogsPage() {
 
         {/* Mail Logs Section */}
         <div 
-          className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+          className="bg-cards-background rounded-xl shadow-xl shadow-black/20 border border-gray-700 overflow-hidden"
           style={{ height: '40vh', minHeight: '280px' }}
         >
           {/* Section Header - fixed */}
-          <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-200 bg-white">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Mail className="w-5 h-5 text-blue-600" />
+          <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-700 bg-cards-background">
+            <div className="p-2 bg-yellow-400/10 rounded-lg">
+              <Mail className="w-5 h-5 text-yellow-400" />
             </div>
-            <h3 className="text-base font-bold text-gray-900">Logi wysyłki emaili</h3>
+            <h3 className="text-base font-bold text-white">Logi wysyłki emaili</h3>
           </div>
           
           {/* Table wrapper - scrollable both directions */}
           <div style={{ height: 'calc(40vh - 60px)', minHeight: '220px', overflow: 'auto' }}>
             {mailLogs.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
-                <FileText className="w-12 h-12 text-gray-300 mb-3" />
-                <p className="text-gray-500">Brak logów wysyłki</p>
+                <FileText className="w-12 h-12 text-gray-600 mb-3" />
+                <p className="text-gray-400">Brak logów wysyłki</p>
               </div>
             ) : (
               <table style={{ minWidth: '800px', width: '100%' }}>
-                <thead className="bg-gray-50 sticky top-0" style={{ zIndex: 10 }}>
-                  <tr className="border-b-2 border-gray-200">
-                    <th className="text-left px-5 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider bg-gray-50" style={{ width: '180px' }}>
+                <thead className="bg-gray-800 sticky top-0" style={{ zIndex: 10 }}>
+                  <tr className="border-b-2 border-gray-700">
+                    <th className="text-left px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-800" style={{ width: '180px' }}>
                       Data i godzina
                     </th>
-                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider bg-gray-50">
+                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-800">
                       Razem
                     </th>
-                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider bg-gray-50">
+                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-800">
                       Subskrybenci
                     </th>
-                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider bg-gray-50">
+                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-800">
                       Wygaśli
                     </th>
-                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-600 uppercase tracking-wider bg-gray-50">
+                    <th className="text-center px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-800">
                       Bez subskrypcji
                     </th>
                   </tr>
@@ -237,9 +237,9 @@ export default function LogsPage() {
                     return (
                       <tr 
                         key={log.id} 
-                        className={`hover:bg-blue-50/50 transition-colors ${!isLast ? 'border-b border-gray-100' : ''}`}
+                        className={`hover:bg-gray-700/50 transition-colors ${!isLast ? 'border-b border-gray-700' : ''}`}
                       >
-                        <td className="px-5 py-3 text-sm text-gray-900 font-medium whitespace-nowrap" style={{ width: '180px' }}>
+                        <td className="px-5 py-3 text-sm text-white font-medium whitespace-nowrap" style={{ width: '180px' }}>
                           {formatDateTime(log.executed_at)}
                         </td>
                         <td className="px-5 py-3">
@@ -466,9 +466,9 @@ function StatusCell({ sent, total, skipped, successRate, errors }: StatusCellPro
       )}
       
       {/* Numbers */}
-      <span className="text-sm text-gray-900">
+      <span className="text-sm text-white">
         <span className="font-bold">{sent}</span>
-        <span className="text-gray-400 font-medium">/{total}</span>
+        <span className="text-gray-500 font-medium">/{total}</span>
       </span>
     </div>
   );

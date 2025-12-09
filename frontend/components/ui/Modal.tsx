@@ -29,27 +29,27 @@ export const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
       
       {/* Modal */}
-      <div className="relative bg-white rounded-xl shadow-2xl p-5 sm:p-6 max-w-md w-full animate-in fade-in zoom-in duration-200">
+      <div className="relative bg-[#2B2E33] border border-white/10 rounded-[1rem] shadow-2xl p-5 sm:p-6 max-w-md w-full animate-scaleIn">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-gray-600 transition-colors p-1"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 text-white/40 hover:text-white transition-colors p-1"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Content */}
         <div className="mb-5 sm:mb-6 pr-6">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-base sm:text-lg font-semibold text-white mb-2">
             {title}
           </h3>
           {description && (
-            <p className="text-xs sm:text-sm text-gray-600">
+            <p className="text-xs sm:text-sm text-white/60">
               {description}
             </p>
           )}
@@ -71,7 +71,7 @@ export const Modal: React.FC<ModalProps> = ({
                 onConfirm();
                 onClose();
               }}
-              className={`w-full sm:w-auto ${variant === 'danger' ? 'bg-red-600 hover:bg-red-700' : ''}`}
+              className={`w-full sm:w-auto ${variant === 'danger' ? '!bg-red-500 hover:!bg-red-600' : ''}`}
             >
               {confirmText}
             </Button>
@@ -81,4 +81,3 @@ export const Modal: React.FC<ModalProps> = ({
     </div>
   );
 };
-

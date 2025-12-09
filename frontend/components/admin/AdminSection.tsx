@@ -7,13 +7,13 @@ interface AdminSectionProps {
 }
 
 /**
- * Reusable white card section for admin pages
+ * Reusable card section for admin pages
  */
 export function AdminSection({ children, title, className = '' }: AdminSectionProps) {
   return (
-    <div className={`bg-white rounded-lg shadow-sm p-4 sm:p-6 ${className}`}>
+    <div className={`bg-[#2B2E33] rounded-[1rem] border border-white/10 p-4 sm:p-6 ${className}`}>
       {title && (
-        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+        <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">
           {title}
         </h3>
       )}
@@ -21,4 +21,3 @@ export function AdminSection({ children, title, className = '' }: AdminSectionPr
     </div>
   );
 }
-

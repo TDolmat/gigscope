@@ -110,11 +110,11 @@ export default function SettingsPage() {
       <div className="space-y-4 sm:space-y-6">
         <AdminSection title="Czas wysyłki" className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Częstotliwość</label>
+            <label className="block text-sm font-semibold text-white mb-2">Częstotliwość</label>
             <select 
               value={frequency}
               onChange={(e) => setFrequency(e.target.value)}
-              className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+              className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2.5 bg-[#191B1F] border-0 rounded-[1rem] focus:outline-none focus:ring-2 focus:ring-[#F1E388]/50 text-sm sm:text-base text-white"
             >
               <option value="codziennie">Codziennie</option>
               <option value="co2dni">Co 2 dni</option>
@@ -124,21 +124,21 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Godzina wysyłki</label>
+            <label className="block text-sm font-semibold text-white mb-2">Godzina wysyłki</label>
             <input
               type="time"
               value={sendTime}
               onChange={(e) => setSendTime(e.target.value)}
-              className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+              className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2.5 bg-[#191B1F] border-0 rounded-[1rem] focus:outline-none focus:ring-2 focus:ring-[#F1E388]/50 text-sm sm:text-base text-white"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-white/50">
               Czas w strefie czasowej Europa/Warszawa (polski czas lokalny)
             </p>
           </div>
         </AdminSection>
 
         <AdminSection>
-          <label className="block text-sm font-semibold text-gray-900 mb-3 sm:mb-4">Platformy do scrapowania</label>
+          <label className="block text-sm font-semibold text-white mb-3 sm:mb-4">Platformy do scrapowania</label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {Object.entries(platforms).map(([key, value]) => (
               <Checkbox
@@ -153,7 +153,7 @@ export default function SettingsPage() {
         </AdminSection>
 
         <AdminSection>
-          <label className="block text-sm font-semibold text-gray-900 mb-2 sm:mb-3">Maksymalna liczba ofert w mailu</label>
+          <label className="block text-sm font-semibold text-white mb-2 sm:mb-3">Maksymalna liczba ofert w mailu</label>
           <Input
             type="number"
             value={maxOffers}

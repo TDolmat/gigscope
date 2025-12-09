@@ -141,7 +141,7 @@ export default function ScrapePage() {
       <PageHeader title="Scrape Test" />
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-4 sm:mb-6 overflow-x-auto">
+      <div className="border-b border-gray-700 mb-4 sm:mb-6 overflow-x-auto">
         <nav className="-mb-px flex space-x-4 sm:space-x-8 min-w-max">
           {TABS.map((tab) => (
             <button
@@ -150,14 +150,14 @@ export default function ScrapePage() {
               className={`
                 py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors relative whitespace-nowrap
                 ${activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-yellow-400 text-yellow-400'
+                  : 'border-transparent text-gray-400 hover:text-white hover:border-gray-600'
                 }
               `}
             >
               {tab.label}
               {tab.comingSoon && (
-                <span className="ml-1.5 sm:ml-2 text-[10px] sm:text-xs bg-gray-200 text-gray-600 px-1.5 sm:px-2 py-0.5 rounded">
+                <span className="ml-1.5 sm:ml-2 text-[10px] sm:text-xs bg-gray-700 text-gray-400 px-1.5 sm:px-2 py-0.5 rounded">
                   wkrótce
                 </span>
               )}
@@ -169,7 +169,7 @@ export default function ScrapePage() {
       {/* Upwork Tab Content */}
       {activeTab === 'upwork' && loading && (
         <div className="flex items-center justify-center h-64">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
       
@@ -186,17 +186,17 @@ export default function ScrapePage() {
             />
 
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Maksymalna liczba ofert</label>
+              <label className="block text-sm font-semibold text-yellow-400 mb-2">Maksymalna liczba ofert</label>
               <select
                 value={upworkMaxOffers}
                 onChange={(e) => setUpworkMaxOffers(Number(e.target.value))}
-                className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 text-sm border border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-gray-700 text-white"
               >
                 <option value={10}>10 ofert</option>
                 <option value={20}>20 ofert</option>
                 <option value={50}>50 ofert</option>
               </select>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-gray-400">
                 Maksymalna liczba ofert pobieranych z Upwork podczas scrapowania
               </p>
             </div>
@@ -209,17 +209,17 @@ export default function ScrapePage() {
           {/* Test Section */}
           <AdminSection title="Test scrapera" className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Liczba ofert do testu</label>
+              <label className="block text-sm font-semibold text-yellow-400 mb-2">Liczba ofert do testu</label>
               <select
                 value={perPage}
                 onChange={(e) => setPerPage(Number(e.target.value))}
-                className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 text-sm border border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-gray-700 text-white"
               >
                 <option value={10}>10 ofert (szybki test)</option>
                 <option value={20}>20 ofert</option>
                 <option value={50}>50 ofert</option>
               </select>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-gray-400">
                 Tylko do testów - produkcyjne scrapowanie używa ustawień z konfiguracji
               </p>
             </div>
@@ -239,16 +239,16 @@ export default function ScrapePage() {
             {testing && (
               <div className="flex items-center justify-center py-6 sm:py-8">
                 <div className="text-center">
-                  <div className="inline-block animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-blue-600 mb-4" />
-                  <p className="text-sm text-gray-600">Czas trwania: {(elapsedTime / 1000).toFixed(1)}s</p>
+                  <div className="inline-block animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-yellow-400 mb-4" />
+                  <p className="text-sm text-gray-300">Czas trwania: {(elapsedTime / 1000).toFixed(1)}s</p>
                 </div>
               </div>
             )}
 
             {/* Error Message */}
             {error && (
-              <div className="p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-xs sm:text-sm text-red-600">{error}</p>
+              <div className="p-3 sm:p-4 bg-red-900/20 border border-red-700 rounded-lg">
+                <p className="text-xs sm:text-sm text-red-300">{error}</p>
               </div>
             )}
           </AdminSection>
@@ -293,7 +293,7 @@ interface ApiKeyInputProps {
 function ApiKeyInput({ value, onChange, showKey, onToggleShow, onCopy }: ApiKeyInputProps) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-gray-900 mb-2">Klucz API Apify</label>
+      <label className="block text-sm font-semibold text-yellow-400 mb-2">Klucz API Apify</label>
       <div className="relative">
         <Input
           type={showKey ? 'text' : 'password'}
@@ -307,7 +307,7 @@ function ApiKeyInput({ value, onChange, showKey, onToggleShow, onCopy }: ApiKeyI
             type="button"
             onClick={onCopy}
             disabled={!value}
-            className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-1 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
             title="Kopiuj klucz"
           >
             <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,7 +318,7 @@ function ApiKeyInput({ value, onChange, showKey, onToggleShow, onCopy }: ApiKeyI
             type="button"
             onClick={onToggleShow}
             disabled={!value}
-            className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-1 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
             title={showKey ? 'Ukryj klucz' : 'Pokaż klucz'}
           >
             {showKey ? (
@@ -334,7 +334,7 @@ function ApiKeyInput({ value, onChange, showKey, onToggleShow, onCopy }: ApiKeyI
           </button>
         </div>
       </div>
-      <p className="mt-1 text-xs text-gray-500">Klucz API jest bezpiecznie szyfrowany w bazie danych</p>
+      <p className="mt-1 text-xs text-gray-400">Klucz API jest bezpiecznie szyfrowany w bazie danych</p>
     </div>
   );
 }
@@ -349,9 +349,9 @@ interface KeywordInputProps {
 function KeywordInput({ label, value, onChange, placeholder }: KeywordInputProps) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-gray-900 mb-2">
+      <label className="block text-sm font-semibold text-white mb-2">
         {label}
-        <span className="text-xs text-gray-500 ml-2 font-normal">(oddzielone przecinkami)</span>
+        <span className="text-xs text-gray-400 ml-2 font-normal">(oddzielone przecinkami)</span>
       </label>
       <Input placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
@@ -368,8 +368,8 @@ function ScrapeResultsSection({ results }: ScrapeResultsSectionProps) {
       {/* Search URL */}
       {results.search_url && (
         <AdminSection title="URL zapytania">
-          <div className="bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200">
-            <a href={results.search_url} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 break-all underline">
+          <div className="bg-gray-700 p-3 sm:p-4 rounded-lg border border-gray-600">
+            <a href={results.search_url} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm text-yellow-400 hover:text-yellow-300 break-all underline">
               {results.search_url}
             </a>
           </div>
@@ -379,39 +379,39 @@ function ScrapeResultsSection({ results }: ScrapeResultsSectionProps) {
       {/* Summary */}
       <AdminSection title="Podsumowanie">
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
-          <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
-            <p className="text-xs sm:text-sm text-gray-600">Znaleziono ofert</p>
-            <p className="text-xl sm:text-2xl font-bold text-blue-600">{results.count}</p>
+          <div className="bg-yellow-400/10 p-3 sm:p-4 rounded-lg border border-yellow-500/20">
+            <p className="text-xs sm:text-sm text-gray-400">Znaleziono ofert</p>
+            <p className="text-xl sm:text-2xl font-bold text-yellow-400">{results.count}</p>
           </div>
-          <div className="bg-green-50 p-3 sm:p-4 rounded-lg">
-            <p className="text-xs sm:text-sm text-gray-600">Czas scrapowania</p>
-            <p className="text-xl sm:text-2xl font-bold text-green-600">
+          <div className="bg-yellow-400/10 p-3 sm:p-4 rounded-lg border border-yellow-500/20">
+            <p className="text-xs sm:text-sm text-gray-400">Czas scrapowania</p>
+            <p className="text-xl sm:text-2xl font-bold text-yellow-400">
               {results.scrape_time_ms ? `${(results.scrape_time_ms/1000).toFixed(1)}s` : 'N/A'}
             </p>
           </div>
-          <div className="bg-purple-50 p-3 sm:p-4 rounded-lg">
-            <p className="text-xs sm:text-sm text-gray-600">Platforma</p>
-            <p className="text-xl sm:text-2xl font-bold text-purple-600">Upwork</p>
+          <div className="bg-yellow-400/10 p-3 sm:p-4 rounded-lg border border-yellow-500/20">
+            <p className="text-xs sm:text-sm text-gray-400">Platforma</p>
+            <p className="text-xl sm:text-2xl font-bold text-yellow-400">Upwork</p>
           </div>
         </div>
       </AdminSection>
 
       {/* Parsed Output */}
       <AdminSection title={`Wyniki (${results.count} ofert)`}>
-        <div className="max-h-80 sm:max-h-96 overflow-y-auto overflow-x-hidden border border-gray-200 rounded-lg">
+        <div className="max-h-80 sm:max-h-96 overflow-y-auto overflow-x-hidden border border-gray-700 rounded-lg">
           {results.parsed && results.parsed.length > 0 ? (
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-gray-700">
               {results.parsed.map((offer, index) => (
-                <div key={index} className="p-3 sm:p-4 hover:bg-gray-50">
-                  <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base break-words">{offer.title}</h4>
-                  <p className="text-xs sm:text-sm text-gray-600 mb-2 break-words whitespace-pre-wrap line-clamp-3">{offer.description}</p>
+                <div key={index} className="p-3 sm:p-4 hover:bg-gray-700/50">
+                  <h4 className="font-semibold text-white mb-2 text-sm sm:text-base break-words">{offer.title}</h4>
+                  <p className="text-xs sm:text-sm text-gray-400 mb-2 break-words whitespace-pre-wrap line-clamp-3">{offer.description}</p>
                   <div className="flex flex-wrap gap-2 sm:gap-4 text-[10px] sm:text-xs text-gray-500">
-                    {offer.budget && <span className="flex items-center"><span className="font-medium">Budżet:</span>&nbsp;{offer.budget}</span>}
-                    {offer.client_name && <span className="flex items-center break-words"><span className="font-medium">Klient:</span>&nbsp;{offer.client_name}</span>}
-                    {offer.posted_at && <span className="flex items-center"><span className="font-medium">Data:</span>&nbsp;{new Date(offer.posted_at).toLocaleString('pl-PL')}</span>}
+                    {offer.budget && <span className="flex items-center"><span className="font-medium text-gray-400">Budżet:</span>&nbsp;{offer.budget}</span>}
+                    {offer.client_name && <span className="flex items-center break-words"><span className="font-medium text-gray-400">Klient:</span>&nbsp;{offer.client_name}</span>}
+                    {offer.posted_at && <span className="flex items-center"><span className="font-medium text-gray-400">Data:</span>&nbsp;{new Date(offer.posted_at).toLocaleString('pl-PL')}</span>}
                   </div>
                   {offer.url && (
-                    <a href={offer.url} target="_blank" rel="noopener noreferrer" className="text-[10px] sm:text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block break-all">
+                    <a href={offer.url} target="_blank" rel="noopener noreferrer" className="text-[10px] sm:text-xs text-yellow-400 hover:text-yellow-300 mt-2 inline-block break-all">
                       Zobacz ofertę →
                     </a>
                   )}
@@ -419,7 +419,7 @@ function ScrapeResultsSection({ results }: ScrapeResultsSectionProps) {
               ))}
             </div>
           ) : (
-            <div className="p-8 text-center text-gray-500 text-sm">Brak ofert do wyświetlenia</div>
+            <div className="p-8 text-center text-gray-400 text-sm">Brak ofert do wyświetlenia</div>
           )}
         </div>
       </AdminSection>
@@ -427,7 +427,7 @@ function ScrapeResultsSection({ results }: ScrapeResultsSectionProps) {
       {/* Raw Output */}
       <AdminSection title="Wyniki (raw)">
         <div className="max-h-80 sm:max-h-96 overflow-y-auto overflow-x-hidden">
-          <pre className="text-[10px] sm:text-xs bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200 whitespace-pre-wrap break-words">
+          <pre className="text-[10px] sm:text-xs bg-gray-700 p-3 sm:p-4 rounded-lg border border-gray-600 whitespace-pre-wrap break-words text-gray-300">
             {results.raw}
           </pre>
         </div>
@@ -443,11 +443,11 @@ interface ComingSoonPlaceholderProps {
 
 function ComingSoonPlaceholder({ emoji, text }: ComingSoonPlaceholderProps) {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-8 sm:p-12 text-center">
+    <div className="bg-cards-background rounded-lg shadow-xl shadow-black/20 border border-gray-700 p-8 sm:p-12 text-center">
       <div className="max-w-md mx-auto">
         <div className="text-4xl sm:text-6xl mb-4">{emoji}</div>
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Wkrótce dostępne</h3>
-        <p className="text-sm text-gray-500">{text}</p>
+        <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">Wkrótce dostępne</h3>
+        <p className="text-sm text-gray-400">{text}</p>
       </div>
     </div>
   );

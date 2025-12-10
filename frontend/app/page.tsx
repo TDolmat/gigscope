@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Tooltip } from '@/components/ui/Tooltip';
+import { TagInput, tagsToString } from '@/components/ui/TagInput';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { HowItWorksModal } from '@/components/HowItWorksModal';
@@ -14,13 +15,15 @@ import { EXTERNAL_LINKS } from '@/lib/config';
 
 export default function Home() {
   const [email, setEmail] = useState('');
-  const [mustContain, setMustContain] = useState('');
-  const [mayContain, setMayContain] = useState('');
-  const [mustNotContain, setMustNotContain] = useState('');
+  const [mustContainTags, setMustContainTags] = useState<string[]>([]);
+  const [mayContainTags, setMayContainTags] = useState<string[]>([]);
+  const [mustNotContainTags, setMustNotContainTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,9 +46,19 @@ export default function Home() {
     }
 
     setLoading(true);
+    setIsSubmitting(true);
+
+    // Trigger button ripple effect
+    if (buttonRef.current) {
+      buttonRef.current.classList.add('btn-success-pulse');
+    }
 
     try {
       const { userApi } = await import('@/lib/api');
+      const mustContain = tagsToString(mustContainTags);
+      const mayContain = tagsToString(mayContainTags);
+      const mustNotContain = tagsToString(mustNotContainTags);
+      
       await userApi.subscribe(email, mustContain, mayContain, mustNotContain);
       
       toast.success('Świetnie! Będziesz otrzymywać codzienne powiadomienia ze zleceniami dopasowanymi do Twoich słów kluczowych.', {
@@ -53,9 +66,9 @@ export default function Home() {
       });
       
       setEmail('');
-      setMustContain('');
-      setMayContain('');
-      setMustNotContain('');
+      setMustContainTags([]);
+      setMayContainTags([]);
+      setMustNotContainTags([]);
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'status' in err && err.status === 409) {
         toast.warning('Ten adres email jest już zapisany do otrzymywania ofert. Jeśli chcesz zmienić preferencje lub wypisać się, użyj linków w otrzymanym mailu.', {
@@ -72,6 +85,12 @@ export default function Home() {
       }
     } finally {
       setLoading(false);
+      setTimeout(() => {
+        setIsSubmitting(false);
+        if (buttonRef.current) {
+          buttonRef.current.classList.remove('btn-success-pulse');
+        }
+      }, 600);
     }
   };
 
@@ -104,20 +123,20 @@ export default function Home() {
                 <div className="space-y-6 sm:space-y-8">
                   <KeywordField
                     type="must"
-                    value={mustContain}
-                    onChange={setMustContain}
+                    tags={mustContainTags}
+                    onTagsChange={setMustContainTags}
                     disabled={loading}
                   />
                   <KeywordField
                     type="may"
-                    value={mayContain}
-                    onChange={setMayContain}
+                    tags={mayContainTags}
+                    onTagsChange={setMayContainTags}
                     disabled={loading}
                   />
                   <KeywordField
                     type="not"
-                    value={mustNotContain}
-                    onChange={setMustNotContain}
+                    tags={mustNotContainTags}
+                    onTagsChange={setMustNotContainTags}
                     disabled={loading}
                   />
                 </div>
@@ -134,23 +153,34 @@ export default function Home() {
 
                 {/* Submit Button */}
                 <div className="pt-2 sm:pt-6">
-                  <Button
+                  <button
+                    ref={buttonRef}
                     type="submit"
-                    variant="primary"
-                    size="lg"
-                    loading={loading}
                     disabled={loading}
-                    className="w-full text-sm sm:text-lg font-bold flex items-center justify-center gap-2"
+                    className={`w-full px-8 py-4 text-sm sm:text-lg font-bold rounded-[1rem] transition-all duration-300 
+                      bg-[#F1E388] text-[#191B1F] hover:bg-[#E5D77C] hover:brightness-105 
+                      shadow-[0_0_30px_rgba(241,227,136,0.4)] hover:shadow-[0_0_40px_rgba(241,227,136,0.55)]
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                      active:scale-[0.98] cursor-pointer
+                      flex items-center justify-center gap-2
+                      btn-submit-effect
+                      ${isSubmitting ? 'btn-success-animation' : ''}`}
                   >
                     {loading ? (
-                      'Zapisywanie...'
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2.5 h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Zapisywanie...
+                      </>
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                         Rozpocznij otrzymywanie zleceń
                       </>
                     )}
-                  </Button>
+                  </button>
                 </div>
               </form>
             </div>
@@ -258,8 +288,8 @@ function EmailField({ email, onChange, error, disabled }: EmailFieldProps) {
 
 interface KeywordFieldProps {
   type: 'must' | 'may' | 'not';
-  value: string;
-  onChange: (value: string) => void;
+  tags: string[];
+  onTagsChange: (tags: string[]) => void;
   disabled: boolean;
 }
 
@@ -267,7 +297,7 @@ const KEYWORD_CONFIG = {
   must: {
     icon: Check,
     label: 'Musi zawierać',
-    placeholder: 'np. React, TypeScript, Frontend (oddziel przecinkami)',
+    placeholder: 'np. React, TypeScript, Frontend (oddziel spacjami lub przecinkami)',
     helperText: <>Wystarczy <span className="font-semibold text-white">jedno</span> z tych słów (lub więcej)</>,
     tooltip: (
       <div className="text-left">
@@ -290,7 +320,7 @@ const KEYWORD_CONFIG = {
     icon: Plus,
     label: 'Może zawierać',
     labelSuffix: '(główne słowa kluczowe)',
-    placeholder: 'np. Next.js, Tailwind, UI/UX (oddziel przecinkami)',
+    placeholder: 'np. Next.js, Tailwind, UI/UX (oddziel spacjami lub przecinkami)',
     helperText: <>Wystarczy <span className="font-semibold text-white">jedno</span> z tych słów (lub więcej)</>,
     tooltip: (
       <div className="text-left">
@@ -312,7 +342,7 @@ const KEYWORD_CONFIG = {
   not: {
     icon: X,
     label: 'Nie może zawierać',
-    placeholder: 'np. WordPress, PHP, Backend (oddziel przecinkami)',
+    placeholder: 'np. WordPress, PHP, Backend (oddziel spacjami lub przecinkami)',
     helperText: <><span className="font-semibold text-white">Żadne</span> z tych słów nie może wystąpić</>,
     tooltip: (
       <div className="text-left">
@@ -333,7 +363,7 @@ const KEYWORD_CONFIG = {
   },
 };
 
-function KeywordField({ type, value, onChange, disabled }: KeywordFieldProps) {
+function KeywordField({ type, tags, onTagsChange, disabled }: KeywordFieldProps) {
   const config = KEYWORD_CONFIG[type];
   const Icon = config.icon;
   
@@ -349,10 +379,10 @@ function KeywordField({ type, value, onChange, disabled }: KeywordFieldProps) {
         )}
         <Tooltip content={config.tooltip} />
       </div>
-      <Input
+      <TagInput
         placeholder={config.placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={tags}
+        onChange={onTagsChange}
         disabled={disabled}
       />
       <p className="mt-2 text-xs sm:text-sm text-white/50">{config.helperText}</p>

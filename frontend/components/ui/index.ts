@@ -6,4 +6,5 @@ export { Card } from './Card';
 export { Loading } from './Loading';
 export { Tooltip } from './Tooltip';
 export { Modal } from './Modal';
+export { TagInput, tagsToString, stringToTags } from './TagInput';
 

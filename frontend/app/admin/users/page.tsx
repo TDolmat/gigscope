@@ -280,9 +280,9 @@ function UserPreferencesCell({
   if (isEditing) {
     return (
       <div className="space-y-2 max-w-md">
-        <Input placeholder="Musi zawierać (oddziel przecinkami)" value={editMustInclude} onChange={(e) => onMustIncludeChange(e.target.value)} className="text-sm" />
-        <Input placeholder="Może zawierać (oddziel przecinkami)" value={editCanInclude} onChange={(e) => onCanIncludeChange(e.target.value)} className="text-sm" />
-        <Input placeholder="Nie może zawierać (oddziel przecinkami)" value={editCannotInclude} onChange={(e) => onCannotIncludeChange(e.target.value)} className="text-sm" />
+        <Input placeholder="Musi zawierać (oddziel spacjami lub przecinkami)" value={editMustInclude} onChange={(e) => onMustIncludeChange(e.target.value)} className="text-sm" />
+        <Input placeholder="Może zawierać (oddziel spacjami lub przecinkami)" value={editCanInclude} onChange={(e) => onCanIncludeChange(e.target.value)} className="text-sm" />
+        <Input placeholder="Nie może zawierać (oddziel spacjami lub przecinkami)" value={editCannotInclude} onChange={(e) => onCannotIncludeChange(e.target.value)} className="text-sm" />
         <div className="flex gap-2">
           <Button size="sm" onClick={onSave}><Check className="w-4 h-4 mr-1" />Zapisz</Button>
           <Button size="sm" variant="secondary" onClick={onCancel}><X className="w-4 h-4 mr-1" />Anuluj</Button>

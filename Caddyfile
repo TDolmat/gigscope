@@ -1,8 +1,8 @@
-# Caddyfile - Reverse Proxy Configuration for gigscope.pl
+# Caddyfile - Reverse Proxy Configuration for scoper.befreeclub.pro
 # Caddy automatically handles HTTPS certificates via Let's Encrypt
 
 # Main domain configuration
-gigscope.pl {
+scoper.befreeclub.pro {
     # Enable automatic HTTPS
     # Caddy will automatically obtain and renew SSL certificates
     
@@ -58,10 +58,5 @@ gigscope.pl {
             header_up Host {host}
         }
     }
-}
-
-# Redirect www to non-www (optional, but recommended)
-www.gigscope.pl {
-    redir https://gigscope.pl{uri} permanent
 }
 

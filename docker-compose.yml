@@ -4,7 +4,7 @@ services:
   # ============================================================================
   postgres:
     image: postgres:16-alpine
-    container_name: gigscope_postgres
+    container_name: scoper_postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -38,7 +38,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: gigscope_backend
+    container_name: scoper_backend
     restart: unless-stopped
     env_file:
       - .env
@@ -70,8 +70,8 @@ services:
       dockerfile: Dockerfile
       args:
         # This is baked into the build (NEXT_PUBLIC_* must be set at build time)
-        NEXT_PUBLIC_API_URL: https://gigscope.pl/api
-    container_name: gigscope_frontend
+        NEXT_PUBLIC_API_URL: https://scoper.befreeclub.pro/api
+    container_name: scoper_frontend
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -92,7 +92,7 @@ services:
   # ============================================================================
   caddy:
     image: caddy:2-alpine
-    container_name: gigscope_caddy
+    container_name: scoper_caddy
     restart: unless-stopped
     ports:
       - "80:80"    # HTTP
@@ -144,4 +144,3 @@ volumes:
   # Caddy config - configuration cache
   caddy_config:
     driver: local
-

@@ -1,6 +1,6 @@
-# 🚀 Deployment Guide - Gigscope.pl
+# 🚀 Deployment Guide - scoper.befreeclub.pro
 
-Kompletny przewodnik po wdrożeniu aplikacji Gigscope na serwer VPS OVH.
+Kompletny przewodnik po wdrożeniu aplikacji AI Scoper na serwer VPS OVH.
 
 ---
 
@@ -27,11 +27,11 @@ Kompletny przewodnik po wdrożeniu aplikacji Gigscope na serwer VPS OVH.
 - **OS**: Ubuntu 22.04 LTS (zalecane) lub Debian 12
 
 ### Domena
-- ✅ Domena `gigscope.pl` podpięta do IP serwera VPS
+- ✅ Domena `scoper.befreeclub.pro` podpięta do IP serwera VPS
 - ✅ DNS skonfigurowany (rekordy A):
   ```
-  gigscope.pl     → IP_TWOJEGO_VPS
-  www.gigscope.pl → IP_TWOJEGO_VPS
+  scoper.befreeclub.pro     → IP_TWOJEGO_VPS
+  www.scoper.befreeclub.pro → IP_TWOJEGO_VPS
   ```
 
 ---
@@ -42,8 +42,8 @@ Kompletny przewodnik po wdrożeniu aplikacji Gigscope na serwer VPS OVH.
 Internet (HTTPS)
        ↓
    Caddy (Port 80/443)
-   ├─ gigscope.pl/*     → Frontend (Next.js:3000)
-   └─ gigscope.pl/api/* → Backend (Flask+Gunicorn:5000)
+   ├─ scoper.befreeclub.pro/*     → Frontend (Next.js:3000)
+   └─ scoper.befreeclub.pro/api/* → Backend (Flask+Gunicorn:5000)
                               ↓
                           PostgreSQL:5432
 ```
@@ -116,12 +116,12 @@ mkdir -p /var/www
 
 # Sklonuj repo
 cd /var/www
-git clone https://github.com/TWOJ_USER/gigscope.git
-cd gigscope
+git clone https://github.com/TWOJ_USER/ai-scoper.git scoper
+cd scoper
 ```
 
 **Uwaga:** Używamy `/var/www/` jako standardowej lokalizacji dla aplikacji webowych.
-Alternatywnie możesz użyć `/srv/gigscope` lub `/home/deploy/gigscope`.
+Alternatywnie możesz użyć `/srv/scoper` lub `/home/deploy/scoper`.
 
 ### 2. Utwórz plik `.env`
 
@@ -180,9 +180,9 @@ JWT_REFRESH_TOKEN_EXPIRES=604800
 # ============================================================================
 # APPLICATION URLS
 # ============================================================================
-BASE_URL=https://gigscope.pl
-CORS_ORIGINS=https://gigscope.pl
-CIRCLE_URL=https://circle.so/c/be-free-club
+BASE_URL=https://scoper.befreeclub.pro
+CORS_ORIGINS=https://scoper.befreeclub.pro
+CIRCLE_URL=https://www.befreeclub.pro/
 
 # ============================================================================
 # SCRAPING CONFIGURATION
@@ -194,7 +194,7 @@ DEFAULT_MAX_MAIL_OFFERS=10
 # OPTIONAL: EMAIL (jeśli używasz Resend)
 # ============================================================================
 # RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-# FROM_EMAIL=noreply@gigscope.pl
+# FROM_EMAIL=noreply@befreeclub.pro
 ```
 
 ### 5. Zabezpiecz plik .env
@@ -210,7 +210,7 @@ chmod 600 .env
 ### 1. Zbuduj i uruchom kontenery
 
 ```bash
-cd /var/www/gigscope
+cd /var/www/scoper
 docker compose up -d --build
 ```
 
@@ -229,10 +229,10 @@ docker compose ps
 Wszystkie kontenery powinny być w stanie `Up (healthy)`:
 ```
 NAME                   STATUS
-gigscope_postgres      Up (healthy)
-gigscope_backend       Up (healthy)
-gigscope_frontend      Up (healthy)
-gigscope_caddy         Up (healthy)
+scoper_postgres        Up (healthy)
+scoper_backend         Up (healthy)
+scoper_frontend        Up (healthy)
+scoper_caddy           Up (healthy)
 ```
 
 ### 3. Sprawdź logi
@@ -282,7 +282,7 @@ from werkzeug.security import generate_password_hash
 
 # Utwórz admina
 admin = User(
-    email='admin@gigscope.pl',
+    email='admin@befreeclub.pro',
     password=generate_password_hash('TWOJE_HASLO'),
     is_admin=True,
     email_verified=True
@@ -301,8 +301,8 @@ exit()
 ### 1. Sprawdź czy strona działa
 
 Otwórz przeglądarkę i wejdź na:
-- https://gigscope.pl - Frontend (powinna się załadować strona główna)
-- https://gigscope.pl/api/health - API health check (powinien zwrócić JSON)
+- https://scoper.befreeclub.pro - Frontend (powinna się załadować strona główna)
+- https://scoper.befreeclub.pro/api/health - API health check (powinien zwrócić JSON)
 
 ### 2. Sprawdź certyfikat SSL
 
@@ -311,11 +311,11 @@ Otwórz przeglądarkę i wejdź na:
 docker compose exec caddy caddy list-certificates
 ```
 
-Powinieneś zobaczyć certyfikat dla `gigscope.pl`.
+Powinieneś zobaczyć certyfikat dla `scoper.befreeclub.pro`.
 
 ### 3. Test logowania
 
-Wejdź na https://gigscope.pl/login i zaloguj się kontem admin.
+Wejdź na https://scoper.befreeclub.pro/login i zaloguj się kontem admin.
 
 ---
 
@@ -335,7 +335,7 @@ docker compose restart frontend
 ### Aktualizacja aplikacji (po zmianach w kodzie)
 
 ```bash
-cd /var/www/gigscope
+cd /var/www/scoper
 
 # Pobierz najnowszy kod
 git pull origin main
@@ -459,11 +459,11 @@ docker compose logs caddy
 **Rozwiązanie:**
 ```bash
 # Sprawdź DNS
-dig gigscope.pl +short
+dig scoper.befreeclub.pro +short
 # Powinno zwrócić IP twojego VPS
 
 # Sprawdź czy port 80 jest otwarty
-curl -I http://gigscope.pl
+curl -I http://scoper.befreeclub.pro
 
 # Sprawdź firewall
 ufw status
@@ -537,7 +537,7 @@ Możesz dodać do crontaba automatyczne sprawdzanie statusu:
 crontab -e
 
 # Sprawdzaj co 5 minut czy wszystko działa
-*/5 * * * * cd /var/www/gigscope && docker compose ps | grep -q "Up (healthy)" || docker compose restart
+*/5 * * * * cd /var/www/scoper && docker compose ps | grep -q "Up (healthy)" || docker compose restart
 ```
 
 ---
@@ -559,7 +559,7 @@ W razie problemów:
 - [ ] `docker compose up -d --build` wykonane
 - [ ] Migracje bazy danych uruchomione
 - [ ] Certyfikat SSL pobrany przez Caddy
-- [ ] Strona dostępna pod https://gigscope.pl
+- [ ] Strona dostępna pod https://scoper.befreeclub.pro
 - [ ] API health check działa
 - [ ] Możesz się zalogować jako admin
 - [ ] Backup bazy danych skonfigurowany
@@ -568,5 +568,4 @@ W razie problemów:
 
 ## 🎉 Gotowe!
 
-Twoja aplikacja Gigscope jest teraz live na https://gigscope.pl! 🚀
-
+Twoja aplikacja AI Scoper jest teraz live na https://scoper.befreeclub.pro! 🚀

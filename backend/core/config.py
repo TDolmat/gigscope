@@ -38,7 +38,7 @@ def _get_config(environment: str) -> Config:
             SQLALCHEMY_DATABASE_URI='postgresql://postgres:postgres@localhost:5432/gigscope_development',
             SQLALCHEMY_TRACK_MODIFICATIONS=False,
             BASE_URL='http://localhost:3000',
-            CIRCLE_URL='https://circle.so/c/be-free-club',
+            CIRCLE_URL='https://www.befreeclub.pro',
             # JWT - Development settings (less secure for easier development)
             JWT_SECRET_KEY='dev-jwt-secret-key-change-in-production',
             JWT_TOKEN_LOCATION=['headers', 'cookies'],
@@ -60,7 +60,7 @@ def _get_config(environment: str) -> Config:
             SQLALCHEMY_DATABASE_URI='postgresql://postgres:postgres@localhost:5432/gigscope_testing',
             SQLALCHEMY_TRACK_MODIFICATIONS=False,
             BASE_URL='http://localhost:3000',
-            CIRCLE_URL='https://circle.so/c/be-free-club',
+            CIRCLE_URL='https://www.befreeclub.pro',
             # JWT - Testing settings
             JWT_SECRET_KEY='test-jwt-secret-key',
             JWT_TOKEN_LOCATION=['headers', 'cookies'],

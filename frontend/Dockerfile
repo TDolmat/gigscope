@@ -8,7 +8,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Build arguments (passed from docker-compose)
-ARG NEXT_PUBLIC_API_URL=https://gigscope.pl/api
+ARG NEXT_PUBLIC_API_URL=https://scoper.befreeclub.pro/api
 
 # Set as environment variable for build
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
@@ -61,4 +61,3 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 
 # Start Next.js server
 CMD ["node", "server.js"]
-

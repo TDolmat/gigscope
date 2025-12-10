@@ -1,4 +1,4 @@
-# 🔧 Gigscope - Maintenance Cheatsheet
+# 🔧 AI Scoper - Maintenance Cheatsheet
 
 Szybka ściągawka do zarządzania aplikacją na VPS.
 
@@ -12,10 +12,10 @@ ssh ubuntu@151.80.147.100
 
 # 2. Aktywuj SSH agent (po restarcie serwera)
 eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/github_gigscope
+ssh-add ~/.ssh/github_scoper
 
 # 3. Przejdź do projektu
-cd /var/www/gigscope
+cd /var/www/scoper
 
 # 4. Pobierz najnowszy kod
 git pull
@@ -83,7 +83,7 @@ Możesz połączyć się z bazą produkcyjną przez graficzny klient (TablePlus,
 **Jak pobrać hasło do bazy z serwera:**
 ```bash
 ssh ubuntu@151.80.147.100
-cat /var/www/gigscope/.env | grep POSTGRES_PASSWORD
+cat /var/www/scoper/.env | grep POSTGRES_PASSWORD
 ```
 
 #### Opcja B: Ręczny SSH Tunnel + połączenie
@@ -167,9 +167,8 @@ cat backup_YYYYMMDD.sql | docker compose exec -T postgres psql -U gigscope gigsc
 docker compose exec backend python create_admin.py
 
 # Tryb bezpośredni
-docker compose exec backend python create_admin.py admin@gigscope.pl TwojeHaslo123
+docker compose exec backend python create_admin.py admin@befreeclub.pro TwojeHaslo123
 
 # Lista wszystkich adminów
 docker compose exec backend python create_admin.py --list
 ```
-

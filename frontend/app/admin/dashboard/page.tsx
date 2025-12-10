@@ -18,7 +18,7 @@ interface DashboardStats {
     sent_emails: Array<{ date: string; count: number }>;
     circle_subscriptions: Array<{ date: string; count: number }>;
     scraped_offers: Array<{ date: string; count: number }>;
-    gigscope_subscriptions: Array<{ date: string; count: number }>;
+    scoper_subscriptions: Array<{ date: string; count: number }>;
   };
 }
 
@@ -110,7 +110,7 @@ export default function DashboardPage() {
         />
         <DashboardChart
           title="Subskrypcje AI Scoper (ostatnie 30 dni)"
-          data={stats.timeseries.gigscope_subscriptions}
+          data={stats.timeseries.scoper_subscriptions}
           color="#E5D77A"
         />
       </div>

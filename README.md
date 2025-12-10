@@ -1,6 +1,6 @@
-# 🎯 Gigscope
+# 🎯 AI Scoper
 
-**Gigscope** to aplikacja do automatycznego zbierania i wysyłania ofert pracy z różnych platform freelancerskich.
+**AI Scoper** to aplikacja do automatycznego zbierania i wysyłania ofert pracy z różnych platform freelancerskich.
 
 ---
 
@@ -14,8 +14,8 @@ Pełna dokumentacja deployment do produkcji znajduje się w:
 
 ```bash
 # 1. Sklonuj repozytorium
-git clone https://github.com/TWOJ_USER/gigscope.git
-cd gigscope
+git clone https://github.com/TWOJ_USER/ai-scoper.git
+cd ai-scoper
 
 # 2. Utwórz i wypełnij .env
 cp env.template .env
@@ -33,7 +33,7 @@ docker compose exec backend flask db upgrade
 ## 🏗️ Architektura
 
 ```
-Gigscope Application
+AI Scoper Application
 ├── Frontend (Next.js 16)
 │   ├── TypeScript + React 19
 │   ├── TailwindCSS
@@ -123,7 +123,7 @@ nano .env  # Edytuj i wklej wygenerowane klucze
 ## 📁 Struktura Projektu
 
 ```
-gigscope/
+ai-scoper/
 ├── backend/              # Flask API
 │   ├── api/             # Blueprints (endpoints)
 │   ├── core/            # Config, models, blueprints
@@ -253,4 +253,3 @@ Problemy z deploymentem? Zobacz:
 ---
 
 **Made with ❤️ for freelancers**
-

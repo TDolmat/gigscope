@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to create admin users for GigScope.
+Script to create admin users for AI Scoper.
 
 Usage:
     python create_admin.py                      # Interactive mode
@@ -66,7 +66,7 @@ def list_admins():
 
 def interactive_mode():
     """Interactive mode for creating admin."""
-    print("\n=== GigScope Admin Creator ===\n")
+    print("\n=== AI Scoper Admin Creator ===\n")
     
     email = input("Enter admin email: ").strip()
     if not email:

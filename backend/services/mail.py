@@ -63,13 +63,13 @@ class MailService:
         unsubscribe_url = f"{base_url}/unsubscribe/{unsubscribe_token}"
         
         if len(offers) == 0:
-            subject = "GigScope - Brak nowych ofert na dzisiaj"
+            subject = "AI Scoper - Brak nowych ofert na dzisiaj"
             html = generate_no_offers_email(
                 preferences_url=preferences_url,
                 unsubscribe_url=unsubscribe_url
             )
         else:
-            subject = f"GigScope - {len(offers)} nowych ofert dla Ciebie!"
+            subject = f"AI Scoper - {len(offers)} nowych ofert dla Ciebie!"
             html = generate_offers_email(
                 offers=offers,
                 preferences_url=preferences_url,
@@ -158,7 +158,7 @@ class MailService:
         preferences_url = f"{base_url}/email-preferences/{preferences_token}"
         unsubscribe_url = f"{base_url}/unsubscribe/{unsubscribe_token}"
         
-        subject = "Twoja subskrypcja GigScope wygasła - odnów ją!"
+        subject = "Twoja subskrypcja AI Scoper wygasła - odnów ją!"
         html = generate_expired_subscription_email(
             circle_url=circle_url,
             preferences_url=preferences_url,
@@ -182,7 +182,7 @@ class MailService:
     
     def send_test_email(self, to: str) -> dict:
         """Send a test email to verify configuration."""
-        subject = "GigScope - Test połączenia z bramką mailową"
+        subject = "AI Scoper - Test połączenia z bramką mailową"
         html = generate_test_email()
         return self.send_email(to=to, subject=subject, html=html)
 

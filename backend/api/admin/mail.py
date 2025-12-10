@@ -62,8 +62,8 @@ def trigger_user_offer_emails():
     """
     data = request.get_json() or {}
     
-    base_url = data.get('base_url', 'https://gigscope.pl')
-    circle_url = data.get('circle_url', 'https://circle.so/c/be-free-club')
+    base_url = data.get('base_url', 'https://scoper.befreeclub.pro')
+    circle_url = data.get('circle_url', 'https://www.befreeclub.pro')
     
     try:
         result = send_user_offer_emails(base_url=base_url, circle_url=circle_url)
@@ -108,22 +108,22 @@ def preview_email():
             html = generate_test_email()
         elif email_type == 'no_offers':
             html = generate_no_offers_email(
-                preferences_url='https://gigscope.pl/email-preferences/example-token',
-                unsubscribe_url='https://gigscope.pl/unsubscribe/example-token'
+                preferences_url='https://scoper.befreeclub.pro/email-preferences/example-token',
+                unsubscribe_url='https://scoper.befreeclub.pro/unsubscribe/example-token'
             )
         elif email_type == 'not_subscribed':
             html = generate_not_subscribed_email(
                 offers_count=5,
                 is_expired=False,
-                circle_url='https://circle.so/c/be-free-club',
-                preferences_url='https://gigscope.pl/email-preferences/example-token',
-                unsubscribe_url='https://gigscope.pl/unsubscribe/example-token'
+                circle_url='https://www.befreeclub.pro',
+                preferences_url='https://scoper.befreeclub.pro/email-preferences/example-token',
+                unsubscribe_url='https://scoper.befreeclub.pro/unsubscribe/example-token'
             )
         elif email_type == 'expired':
             html = generate_expired_subscription_email(
-                circle_url='https://circle.so/c/be-free-club',
-                preferences_url='https://gigscope.pl/email-preferences/example-token',
-                unsubscribe_url='https://gigscope.pl/unsubscribe/example-token'
+                circle_url='https://www.befreeclub.pro',
+                preferences_url='https://scoper.befreeclub.pro/email-preferences/example-token',
+                unsubscribe_url='https://scoper.befreeclub.pro/unsubscribe/example-token'
             )
         elif email_type == 'offers':
             # Get some sample offers for preview
@@ -159,8 +159,8 @@ def preview_email():
         
             html = generate_offers_email(
                 offers=sample_offers,
-                preferences_url='https://gigscope.pl/email-preferences/example-token',
-                unsubscribe_url='https://gigscope.pl/unsubscribe/example-token'
+                preferences_url='https://scoper.befreeclub.pro/email-preferences/example-token',
+                unsubscribe_url='https://scoper.befreeclub.pro/unsubscribe/example-token'
             )
         else:
             return jsonify({
@@ -202,29 +202,29 @@ def send_template_email():
         
         # Generate the template HTML
         if email_type == 'test':
-            subject = "GigScope - Test połączenia z bramką mailową"
+            subject = "AI Scoper - Test połączenia z bramką mailową"
             html = generate_test_email()
         elif email_type == 'no_offers':
-            subject = "GigScope - Brak nowych ofert na dzisiaj"
+            subject = "AI Scoper - Brak nowych ofert na dzisiaj"
             html = generate_no_offers_email(
-                preferences_url='https://gigscope.pl/email-preferences/example-token',
-                unsubscribe_url='https://gigscope.pl/unsubscribe/example-token'
+                preferences_url='https://scoper.befreeclub.pro/email-preferences/example-token',
+                unsubscribe_url='https://scoper.befreeclub.pro/unsubscribe/example-token'
             )
         elif email_type == 'not_subscribed':
-            subject = "GigScope - 5 ofert czeka na Ciebie!"
+            subject = "AI Scoper - 5 ofert czeka na Ciebie!"
             html = generate_not_subscribed_email(
                 offers_count=5,
                 is_expired=False,
-                circle_url='https://circle.so/c/be-free-club',
-                preferences_url='https://gigscope.pl/email-preferences/example-token',
-                unsubscribe_url='https://gigscope.pl/unsubscribe/example-token'
+                circle_url='https://www.befreeclub.pro',
+                preferences_url='https://scoper.befreeclub.pro/email-preferences/example-token',
+                unsubscribe_url='https://scoper.befreeclub.pro/unsubscribe/example-token'
             )
         elif email_type == 'expired':
-            subject = "Twoja subskrypcja GigScope wygasła - odnów ją!"
+            subject = "Twoja subskrypcja AI Scoper wygasła - odnów ją!"
             html = generate_expired_subscription_email(
-                circle_url='https://circle.so/c/be-free-club',
-                preferences_url='https://gigscope.pl/email-preferences/example-token',
-                unsubscribe_url='https://gigscope.pl/unsubscribe/example-token'
+                circle_url='https://www.befreeclub.pro',
+                preferences_url='https://scoper.befreeclub.pro/email-preferences/example-token',
+                unsubscribe_url='https://scoper.befreeclub.pro/unsubscribe/example-token'
             )
         elif email_type == 'offers':
             sample_offers = [
@@ -257,11 +257,11 @@ def send_template_email():
                 ),
             ]
             
-            subject = f"GigScope - {len(sample_offers)} nowych ofert dla Ciebie!"
+            subject = f"AI Scoper - {len(sample_offers)} nowych ofert dla Ciebie!"
             html = generate_offers_email(
                 offers=sample_offers,
-                preferences_url='https://gigscope.pl/email-preferences/example-token',
-                unsubscribe_url='https://gigscope.pl/unsubscribe/example-token'
+                preferences_url='https://scoper.befreeclub.pro/email-preferences/example-token',
+                unsubscribe_url='https://scoper.befreeclub.pro/unsubscribe/example-token'
             )
         else:
             return jsonify({

@@ -78,8 +78,8 @@ def get_dashboard_stats():
             func.date(Offer.created_at)
         ).all()
         
-        # 4. GigScope subscriptions (email preferences) created per day (last 30 days)
-        gigscope_subs_data = db.session.query(
+        # 4. AI Scoper subscriptions (email preferences) created per day (last 30 days)
+        scoper_subs_data = db.session.query(
             func.date(UserEmailPreference.created_at).label('date'),
             func.count(UserEmailPreference.id).label('count')
         ).filter(
@@ -116,7 +116,7 @@ def get_dashboard_stats():
                 'sent_emails': format_timeseries(sent_emails_data),
                 'circle_subscriptions': format_timeseries(circle_subs_data),
                 'scraped_offers': format_timeseries(offers_data),
-                'gigscope_subscriptions': format_timeseries(gigscope_subs_data),
+                'scoper_subscriptions': format_timeseries(scoper_subs_data),
             }
         }), HTTPStatus.OK
         

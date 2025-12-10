@@ -43,6 +43,7 @@ export default function RootLayout({
           <Toaster 
             position="top-center" 
             expand={true}
+            visibleToasts={1}
             richColors 
             closeButton
             theme="dark"

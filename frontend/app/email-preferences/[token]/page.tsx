@@ -93,11 +93,11 @@ export default function EmailPreferencesPage() {
 
   if (notFound) {
     return (
-      <div className="min-h-screen bg-[#191B1F]">
+      <div className="min-h-screen bg-[#191B1F] flex flex-col">
         <div className="bg-topographic" />
         <Header variant="default" />
-        <main className="relative max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-          <div className="bg-[#2B2E33] rounded-[1rem] sm:rounded-[1.5rem] border border-red-500/30 p-6 sm:p-8 md:p-14 text-center animate-scaleIn">
+        <main className="relative flex-1 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-16">
+          <div className="max-w-2xl w-full bg-[#2B2E33] rounded-[1rem] sm:rounded-[1.5rem] border border-red-500/30 p-6 sm:p-8 md:p-14 text-center animate-scaleIn">
             <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">⚠️</div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-3 sm:mb-4">
               Nieprawidłowy link

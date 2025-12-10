@@ -35,7 +35,7 @@ export function Header({ variant = 'default', onHowItWorksClick }: HeaderProps) 
             {variant === 'home' && onHowItWorksClick && (
               <button
                 onClick={onHowItWorksClick}
-                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-[#F1E388] hover:text-[#F1E388] hover:bg-[#F1E388]/10 rounded-lg transition-all cursor-pointer"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white/70 hover:text-[#F1E388] hover:bg-[#F1E388]/10 rounded-lg transition-all cursor-pointer"
               >
                 <HelpCircle className="w-4 h-4" />
                 <span className="hidden xs:inline">Jak to działa?</span>

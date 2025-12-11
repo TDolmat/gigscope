@@ -1,5 +1,6 @@
 alembic==1.17.0
 annotated-types==0.7.0
+APScheduler==3.10.4
 anyio==4.11.0
 apify_client==2.3.0
 apify_shared==2.1.0

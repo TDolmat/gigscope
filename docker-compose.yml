@@ -114,7 +114,8 @@ networks:
     external: true
   db_network:
     driver: bridge
-    internal: true
+    # internal: true - REMOVED: blocks port mapping to host
+    # Security is maintained by binding postgres to 127.0.0.1 only
 
 # ============================================================================
 # Volumes

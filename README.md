@@ -139,7 +139,6 @@ ai-scoper/
 │   └── Dockerfile     # Docker image for frontend
 │
 ├── docker-compose.yml   # Orkiestracja kontenerów
-├── Caddyfile           # Reverse proxy config
 ├── env.template  # Environment template
 └── DEPLOYMENT.md       # Production deployment guide
 ```

@@ -78,19 +78,6 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 
-class UserSubscription(db.Model):
-    # Subscription to the circle community
-    __tablename__ = 'user_subscriptions'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    
-    email = db.Column(db.String, nullable=False)
-    subscribed_at = db.Column(db.DateTime, nullable=False)
-    expires_at = db.Column(db.DateTime, nullable=False)
-
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
-
 class UserEmailPreference(db.Model):
     # User prefered keywords for email offers
     __tablename__ = 'user_email_preferences'

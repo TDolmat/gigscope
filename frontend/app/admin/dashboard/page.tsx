@@ -10,13 +10,12 @@ import { PageHeader, PageLoader, StatCard, DashboardChart } from '@/components/a
 interface DashboardStats {
   summary: {
     active_email_subscribers: number;
-    active_circle_subscribers: number;
+    active_befreeclub_subscribers: number;
     total_sent_emails: number;
     total_scraped_offers: number;
   };
   timeseries: {
     sent_emails: Array<{ date: string; count: number }>;
-    circle_subscriptions: Array<{ date: string; count: number }>;
     scraped_offers: Array<{ date: string; count: number }>;
     scoper_subscriptions: Array<{ date: string; count: number }>;
   };
@@ -72,8 +71,8 @@ export default function DashboardPage() {
           colorScheme="brand"
         />
         <StatCard
-          title="Aktywni subskrybenci Circle"
-          value={stats.summary.active_circle_subscribers}
+          title="Subskrybenci BeFreeClub"
+          value={stats.summary.active_befreeclub_subscribers}
           icon={Users}
           colorScheme="green"
         />
@@ -91,17 +90,12 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Charts - 2x2 Grid */}
+      {/* Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         <DashboardChart
           title="Wysłane maile (ostatnie 30 dni)"
           data={stats.timeseries.sent_emails}
           color="#F1E388"
-        />
-        <DashboardChart
-          title="Subskrypcje Circle (ostatnie 30 dni)"
-          data={stats.timeseries.circle_subscriptions}
-          color="#22C55E"
         />
         <DashboardChart
           title="Scrapowane oferty dziennie (ostatnie 30 dni)"

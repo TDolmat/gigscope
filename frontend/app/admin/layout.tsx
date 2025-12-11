@@ -5,7 +5,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, Menu, X, LayoutDashboard, Settings, Users, Search, Mail, Home, Play, FileText } from 'lucide-react';
+import { LogOut, Menu, X, LayoutDashboard, Settings, Search, Mail, Home, Play, FileText } from 'lucide-react';
 
 export default function AdminLayout({
   children,
@@ -34,7 +34,6 @@ export default function AdminLayout({
   const navItems = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/admin/settings', label: 'Ustawienia', icon: Settings },
-    { path: '/admin/users', label: 'Użytkownicy', icon: Users },
     { path: '/admin/scrape', label: 'Scrape', icon: Search },
     { path: '/admin/mail', label: 'Mail', icon: Mail },
     { path: '/admin/manual-runs', label: 'Ręczne uruchamianie', icon: Play },

@@ -27,6 +27,9 @@ class Config(NamedTuple):
 
     # Defaults
     DEFAULT_MAX_MAIL_OFFERS: int
+    
+    # BeFreeClub API
+    BEFREECLUB_API_KEY: str
 
 
 def _get_config(environment: str) -> Config:
@@ -50,7 +53,10 @@ def _get_config(environment: str) -> Config:
             
             # CORS
             CORS_ORIGINS='http://localhost:3000,http://localhost:3001',
-            DEFAULT_MAX_MAIL_OFFERS=10
+            DEFAULT_MAX_MAIL_OFFERS=10,
+            
+            # BeFreeClub API
+            BEFREECLUB_API_KEY=os.getenv('BEFREECLUB_API_KEY', '')
         )
     elif environment == 'testing':
         return Config(
@@ -72,7 +78,10 @@ def _get_config(environment: str) -> Config:
             
             # CORS
             CORS_ORIGINS='http://localhost:3000,http://localhost:3001',
-            DEFAULT_MAX_MAIL_OFFERS=10
+            DEFAULT_MAX_MAIL_OFFERS=10,
+            
+            # BeFreeClub API
+            BEFREECLUB_API_KEY=os.getenv('BEFREECLUB_API_KEY', '')
         )
     elif environment == 'production':
         return Config(
@@ -94,7 +103,10 @@ def _get_config(environment: str) -> Config:
             
             # CORS
             CORS_ORIGINS=os.getenv('CORS_ORIGINS', 'http://localhost:3000'),
-            DEFAULT_MAX_MAIL_OFFERS=int(os.getenv('DEFAULT_MAX_MAIL_OFFERS', '10'))
+            DEFAULT_MAX_MAIL_OFFERS=int(os.getenv('DEFAULT_MAX_MAIL_OFFERS', '10')),
+            
+            # BeFreeClub API
+            BEFREECLUB_API_KEY=os.getenv('BEFREECLUB_API_KEY', '')
         )
 
 env = os.getenv('FLASK_ENV') or 'development'

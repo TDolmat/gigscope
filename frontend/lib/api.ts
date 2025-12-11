@@ -107,57 +107,6 @@ export const adminSettingsApi = {
   },
 };
 
-// Admin Users API
-export const adminUsersApi = {
-  // Get all users
-  getUsers: async (
-    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
-  ): Promise<any[]> => {
-    return apiFetch<any[]>(API_ENDPOINTS.ADMIN.USERS, {}, authenticatedFetch);
-  },
-
-  // Update user preferences
-  updatePreferences: async (
-    userId: number,
-    mustInclude: string[],
-    canInclude: string[],
-    cannotInclude: string[],
-    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
-  ): Promise<any> => {
-    return apiFetch(API_ENDPOINTS.ADMIN.USER_PREFERENCES(userId), {
-      method: 'PUT',
-      body: JSON.stringify({
-        must_include_keywords: mustInclude,
-        can_include_keywords: canInclude,
-        cannot_include_keywords: cannotInclude,
-      }),
-    }, authenticatedFetch);
-  },
-
-  // Set/update user subscription
-  setSubscription: async (
-    userId: number,
-    expiresAt: string,
-    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
-  ): Promise<any> => {
-    return apiFetch(API_ENDPOINTS.ADMIN.USER_SUBSCRIPTION(userId), {
-      method: 'POST',
-      body: JSON.stringify({
-        expires_at: expiresAt,
-      }),
-    }, authenticatedFetch);
-  },
-
-  // Delete user subscription
-  deleteSubscription: async (
-    userId: number,
-    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
-  ): Promise<any> => {
-    return apiFetch(API_ENDPOINTS.ADMIN.USER_SUBSCRIPTION(userId), {
-      method: 'DELETE',
-    }, authenticatedFetch);
-  },
-};
 
 // Admin Scrape API
 export const adminScrapeApi = {

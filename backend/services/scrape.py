@@ -3,7 +3,7 @@ from core.models import db, User, UserEmailPreference, OfferBundle, Offer, AppSe
 from core.config import CONFIG
 from scrapers.upwork_scraper import get_search_url, apify_scrape_offers
 from utils.encryption import decrypt_api_key
-from helpers.user_helper import is_user_subscribed, get_active_subscribed_users
+from helpers.user_helper import is_user_subscribed, get_active_subscribed_users, is_email_subscribed
 
 
 def _scrape_and_store_offers(user_id, user_email, must_contain, may_contain, must_not_contain, apify_api_key, max_offers, print_logs = False):
@@ -65,13 +65,15 @@ def _scrape_and_store_offers(user_id, user_email, must_contain, may_contain, mus
 
 
 def scrape_offers_for_user(user_id: int, print_logs: bool = False) -> dict:
+    """Scrape offers for a single user. Checks BeFreeClub subscription status."""
     try:
-        if not is_user_subscribed(user_id):
-            raise Exception('User does not have active subscription')
-        
         user = User.query.filter(User.id == user_id).first()
         if not user:
             raise Exception('User not found')
+        
+        # Check if user's email is in BeFreeClub subscribers list
+        if not is_email_subscribed(user.email):
+            raise Exception('User does not have active BeFreeClub subscription')
         
         preferences = UserEmailPreference.query.filter(
             UserEmailPreference.user_id == user_id,
@@ -123,23 +125,37 @@ def scrape_offers_for_user(user_id: int, print_logs: bool = False) -> dict:
         }
 
 def scrape_offers_for_all_users(print_logs: bool = False) -> dict:
+    """
+    Scrape offers for all users with active BeFreeClub subscription.
+    Fetches subscriber list from BeFreeClub API and processes users whose
+    email is in that list and who have active email preferences.
+    """
     try:
+        # Get active users (this fetches subscribers from BeFreeClub API)
         active_users = get_active_subscribed_users()
+        
+        if not active_users:
+            print("No active subscribed users found")
+            return {
+                'total_users': 0,
+                'successful_scrapes': 0,
+                'failed_scrapes': 0,
+                'total_scraped_offers': 0,
+                'results': [],
+                'total_duration_millis': 0,
+                'average_duration_millis': 0
+            }
+        
         app_settings = AppSettings.query.first()
         apify_api_key = decrypt_api_key(app_settings.apify_api_key)
-
         max_offers = app_settings.email_max_offers or CONFIG.DEFAULT_MAX_MAIL_OFFERS
-
-        if not active_users:
-            raise Exception('No active subscribed users found')
         
-        print(f"Scraping offers for {len(active_users)} active subscribed users...")
+        print(f"Scraping offers for {len(active_users)} active BeFreeClub subscribers...")
 
         results = []
         successful = 0
         failed = 0
         total_scraped_offers = 0
-
         
         for user_info in active_users:
             user_id, user_email, must_contain, may_contain, must_not_contain = user_info[0], user_info[1], user_info[2], user_info[3], user_info[4] 

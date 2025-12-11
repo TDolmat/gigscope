@@ -63,8 +63,8 @@ def get_base_styles() -> str:
         }
         
         .card-highlight {
-            background: linear-gradient(135deg, rgba(241, 227, 136, 0.1) 0%, #2B2E33 100%);
-            border: 1px solid rgba(241, 227, 136, 0.2);
+            background: #2B2E33;
+            border: 2px solid rgba(241, 227, 136, 0.4);
         }
         
         .offer-card {
@@ -182,21 +182,37 @@ def get_email_wrapper(content: str) -> str:
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>AI Scoper</title>
+        <meta http-equiv="Content-Language" content="pl">
+        <title>AI Scoper - Powiadomienia o ofertach</title>
         <!--[if !mso]><!-->
         <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
         <!--<![endif]-->
         {get_base_styles()}
     </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <div class="logo" style="font-family: 'Permanent Marker', 'Marker Felt', 'Comic Sans MS', cursive; font-size: 36px; font-weight: 400; color: #F1E388; letter-spacing: 2px; text-shadow: 0 0 30px rgba(241, 227, 136, 0.5), 0 0 60px rgba(241, 227, 136, 0.3);">AI Scoper</div>
-                <div class="tagline">Twój osobisty łowca zleceń • Be Free Club</div>
-            </div>
-            
-            {content}
+    <body style="margin: 0; padding: 0; background-color: #191B1F; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+        <!-- Ukryty tekst po polsku dla wykrycia języka -->
+        <div style="display: none; max-height: 0; overflow: hidden; mso-hide: all;">
+            Wiadomość zawiera nowe oferty pracy dopasowane do Twoich preferencji. Sprawdź najnowsze zlecenia.
         </div>
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #191B1F;" bgcolor="#191B1F">
+            <tr>
+                <td align="center" style="padding: 40px 20px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="max-width: 600px;">
+                        <tr>
+                            <td style="text-align: center; padding-bottom: 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                <div style="font-family: 'Permanent Marker', 'Marker Felt', 'Comic Sans MS', cursive; font-size: 36px; font-weight: 400; color: #F1E388; letter-spacing: 2px; text-shadow: 0 0 30px rgba(241, 227, 136, 0.5), 0 0 60px rgba(241, 227, 136, 0.3);">AI Scoper</div>
+                                <div style="color: rgba(255, 255, 255, 0.5); font-size: 14px; margin-top: 6px;">Twój osobisty łowca zleceń • Be Free Club</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top: 32px;">
+                                {content}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
     </body>
     </html>
     """
@@ -228,10 +244,10 @@ def generate_offers_email(offers: List[Offer], preferences_url: str, unsubscribe
         
         offers_html += f"""
         <a href="{offer.url}" target="_blank" style="text-decoration: none; display: block;">
-            <div class="offer-card" style="cursor: pointer;">
-                <div class="offer-platform">{offer.platform}</div>
-                <h3 class="offer-title" style="color: #FFFFFF;">{offer.title}</h3>
-                <p class="offer-description">{description}</p>
+            <div style="background: #2B2E33; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 12px; cursor: pointer;">
+                <div style="display: inline-block; background: #F1E388; color: #191B1F; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.3px;">{offer.platform}</div>
+                <h3 style="font-size: 16px; font-weight: 600; color: #FFFFFF; margin-bottom: 8px; margin-top: 10px; line-height: 1.4;">{offer.title}</h3>
+                <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin-bottom: 14px; line-height: 1.5;">{description}</p>
                 <div style="font-size: 13px; margin-top: 14px;">
                     {meta_html}
                 </div>
@@ -241,8 +257,8 @@ def generate_offers_email(offers: List[Offer], preferences_url: str, unsubscribe
         """
     
     content = f"""
-    <div class="card card-highlight" style="text-align: center;">
-        <div class="highlight-number">{len(offers)}</div>
+    <div style="background: #2B2E33; border: 2px solid rgba(241, 227, 136, 0.4); border-radius: 16px; padding: 28px; margin-bottom: 20px; text-align: center;">
+        <div style="font-size: 48px; font-weight: 700; color: #F1E388;">{len(offers)}</div>
         <p style="color: rgba(255, 255, 255, 0.6); font-size: 15px; margin-top: 8px;">
             nowych ofert dopasowanych do Twoich słów kluczowych
         </p>
@@ -252,13 +268,13 @@ def generate_offers_email(offers: List[Offer], preferences_url: str, unsubscribe
         {offers_html}
     </div>
     
-    <div class="footer">
-        <div class="footer-links">
-            <a href="{preferences_url}" target="_blank">Zmień słowa kluczowe</a>
+    <div style="text-align: center; padding-top: 32px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 32px;">
+        <div style="margin-bottom: 16px;">
+            <a href="{preferences_url}" target="_blank" style="color: #60A5FA; text-decoration: none; font-size: 13px; margin: 0 10px;">Zmień słowa kluczowe</a>
             <span style="color: rgba(255, 255, 255, 0.2);">•</span>
-            <a href="{unsubscribe_url}" target="_blank">Wypisz się</a>
+            <a href="{unsubscribe_url}" target="_blank" style="color: #60A5FA; text-decoration: none; font-size: 13px; margin: 0 10px;">Wypisz się</a>
         </div>
-        <p class="footer-text">
+        <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px;">
             Ten email został wysłany przez AI Scoper.<br>
             Otrzymujesz go, bo zapisałeś się na powiadomienia o ofertach.
         </p>
@@ -272,7 +288,7 @@ def generate_no_offers_email(preferences_url: str, unsubscribe_url: str) -> str:
     """Generate email HTML when no offers match."""
     
     content = f"""
-    <div class="card card-highlight" style="text-align: center;">
+    <div style="background: #2B2E33; border: 2px solid rgba(241, 227, 136, 0.4); border-radius: 16px; padding: 28px; margin-bottom: 20px; text-align: center;">
         <h2 style="font-size: 22px; margin-bottom: 12px; color: #FFFFFF; font-weight: 600;">
             Brak nowych ofert na dzisiaj
         </h2>
@@ -280,12 +296,12 @@ def generate_no_offers_email(preferences_url: str, unsubscribe_url: str) -> str:
             Nie znaleźliśmy dziś nowych ofert pasujących do Twoich słów kluczowych. 
             Może warto rozszerzyć kryteria wyszukiwania?
         </p>
-        <a href="{preferences_url}" target="_blank" class="btn btn-primary">
+        <a href="{preferences_url}" target="_blank" style="display: inline-block; padding: 14px 28px; border-radius: 16px; font-size: 15px; font-weight: 600; text-decoration: none; text-align: center; background: #F1E388; color: #191B1F;">
             Zmień słowa kluczowe
         </a>
     </div>
     
-    <div class="card">
+    <div style="background: #2B2E33; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 28px; margin-bottom: 20px;">
         <h3 style="font-size: 16px; margin-bottom: 14px; color: #FFFFFF; font-weight: 600;">
             Wskazówki
         </h3>
@@ -297,13 +313,13 @@ def generate_no_offers_email(preferences_url: str, unsubscribe_url: str) -> str:
         </ul>
     </div>
     
-    <div class="footer">
-        <div class="footer-links">
-            <a href="{preferences_url}" target="_blank">Zmień słowa kluczowe</a>
+    <div style="text-align: center; padding-top: 32px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 32px;">
+        <div style="margin-bottom: 16px;">
+            <a href="{preferences_url}" target="_blank" style="color: #60A5FA; text-decoration: none; font-size: 13px; margin: 0 10px;">Zmień słowa kluczowe</a>
             <span style="color: rgba(255, 255, 255, 0.2);">•</span>
-            <a href="{unsubscribe_url}" target="_blank">Wypisz się</a>
+            <a href="{unsubscribe_url}" target="_blank" style="color: #60A5FA; text-decoration: none; font-size: 13px; margin: 0 10px;">Wypisz się</a>
         </div>
-        <p class="footer-text">
+        <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px;">
             Ten email został wysłany przez AI Scoper.<br>
             Otrzymujesz go, bo zapisałeś się na powiadomienia o ofertach.
         </p>
@@ -317,7 +333,7 @@ def generate_expired_subscription_email(circle_url: str, preferences_url: str, u
     """Generate email HTML for users with expired subscription."""
     
     content = f"""
-    <div class="card card-highlight" style="text-align: center;">
+    <div style="background: #2B2E33; border: 2px solid rgba(241, 227, 136, 0.4); border-radius: 16px; padding: 28px; margin-bottom: 20px; text-align: center;">
         <h2 style="font-size: 22px; margin-bottom: 12px; color: #FFFFFF; font-weight: 600;">
             Twoja subskrypcja wygasła
         </h2>
@@ -325,12 +341,12 @@ def generate_expired_subscription_email(circle_url: str, preferences_url: str, u
             Nie chcemy, żebyś przegapił świetne zlecenia! Odnów subskrypcję,
             a my wrócimy do codziennego wyszukiwania ofert dopasowanych do Twoich słów kluczowych.
         </p>
-        <a href="{circle_url}" target="_blank" class="btn btn-primary">
+        <a href="{circle_url}" target="_blank" style="display: inline-block; padding: 14px 28px; border-radius: 16px; font-size: 15px; font-weight: 600; text-decoration: none; text-align: center; background: #F1E388; color: #191B1F;">
             Odnów subskrypcję
         </a>
     </div>
     
-    <div class="card">
+    <div style="background: #2B2E33; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 28px; margin-bottom: 20px;">
         <h3 style="font-size: 16px; margin-bottom: 14px; color: #FFFFFF; font-weight: 600;">
             Co tracisz?
         </h3>
@@ -342,13 +358,13 @@ def generate_expired_subscription_email(circle_url: str, preferences_url: str, u
         </ul>
     </div>
     
-    <div class="footer">
-        <div class="footer-links">
-            <a href="{preferences_url}" target="_blank">Zmień słowa kluczowe</a>
+    <div style="text-align: center; padding-top: 32px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 32px;">
+        <div style="margin-bottom: 16px;">
+            <a href="{preferences_url}" target="_blank" style="color: #60A5FA; text-decoration: none; font-size: 13px; margin: 0 10px;">Zmień słowa kluczowe</a>
             <span style="color: rgba(255, 255, 255, 0.2);">•</span>
-            <a href="{unsubscribe_url}" target="_blank">Wypisz się</a>
+            <a href="{unsubscribe_url}" target="_blank" style="color: #60A5FA; text-decoration: none; font-size: 13px; margin: 0 10px;">Wypisz się</a>
         </div>
-        <p class="footer-text">
+        <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px;">
             Ten email został wysłany przez AI Scoper.<br>
             Otrzymujesz go, bo wcześniej korzystałeś z naszych powiadomień.
         </p>
@@ -400,21 +416,21 @@ def generate_not_subscribed_email(
         """
     
     content = f"""
-    <div class="card card-highlight" style="text-align: center;">
-        <div class="highlight-number">{offers_count}</div>
+    <div style="background: #2B2E33; border: 2px solid rgba(241, 227, 136, 0.4); border-radius: 16px; padding: 28px; margin-bottom: 20px; text-align: center;">
+        <div style="font-size: 48px; font-weight: 700; color: #F1E388;">{offers_count}</div>
         <p style="color: rgba(255, 255, 255, 0.6); font-size: 15px; margin-top: 8px;">
             ofert czeka na Ciebie
         </p>
     </div>
     
-    <div class="card" style="text-align: center;">
+    <div style="background: #2B2E33; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 28px; margin-bottom: 20px; text-align: center;">
         <h2 style="font-size: 22px; margin-bottom: 12px; color: #FFFFFF; font-weight: 600;">
             {title}
         </h2>
         <p style="color: rgba(255, 255, 255, 0.6); font-size: 15px; line-height: 1.6; max-width: 400px; margin: 0 auto 20px;">
             {message}
         </p>
-        <a href="{circle_url}" target="_blank" class="btn btn-primary">
+        <a href="{circle_url}" target="_blank" style="display: inline-block; padding: 14px 28px; border-radius: 16px; font-size: 15px; font-weight: 600; text-decoration: none; text-align: center; background: #F1E388; color: #191B1F;">
             {cta_text}
         </a>
     </div>
@@ -423,13 +439,13 @@ def generate_not_subscribed_email(
         {masked_offers}
     </div>
     
-    <div class="footer">
-        <div class="footer-links">
-            <a href="{preferences_url}" target="_blank">Zmień słowa kluczowe</a>
+    <div style="text-align: center; padding-top: 32px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 32px;">
+        <div style="margin-bottom: 16px;">
+            <a href="{preferences_url}" target="_blank" style="color: #60A5FA; text-decoration: none; font-size: 13px; margin: 0 10px;">Zmień słowa kluczowe</a>
             <span style="color: rgba(255, 255, 255, 0.2);">•</span>
-            <a href="{unsubscribe_url}" target="_blank">Wypisz się</a>
+            <a href="{unsubscribe_url}" target="_blank" style="color: #60A5FA; text-decoration: none; font-size: 13px; margin: 0 10px;">Wypisz się</a>
         </div>
-        <p class="footer-text">
+        <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px;">
             Ten email został wysłany przez AI Scoper.<br>
             Otrzymujesz go, bo zapisałeś się na powiadomienia o ofertach.
         </p>
@@ -443,7 +459,7 @@ def generate_test_email() -> str:
     """Generate test email HTML."""
     
     content = """
-    <div class="card card-highlight" style="text-align: center;">
+    <div style="background: #2B2E33; border: 2px solid rgba(241, 227, 136, 0.4); border-radius: 16px; padding: 28px; margin-bottom: 20px; text-align: center;">
         <h2 style="font-size: 22px; margin-bottom: 12px; color: #FFFFFF; font-weight: 600;">
             Konfiguracja działa!
         </h2>
@@ -453,7 +469,7 @@ def generate_test_email() -> str:
         </p>
     </div>
     
-    <div class="card">
+    <div style="background: #2B2E33; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 28px; margin-bottom: 20px;">
         <h3 style="font-size: 16px; margin-bottom: 14px; color: #FFFFFF; font-weight: 600;">
             Co dalej?
         </h3>
@@ -473,8 +489,8 @@ def generate_test_email() -> str:
         </ul>
     </div>
     
-    <div class="footer">
-        <p class="footer-text">
+    <div style="text-align: center; padding-top: 32px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 32px;">
+        <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px;">
             To jest testowy email z AI Scoper.<br>
             Został wysłany w celu weryfikacji konfiguracji bramki mailowej.
         </p>

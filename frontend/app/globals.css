@@ -118,15 +118,6 @@ select:focus-visible {
   z-index: 0;
 }
 
-/* Darken overlay: transforms #2C2E33 → #191B1F (40% black overlay) */
-.bg-topographic::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.40);
-  pointer-events: none;
-}
-
 /* ============================================
    ANIMATIONS
    ============================================ */

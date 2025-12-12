@@ -6,6 +6,8 @@ Usage:
     python create_admin.py                      # Interactive mode
     python create_admin.py email password       # Direct mode
     python create_admin.py --list               # List all admins
+    # For docker:
+    docker exec -it scoper_backend python create_admin.py email 'password'
 """
 
 import sys

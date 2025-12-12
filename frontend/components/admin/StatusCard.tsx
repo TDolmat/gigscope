@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { LucideIcon, Clock, CheckCircle2, Loader2, Calendar } from 'lucide-react';
+import { utcToPolishTime } from '@/lib/dateUtils';
 
 type StatusType = 'scheduled' | 'running' | 'completed' | 'sent';
 
@@ -57,16 +58,17 @@ export function StatusCard({
   const StatusIcon = config.icon;
   
   const getTimeLabel = () => {
+    const polishTime = utcToPolishTime(time);
     switch (status) {
       case 'scheduled':
-        return `na ${time}`;
+        return `na ${polishTime}`;
       case 'running':
-        return `od ${time}`;
+        return `od ${polishTime}`;
       case 'completed':
       case 'sent':
-        return `o ${time}`;
+        return `o ${polishTime}`;
       default:
-        return time;
+        return polishTime;
     }
   };
   

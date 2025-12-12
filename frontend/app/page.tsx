@@ -298,7 +298,7 @@ const KEYWORD_CONFIG = {
     icon: Check,
     label: 'Musi zawierać',
     placeholder: 'np. React, TypeScript, Frontend (oddziel spacjami lub przecinkami)',
-    helperText: <>Wystarczy <span className="font-semibold text-white">jedno</span> z tych słów (lub więcej)</>,
+    helperText: <>⚠️ <span className="font-semibold text-white">Każda</span> oferta musi zawierać <span className="font-semibold text-white">wszystkie</span> te słowa naraz - im więcej wpiszesz, tym <span className="font-semibold text-white">mniej</span> ofert otrzymasz</>,
     tooltip: (
       <div className="text-left">
         <p className="font-semibold mb-2 text-white">✅ Wszystkie słowa wymagane</p>
@@ -321,7 +321,7 @@ const KEYWORD_CONFIG = {
     label: 'Może zawierać',
     labelSuffix: '(główne słowa kluczowe)',
     placeholder: 'np. Next.js, Tailwind, UI/UX (oddziel spacjami lub przecinkami)',
-    helperText: <>Wystarczy <span className="font-semibold text-white">jedno</span> z tych słów (lub więcej)</>,
+    helperText: <>Wystarczy <span className="font-semibold text-white">jedno</span> z tych słów - im więcej wpiszesz, tym <span className="font-semibold text-white">więcej</span> ofert otrzymasz</>,
     tooltip: (
       <div className="text-left">
         <p className="font-semibold mb-2 text-white">➕ Jedno lub więcej słów</p>

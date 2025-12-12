@@ -61,9 +61,9 @@ AI Scoper Application
 cd backend
 
 # Utwórz virtual environment
-python3 -m venv venv
-source venv/bin/activate  # Linux/Mac
-# lub: venv\Scripts\activate  # Windows
+python3 -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# lub: .venv\Scripts\activate  # Windows
 
 # Instaluj zależności
 pip install -r requirements.txt

@@ -32,6 +32,9 @@ def create_app(test_config=None):
     app.config["JWT_COOKIE_CSRF_PROTECT"] = CONFIG.JWT_COOKIE_CSRF_PROTECT
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = CONFIG.JWT_ACCESS_TOKEN_EXPIRES
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = CONFIG.JWT_REFRESH_TOKEN_EXPIRES
+    # CRITICAL: Set to False so cookies persist after browser close (for "Remember Me")
+    # When True (default), cookies are session-only and deleted when browser closes
+    app.config["JWT_SESSION_COOKIE"] = False
 
     jwt = JWTManager(app)
 

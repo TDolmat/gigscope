@@ -51,6 +51,15 @@ export const API_ENDPOINTS = {
     LOGS: `${BASE_URL}/admin/logs`,
     LOGS_SCRAPE: `${BASE_URL}/admin/logs/scrape`,
     LOGS_MAIL: `${BASE_URL}/admin/logs/mail`,
+    // Mail history
+    MAIL_HISTORY: `${BASE_URL}/admin/mail-history`,
+    MAIL_HISTORY_DATE: (date: string) => `${BASE_URL}/admin/mail-history/${date}`,
+    MAIL_HISTORY_PREVIEW: (emailId: number) => `${BASE_URL}/admin/mail-history/preview/${emailId}`,
+    // Users
+    USERS: `${BASE_URL}/admin/users`,
+    USER: (userId: number) => `${BASE_URL}/admin/users/${userId}`,
+    USER_PREFERENCES: (userId: number) => `${BASE_URL}/admin/users/${userId}/preferences`,
+    USER_TOGGLE_SUBSCRIPTION: (userId: number) => `${BASE_URL}/admin/users/${userId}/toggle-subscription`,
   },
 
   // User endpoints

@@ -1,19 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { User, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, isAuthenticated, initializing } = useAuth();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!initializing && isAuthenticated) {
+      router.push("/admin");
+    }
+  }, [isAuthenticated, initializing, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +29,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
       router.push("/admin");
     } catch (err: any) {
       setError(err?.message || "Nieprawidłowy email lub hasło");
@@ -96,6 +104,33 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 className="w-full px-4 py-3 bg-[#191B1F] border-0 rounded-[1rem] focus:outline-none focus:ring-2 focus:ring-[#F1E388]/50 transition-all text-white placeholder-white/40 text-sm sm:text-base"
               />
+            </div>
+
+            {/* Remember me checkbox */}
+            <div className="flex items-center">
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-5 h-5 border-2 border-white/30 rounded-md bg-[#191B1F] peer-checked:bg-[#F1E388] peer-checked:border-[#F1E388] transition-all group-hover:border-white/50" />
+                  <svg 
+                    className="absolute top-0.5 left-0.5 w-4 h-4 text-[#191B1F] opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor" 
+                    strokeWidth={3}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span className="text-sm text-white/70 group-hover:text-white transition-colors">
+                  Zapamiętaj mnie
+                </span>
+              </label>
             </div>
 
             {/* Submit button */}

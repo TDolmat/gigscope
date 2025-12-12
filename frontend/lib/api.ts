@@ -314,3 +314,87 @@ export const userApi = {
   },
 };
 
+// Admin Mail History API
+export const adminMailHistoryApi = {
+  // Get mail history grouped by date
+  getHistory: async (
+    page?: number,
+    perPage?: number,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    const params = new URLSearchParams();
+    if (page) params.append('page', String(page));
+    if (perPage) params.append('per_page', String(perPage));
+    const url = `${API_ENDPOINTS.ADMIN.MAIL_HISTORY}${params.toString() ? '?' + params.toString() : ''}`;
+    return apiFetch(url, {}, authenticatedFetch);
+  },
+
+  // Get emails sent on a specific date
+  getEmailsByDate: async (
+    date: string,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MAIL_HISTORY_DATE(date), {}, authenticatedFetch);
+  },
+
+  // Get email preview by ID
+  getEmailPreview: async (
+    emailId: number,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MAIL_HISTORY_PREVIEW(emailId), {}, authenticatedFetch);
+  },
+};
+
+// Admin Users API
+export const adminUsersApi = {
+  // Get all users with pagination and search
+  getUsers: async (
+    page?: number,
+    perPage?: number,
+    search?: string,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    const params = new URLSearchParams();
+    if (page) params.append('page', String(page));
+    if (perPage) params.append('per_page', String(perPage));
+    if (search) params.append('search', search);
+    const url = `${API_ENDPOINTS.ADMIN.USERS}${params.toString() ? '?' + params.toString() : ''}`;
+    return apiFetch(url, {}, authenticatedFetch);
+  },
+
+  // Get a specific user
+  getUser: async (
+    userId: number,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.USER(userId), {}, authenticatedFetch);
+  },
+
+  // Update user preferences
+  updateUserPreferences: async (
+    userId: number,
+    preferences: {
+      must_contain: string[];
+      may_contain: string[];
+      must_not_contain: string[];
+    },
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.USER_PREFERENCES(userId), {
+      method: 'PUT',
+      body: JSON.stringify(preferences),
+    }, authenticatedFetch);
+  },
+
+  // Toggle user subscription
+  toggleSubscription: async (
+    userId: number,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.USER_TOGGLE_SUBSCRIPTION(userId), {
+      method: 'POST',
+    }, authenticatedFetch);
+  },
+};
+

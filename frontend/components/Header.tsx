@@ -4,7 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
-import { HelpCircle, ArrowLeft } from 'lucide-react';
+import { HelpCircle, ArrowLeft, Shield } from 'lucide-react';
+import { useAuth } from '@/app/context/AuthContext';
 
 interface HeaderProps {
   variant?: 'home' | 'default';
@@ -13,6 +14,7 @@ interface HeaderProps {
 
 export function Header({ variant = 'default', onHowItWorksClick }: HeaderProps) {
   const router = useRouter();
+  const { isAuthenticated, initializing } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 bg-[#2B2E33] border-b border-white/10">
@@ -31,7 +33,7 @@ export function Header({ variant = 'default', onHowItWorksClick }: HeaderProps) 
           </Link>
           
           {/* Right side actions */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             {variant === 'home' && onHowItWorksClick && (
               <button
                 onClick={onHowItWorksClick}
@@ -41,6 +43,17 @@ export function Header({ variant = 'default', onHowItWorksClick }: HeaderProps) 
                 <span className="hidden xs:inline">Jak to działa?</span>
                 <span className="xs:hidden">Info</span>
               </button>
+            )}
+
+            {/* Admin link - show when authenticated */}
+            {!initializing && isAuthenticated && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-[#F1E388] hover:bg-[#F1E388]/10 rounded-lg transition-all"
+              >
+                <Shield className="w-4 h-4" />
+                <span className="hidden sm:inline">Admin</span>
+              </Link>
             )}
 
             {variant === 'default' && (

@@ -4,10 +4,15 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { API_ENDPOINTS, API_CONFIG } from "@/lib/config";
 
+// localStorage key for remember me
+const REMEMBER_ME_KEY = "admin_remember_me";
+const AUTH_STATE_KEY = "admin_auth_state";
+
 type AuthContextType = {
   accessToken: string | null;
   initializing: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  isAuthenticated: boolean;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   logout: () => Promise<void>;
   authenticatedFetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 };
@@ -43,9 +48,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [initializing, setInitializing] = useState(true);
 
+  // Check if user is authenticated
+  const isAuthenticated = accessToken !== null;
+
+  // Helper to safely access localStorage
+  const getStoredAuthState = (): boolean => {
+    if (typeof window === "undefined") return false;
+    try {
+      return localStorage.getItem(AUTH_STATE_KEY) === "true";
+    } catch {
+      return false;
+    }
+  };
+
+  const setStoredAuthState = (value: boolean): void => {
+    if (typeof window === "undefined") return;
+    try {
+      if (value) {
+        localStorage.setItem(AUTH_STATE_KEY, "true");
+      } else {
+        localStorage.removeItem(AUTH_STATE_KEY);
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+  };
+
+  const getRememberMe = (): boolean => {
+    if (typeof window === "undefined") return false;
+    try {
+      return localStorage.getItem(REMEMBER_ME_KEY) === "true";
+    } catch {
+      return false;
+    }
+  };
+
+  const setRememberMe = (value: boolean): void => {
+    if (typeof window === "undefined") return;
+    try {
+      if (value) {
+        localStorage.setItem(REMEMBER_ME_KEY, "true");
+      } else {
+        localStorage.removeItem(REMEMBER_ME_KEY);
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+  };
+
   // 1) Run once on app load: try to refresh using the cookie
   useEffect(() => {
     (async () => {
+      // Always try to refresh - cookies handle persistence
+      // localStorage is only for immediate UI feedback
       try {
         const headers = new Headers();
         addCsrfHeader(headers);
@@ -59,22 +114,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (res.ok) {
           const data = await res.json();
           setAccessToken(data.access_token);
+          setStoredAuthState(true);
           
           // Extract and store CSRF token (only matters in production)
           if (API_CONFIG.CSRF_ENABLED) {
             const token = extractCsrfToken(res);
             if (token) csrfToken = token;
           }
+        } else {
+          // Clear stored state if refresh failed
+          setStoredAuthState(false);
+          setRememberMe(false);
         }
       } catch (err) {
         // ignore, user is just not logged in
+        setStoredAuthState(false);
       } finally {
         setInitializing(false);
       }
     })();
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string, rememberMe: boolean = true) => {
     const headers = new Headers({ "Content-Type": "application/json" });
     addCsrfHeader(headers);
     
@@ -82,7 +143,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       method: "POST",
       headers,
       credentials: "include",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ 
+        email, 
+        password,
+        remember_me: rememberMe  // Tell backend whether to set persistent or session cookie
+      }),
     });
 
     if (!res.ok) {
@@ -91,6 +156,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const data = await res.json();
     setAccessToken(data.access_token);
+    
+    // Store remember me preference and auth state
+    setRememberMe(rememberMe);
+    setStoredAuthState(true);
     
     // Extract and store CSRF token (only matters in production)
     if (API_CONFIG.CSRF_ENABLED) {
@@ -171,6 +240,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setAccessToken(null);
     
+    // Clear localStorage auth state
+    setStoredAuthState(false);
+    setRememberMe(false);
+    
     // Clear CSRF token on logout
     if (API_CONFIG.CSRF_ENABLED) {
       csrfToken = null;
@@ -179,7 +252,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ accessToken, initializing, login, logout, authenticatedFetch }}
+      value={{ accessToken, initializing, isAuthenticated, login, logout, authenticatedFetch }}
     >
       {children}
     </AuthContext.Provider>

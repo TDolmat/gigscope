@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -7,6 +7,7 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity
 )
+from datetime import timedelta
 import bcrypt
 from core.models import Admins, db
 
@@ -40,6 +41,7 @@ def login():
     
     email = data.get("email")
     password = data.get("password")
+    remember_me = data.get("remember_me", True)  # Default to True for backwards compatibility
     
     if not email or not password:
         return jsonify({"msg": "Email and password are required"}), 400
@@ -66,8 +68,29 @@ def login():
         }
     })
     
-    # Store refresh token in httpOnly cookie
-    set_refresh_cookies(resp, refresh_token)
+    # Set refresh token cookie
+    # If remember_me is True, set persistent cookie (max_age from config)
+    # If remember_me is False, set session cookie (no max_age = deleted on browser close)
+    if remember_me:
+        # Persistent cookie - use set_refresh_cookies which respects JWT_SESSION_COOKIE=False
+        set_refresh_cookies(resp, refresh_token)
+    else:
+        # Session-only cookie - manually set without max_age
+        cookie_key = current_app.config.get("JWT_REFRESH_COOKIE_NAME", "refresh_token_cookie")
+        cookie_path = current_app.config.get("JWT_REFRESH_COOKIE_PATH", "/")
+        cookie_secure = current_app.config.get("JWT_COOKIE_SECURE", False)
+        cookie_samesite = current_app.config.get("JWT_COOKIE_SAMESITE", "Lax")
+        
+        resp.set_cookie(
+            cookie_key,
+            value=refresh_token,
+            httponly=True,
+            secure=cookie_secure,
+            samesite=cookie_samesite,
+            path=cookie_path,
+            # No max_age = session cookie (deleted when browser closes)
+        )
+    
     return resp
 
 

@@ -308,7 +308,7 @@ def generate_no_offers_email(preferences_url: str, unsubscribe_url: str) -> str:
         <ul style="color: rgba(255, 255, 255, 0.6); font-size: 14px; padding-left: 20px; line-height: 1.7;">
             <li style="margin-bottom: 6px;">Dodaj więcej słów kluczowych w sekcji "Może zawierać"</li>
             <li style="margin-bottom: 6px;">Użyj bardziej ogólnych terminów</li>
-            <li style="margin-bottom: 6px;">Dodaj słowa kluczowe w języku angielskim</li>
+            <li style="margin-bottom: 6px;">Dodaj też słowa kluczowe w języku angielskim</li>
             <li>Sprawdź czy słowa w "Musi zawierać" nie są zbyt specyficzne</li>
         </ul>
     </div>

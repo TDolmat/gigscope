@@ -13,6 +13,7 @@ PLATFORM = "upwork"
 SEARCH_URL_BASE = "https://www.upwork.com/nx/search/jobs/"
 APIFY_ACTOR_ID = "XYTgO05GT5qAoSlxy"
 
+TIMEOUT_SECONDS = 200
 
 class UpworkScraper(BaseScraper):
     """Upwork platform scraper"""
@@ -104,13 +105,17 @@ class UpworkScraper(BaseScraper):
             run_input = {
                 "paymentVerified": False,
                 "rawUrl": search_url,
+                "maxJobAge": {
+                    "value": 24,
+                    "unit": "hours"
+                },
             }
 
             if print_logs:
-                run = client.actor(APIFY_ACTOR_ID).call(run_input=run_input)
+                run = client.actor(APIFY_ACTOR_ID).call(run_input=run_input, timeout_secs=TIMEOUT_SECONDS)
             else:
-                run = client.actor(APIFY_ACTOR_ID).start(run_input=run_input)
-                run = client.run(run["id"]).wait_for_finish()
+                run = client.actor(APIFY_ACTOR_ID).start(run_input=run_input, timeout_secs=TIMEOUT_SECONDS)
+                run = client.run(run["id"]).wait_for_finish(wait_secs=TIMEOUT_SECONDS+30)
 
             raw_offers = list(client.dataset(run["defaultDatasetId"]).iterate_items())
             duration_millis = run.get("stats", {}).get("durationMillis", 0) or 0

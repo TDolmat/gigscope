@@ -52,10 +52,12 @@ class MailService:
         offers: List[Offer], 
         preferences_token: str, 
         unsubscribe_token: str, 
+        bundle_id: Optional[int] = None,
         base_url: str = CONFIG.BASE_URL
     ) -> Tuple[dict, Optional[UserOfferEmail]]:
         """
         Send email with job offers to subscribed user.
+        If offers is empty, sends "no offers" email with tips.
         Returns tuple of (result, email_log) - email_log is NOT committed to DB.
         """
         preferences_url = f"{base_url}/email-preferences/{preferences_token}"
@@ -79,12 +81,12 @@ class MailService:
 
         email_log = None
         if result.get("success"):
-            # Get bundle_id from first offer if exists
-            bundle_id = offers[0].offer_bundle_id if offers else None
+            # Use provided bundle_id, or get from first offer if available
+            effective_bundle_id = bundle_id or (offers[0].offer_bundle_id if offers else None)
             
             email_log = UserOfferEmail(
                 user_id=user_id,
-                offer_bundle_id=bundle_id,
+                offer_bundle_id=effective_bundle_id,
                 email_sent_to=user_email,
                 email_title=subject,
                 email_body=html,
@@ -188,33 +190,37 @@ def send_user_offer_emails(base_url: str = CONFIG.BASE_URL, circle_url: str = CO
         try:
             bundle_id = user_data.get("bundle_id")
             
-            if not user_data["offers"] or not bundle_id:
-                # User has no bundle/offers yet - skip
+            if not bundle_id:
+                # User has no unsent bundle - skip (scraping didn't run for them)
                 results["subscribed"]["skipped"] += 1
                 results["subscribed"]["details"].append({
                     "user_id": user_data["user_id"],
                     "email": user_data["email"],
                     "status": "skipped",
-                    "reason": "No unsent offers available"
+                    "reason": "No unsent bundle available"
                 })
                 continue
             
+            # Note: if offers is empty, send_offers_email will send "no offers" email
             result, email_log = mail_service.send_offers_email(
                 user_id=user_data["user_id"],
                 user_email=user_data["email"],
                 offers=user_data["offers"],
                 preferences_token=user_data["preferences_token"],
                 unsubscribe_token=user_data["unsubscribe_token"],
+                bundle_id=bundle_id,
                 base_url=base_url
             )
             
             if result.get("success"):
                 results["subscribed"]["sent"] += 1
+                offers_count = len(user_data["offers"])
                 results["subscribed"]["details"].append({
                     "user_id": user_data["user_id"],
                     "email": user_data["email"],
                     "status": "sent",
-                    "offers_count": len(user_data["offers"])
+                    "offers_count": offers_count,
+                    "email_type": "offers" if offers_count > 0 else "no_offers"
                 })
                 if email_log:
                     email_logs_with_bundles.append((email_log, bundle_id))

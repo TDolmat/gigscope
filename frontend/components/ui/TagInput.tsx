@@ -3,12 +3,16 @@
 import React, { useState, useRef, useCallback, KeyboardEvent } from 'react';
 import { X } from 'lucide-react';
 
+// Maximum keywords per category
+const MAX_TAGS = 15;
+
 interface TagInputProps {
   value: string[];
   onChange: (tags: string[]) => void;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  maxTags?: number;
 }
 
 export const TagInput: React.FC<TagInputProps> = ({
@@ -17,18 +21,21 @@ export const TagInput: React.FC<TagInputProps> = ({
   placeholder = 'Wpisz i naciśnij spację lub przecinek...',
   disabled = false,
   className = '',
+  maxTags = MAX_TAGS,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const isAtLimit = value.length >= maxTags;
+
   const addTag = useCallback((tag: string) => {
     const trimmedTag = tag.trim();
-    if (trimmedTag && !value.includes(trimmedTag)) {
+    if (trimmedTag && !value.includes(trimmedTag) && value.length < maxTags) {
       onChange([...value, trimmedTag]);
     }
     setInputValue('');
-  }, [value, onChange]);
+  }, [value, onChange, maxTags]);
 
   const removeTag = useCallback((index: number) => {
     const newTags = value.filter((_, i) => i !== index);
@@ -103,23 +110,29 @@ export const TagInput: React.FC<TagInputProps> = ({
       ))}
       
       {/* Input */}
-      <input
-        ref={inputRef}
-        type="text"
-        value={inputValue}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => {
-          setIsFocused(false);
-          if (inputValue.trim()) {
-            addTag(inputValue);
-          }
-        }}
-        placeholder={value.length === 0 ? placeholder : ''}
-        disabled={disabled}
-        className="flex-1 min-w-[120px] bg-transparent border-none outline-none text-white placeholder:text-white/40 py-1"
-      />
+      {!isAtLimit ? (
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => {
+            setIsFocused(false);
+            if (inputValue.trim()) {
+              addTag(inputValue);
+            }
+          }}
+          placeholder={value.length === 0 ? placeholder : ''}
+          disabled={disabled}
+          className="flex-1 min-w-[120px] bg-transparent border-none outline-none text-white placeholder:text-white/40 py-1"
+        />
+      ) : (
+        <span className="text-xs text-white/40 py-1">
+          Osiągnięto limit {maxTags} słów
+        </span>
+      )}
     </div>
   );
 };

@@ -7,8 +7,11 @@ from sqlalchemy import and_
 
 bp = Blueprint('user', __name__, url_prefix='/api/user')
 
+# Maximum keywords per category
+MAX_KEYWORDS_PER_CATEGORY = 15
 
-def parse_keywords(keywords_string):
+
+def parse_keywords(keywords_string, max_keywords=MAX_KEYWORDS_PER_CATEGORY):
     """Parse comma-separated keywords string into a list of trimmed keywords."""
     if not keywords_string or not keywords_string.strip():
         return []
@@ -16,7 +19,8 @@ def parse_keywords(keywords_string):
     keywords = [kw.strip() for kw in keywords_string.split(',')]
     # Filter out empty strings
     keywords = [kw for kw in keywords if kw]
-    return keywords
+    # Limit to max keywords
+    return keywords[:max_keywords]
 
 
 @bp.route('/subscribe', methods=['POST'])

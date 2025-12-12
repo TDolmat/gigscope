@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Checkbox } from '@/components/ui/Checkbox';
 import { adminSettingsApi } from '@/lib/api';
 import { useAuth } from '@/app/context/AuthContext';
 import { toast } from 'sonner';
@@ -29,15 +27,6 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [frequency, setFrequency] = useState('daily');
   const [sendTime, setSendTime] = useState('09:00');
-  const [maxOffers, setMaxOffers] = useState('15');
-  const [platforms, setPlatforms] = useState({
-    upwork: false,
-    fiverr: false,
-    useme: false,
-    justjoinit: false,
-    contra: false,
-    rocketjobs: false,
-  });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -50,21 +39,10 @@ export default function SettingsPage() {
       const data = await adminSettingsApi.getSettings(authenticatedFetch);
       
       setFrequency(FREQUENCY_TO_POLISH[data.email_frequency] || 'codziennie');
-      setMaxOffers(String(data.email_max_offers || 15));
       
       if (data.email_daytime) {
         setSendTime(utcToPolishTime(data.email_daytime));
       }
-      
-      const enabledPlatforms = data.enabled_platforms || [];
-      setPlatforms({
-        upwork: enabledPlatforms.includes('upwork'),
-        fiverr: enabledPlatforms.includes('fiverr'),
-        useme: enabledPlatforms.includes('useme'),
-        justjoinit: enabledPlatforms.includes('justjoinit'),
-        contra: enabledPlatforms.includes('contra'),
-        rocketjobs: enabledPlatforms.includes('rocketjobs'),
-      });
     } catch (error) {
       console.error('Error fetching settings:', error);
       toast.error('Nie udało się pobrać ustawień');
@@ -77,17 +55,11 @@ export default function SettingsPage() {
     try {
       setSaving(true);
       
-      const enabledPlatforms = Object.entries(platforms)
-        .filter(([_, enabled]) => enabled)
-        .map(([platform]) => platform);
-      
       const utcTime = polishTimeToUtc(sendTime);
       
       await adminSettingsApi.updateSettings({
-        enabled_platforms: enabledPlatforms,
         email_frequency: POLISH_TO_FREQUENCY[frequency],
         email_daytime: utcTime,
-        email_max_offers: parseInt(maxOffers),
       }, authenticatedFetch);
       
       toast.success('Ustawienia zostały zapisane!');
@@ -137,31 +109,9 @@ export default function SettingsPage() {
           </div>
         </AdminSection>
 
-        <AdminSection>
-          <label className="block text-sm font-semibold text-white mb-3 sm:mb-4">Platformy do scrapowania</label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {Object.entries(platforms).map(([key, value]) => (
-              <Checkbox
-                key={key}
-                id={`platform-${key}`}
-                label={key.charAt(0).toUpperCase() + key.slice(1)}
-                checked={value}
-                onChange={(checked) => setPlatforms({ ...platforms, [key]: checked })}
-              />
-            ))}
-          </div>
-        </AdminSection>
-
-        <AdminSection>
-          <label className="block text-sm font-semibold text-white mb-2 sm:mb-3">Maksymalna liczba ofert w mailu</label>
-          <Input
-            type="number"
-            value={maxOffers}
-            onChange={(e) => setMaxOffers(e.target.value)}
-            min="1"
-            max="50"
-          />
-        </AdminSection>
+        <p className="text-sm text-gray-400">
+          Ustawienia platform i maksymalnej liczby ofert znajdują się w zakładce <strong className="text-yellow-400">Scrape</strong>.
+        </p>
 
         <Button onClick={handleSaveSettings} loading={saving} variant="primary" size="lg" className="w-full sm:w-auto">
           Zapisz ustawienia

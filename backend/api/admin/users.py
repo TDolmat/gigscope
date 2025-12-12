@@ -6,6 +6,9 @@ from sqlalchemy import and_
 from datetime import datetime
 from . import bp
 
+# Maximum keywords per category
+MAX_KEYWORDS_PER_CATEGORY = 15
+
 
 @bp.route('/users', methods=['GET'])
 @jwt_required()
@@ -115,13 +118,18 @@ def update_user_preferences(user_id):
     may_contain = data.get('may_contain', [])
     must_not_contain = data.get('must_not_contain', [])
     
-    # Ensure arrays
+    # Ensure arrays and limit to max keywords
     if isinstance(must_contain, str):
         must_contain = [kw.strip() for kw in must_contain.split(',') if kw.strip()]
     if isinstance(may_contain, str):
         may_contain = [kw.strip() for kw in may_contain.split(',') if kw.strip()]
     if isinstance(must_not_contain, str):
         must_not_contain = [kw.strip() for kw in must_not_contain.split(',') if kw.strip()]
+    
+    # Limit to max keywords per category
+    must_contain = must_contain[:MAX_KEYWORDS_PER_CATEGORY]
+    may_contain = may_contain[:MAX_KEYWORDS_PER_CATEGORY]
+    must_not_contain = must_not_contain[:MAX_KEYWORDS_PER_CATEGORY]
     
     try:
         # Get active preference

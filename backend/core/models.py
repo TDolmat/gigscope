@@ -48,6 +48,15 @@ class AppSettings(db.Model):
     apify_api_key = db.Column(db.String, nullable=True)  # Stored encrypted
     upwork_max_offers = db.Column(db.Integer, default=50)  # Max offers to scrape from Upwork
     
+    # OpenAI settings for offer scoring
+    openai_api_key = db.Column(db.String, nullable=True)  # Stored encrypted
+    openai_scoring_prompt = db.Column(db.Text, nullable=True)  # Custom prompt for scoring offers
+    
+    # Test keywords for quick testing
+    test_must_contain = db.Column(db.JSON, default=[])
+    test_may_contain = db.Column(db.JSON, default=[])
+    test_must_not_contain = db.Column(db.JSON, default=[])
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -148,6 +157,11 @@ class Offer(db.Model):
 
     url = db.Column(db.String, nullable=False)
     platform = db.Column(db.String, nullable=False)
+    
+    # AI scoring (0-10 scale)
+    fit_score = db.Column(db.Float, nullable=True)  # How well the offer matches user's keywords/preferences
+    attractiveness_score = db.Column(db.Float, nullable=True)  # How attractive the offer is (budget, client quality, etc.)
+    overall_score = db.Column(db.Float, nullable=True)  # Combined overall score
 
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

@@ -8,28 +8,87 @@ import { adminScrapeApi, adminSettingsApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { PageHeader, AdminSection } from '@/components/admin';
 
-type Tab = 'all' | 'upwork' | 'fiverr';
-
-const TABS: { id: Tab; label: string; comingSoon?: boolean }[] = [
-  { id: 'all', label: 'Wszystkie', comingSoon: true },
+// All platform tabs
+const PLATFORM_TABS = [
+  { id: 'all', label: 'Wszystkie' },
   { id: 'upwork', label: 'Upwork' },
-  { id: 'fiverr', label: 'Fiverr', comingSoon: true },
+  { id: 'justjoinit', label: 'JustJoinIT' },
+  { id: 'fiverr', label: 'Fiverr' },
+  { id: 'contra', label: 'Contra' },
+  { id: 'useme', label: 'Useme' },
+  { id: 'rocketjobs', label: 'RocketJobs' },
 ];
+
+interface Platform {
+  id: string;
+  name: string;
+  enabled: boolean;
+}
+
+interface ScoredOffer {
+  title: string;
+  description: string;
+  url: string;
+  platform: string;
+  budget?: string;
+  client_location?: string;
+  posted_at?: string;
+  fit_score?: number;
+  attractiveness_score?: number;
+  overall_score?: number;
+  selected?: boolean;
+}
+
+interface AllPlatformsResult {
+  mode: string;
+  score_mode: string;
+  total_offers: number;
+  selected_count: number;
+  max_offers: number;
+  total_duration_ms: number;
+  platform_results: Record<string, { count: number; duration_ms?: number; error?: string }>;
+  all_offers: ScoredOffer[];
+  selected_offers: ScoredOffer[];
+}
+
+interface SinglePlatformResult {
+  platform: string;
+  mode: string;
+  search_url?: string;
+  scrape_time_ms?: number;
+  count: number;
+  parsed: ScoredOffer[];
+  raw?: string;
+}
 
 export default function ScrapePage() {
   const { authenticatedFetch } = useAuth();
-  const [activeTab, setActiveTab] = useState<Tab>('upwork');
+  const [activeTab, setActiveTab] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   
-  // Upwork configuration
+  // Platforms state
+  const [platforms, setPlatforms] = useState<Platform[]>([]);
+  
+  // Configuration
   const [apifyApiKey, setApifyApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
-  const [upworkMaxOffers, setUpworkMaxOffers] = useState(50);
+  const [openaiApiKey, setOpenaiApiKey] = useState('');
+  const [showOpenaiKey, setShowOpenaiKey] = useState(false);
+  const [scoringPrompt, setScoringPrompt] = useState('');
+  const [defaultPrompt, setDefaultPrompt] = useState('');
+  const [maxOffers, setMaxOffers] = useState('10');
   const [perPage, setPerPage] = useState(10);
+  const [savingConfig, setSavingConfig] = useState(false);
+  
+  // Test keywords
   const [mustContain, setMustContain] = useState('');
   const [mayContain, setMayContain] = useState('');
   const [mustNotContain, setMustNotContain] = useState('');
-  const [savingConfig, setSavingConfig] = useState(false);
+  const [savedTestKeywords, setSavedTestKeywords] = useState<{
+    must_contain: string[] | null;
+    may_contain: string[] | null;
+    must_not_contain: string[] | null;
+  } | null>(null);
   
   // Testing state
   const [testing, setTesting] = useState(false);
@@ -37,7 +96,8 @@ export default function ScrapePage() {
   const [startTime, setStartTime] = useState<number | null>(null);
   
   // Results
-  const [results, setResults] = useState<ScrapeResults | null>(null);
+  const [singlePlatformResults, setSinglePlatformResults] = useState<SinglePlatformResult | null>(null);
+  const [allPlatformsResults, setAllPlatformsResults] = useState<AllPlatformsResult | null>(null);
   const [error, setError] = useState<string>('');
 
   // Load settings on mount
@@ -45,16 +105,35 @@ export default function ScrapePage() {
     const loadSettings = async () => {
       try {
         setLoading(true);
-        const [apifyData, settingsData] = await Promise.all([
+        const [apifyData, platformsData, testKeywordsData, openaiData] = await Promise.all([
           adminSettingsApi.getApifyKey(authenticatedFetch),
-          adminSettingsApi.getSettings(authenticatedFetch),
+          adminScrapeApi.getPlatforms(authenticatedFetch),
+          adminScrapeApi.getTestKeywords(authenticatedFetch),
+          adminScrapeApi.getOpenAISettings(authenticatedFetch),
         ]);
         
         if (apifyData.apify_api_key) {
           setApifyApiKey(apifyData.apify_api_key);
         }
-        if (settingsData.upwork_max_offers) {
-          setUpworkMaxOffers(settingsData.upwork_max_offers);
+        if (platformsData.platforms) {
+          setPlatforms(platformsData.platforms);
+        }
+        if (testKeywordsData) {
+          setSavedTestKeywords(testKeywordsData);
+        }
+        if (openaiData) {
+          if (openaiData.openai_api_key) {
+            setOpenaiApiKey(openaiData.openai_api_key);
+          }
+          if (openaiData.openai_scoring_prompt) {
+            setScoringPrompt(openaiData.openai_scoring_prompt);
+          }
+          if (openaiData.default_prompt) {
+            setDefaultPrompt(openaiData.default_prompt);
+          }
+          if (openaiData.email_max_offers) {
+            setMaxOffers(String(openaiData.email_max_offers));
+          }
         }
       } catch (err) {
         console.error('Error loading settings:', err);
@@ -64,10 +143,8 @@ export default function ScrapePage() {
       }
     };
     
-    if (activeTab === 'upwork') {
-      loadSettings();
-    }
-  }, [activeTab, authenticatedFetch]);
+    loadSettings();
+  }, [authenticatedFetch]);
 
   // Timer effect
   useEffect(() => {
@@ -82,14 +159,42 @@ export default function ScrapePage() {
     };
   }, [testing, startTime]);
 
+  const currentPlatform = platforms.find(p => p.id === activeTab);
+  const isPlatformEnabled = activeTab === 'all' || currentPlatform?.enabled;
+
+  const handleTogglePlatform = async () => {
+    if (activeTab === 'all') return;
+    
+    try {
+      const result = await adminScrapeApi.togglePlatform(activeTab, authenticatedFetch);
+      setPlatforms(prev => prev.map(p => 
+        p.id === activeTab ? { ...p, enabled: result.enabled } : p
+      ));
+      toast.success(result.enabled ? 'Platforma włączona' : 'Platforma wyłączona');
+    } catch (err) {
+      toast.error('Nie udało się zmienić statusu platformy');
+    }
+  };
+
   const handleSaveConfig = async () => {
     setSavingConfig(true);
     
     try {
-      await Promise.all([
+      const promises = [
         adminSettingsApi.updateApifyKey(apifyApiKey, authenticatedFetch),
-        adminSettingsApi.updateSettings({ upwork_max_offers: upworkMaxOffers }, authenticatedFetch),
-      ]);
+      ];
+      
+      if (activeTab === 'all') {
+        promises.push(
+          adminScrapeApi.updateOpenAISettings({
+            openai_api_key: openaiApiKey,
+            openai_scoring_prompt: scoringPrompt || undefined,
+            email_max_offers: parseInt(maxOffers),
+          }, authenticatedFetch)
+        );
+      }
+      
+      await Promise.all(promises);
       toast.success('Konfiguracja została zapisana!');
     } catch (err) {
       console.error('Error saving config:', err);
@@ -99,26 +204,57 @@ export default function ScrapePage() {
     }
   };
 
-  const handleCopyApiKey = async () => {
+  const handleSaveTestKeywords = async () => {
     try {
-      await navigator.clipboard.writeText(apifyApiKey);
+      const parseKeywords = (str: string) => str.split(',').map(s => s.trim()).filter(s => s);
+      await adminScrapeApi.saveTestKeywords(
+        parseKeywords(mustContain),
+        parseKeywords(mayContain),
+        parseKeywords(mustNotContain),
+        authenticatedFetch
+      );
+      setSavedTestKeywords({
+        must_contain: parseKeywords(mustContain),
+        may_contain: parseKeywords(mayContain),
+        must_not_contain: parseKeywords(mustNotContain),
+      });
+      toast.success('Testowe słowa kluczowe zostały zapisane!');
+    } catch (err) {
+      toast.error('Nie udało się zapisać słów kluczowych');
+    }
+  };
+
+  const handleLoadTestKeywords = () => {
+    if (savedTestKeywords) {
+      setMustContain((savedTestKeywords.must_contain || []).join(', '));
+      setMayContain((savedTestKeywords.may_contain || []).join(', '));
+      setMustNotContain((savedTestKeywords.must_not_contain || []).join(', '));
+      toast.success('Załadowano testowe słowa kluczowe');
+    }
+  };
+
+  const handleCopyApiKey = async (key: string) => {
+    try {
+      await navigator.clipboard.writeText(key);
       toast.success('Klucz skopiowany do schowka!');
     } catch (err) {
       toast.error('Błąd kopiowania');
     }
   };
 
-  const handleTest = async () => {
+  const parseKeywords = (str: string) => str.split(',').map(s => s.trim()).filter(s => s);
+
+  const handleTestSinglePlatform = async (mode: 'real' | 'mock') => {
     setError('');
-    setResults(null);
+    setSinglePlatformResults(null);
     setTesting(true);
     setStartTime(Date.now());
     setElapsedTime(0);
 
     try {
-      const parseKeywords = (str: string) => str.split(',').map(s => s.trim()).filter(s => s);
-
       const result = await adminScrapeApi.testScrape(
+        activeTab,
+        mode,
         parseKeywords(mustContain),
         parseKeywords(mayContain),
         parseKeywords(mustNotContain),
@@ -126,7 +262,7 @@ export default function ScrapePage() {
         authenticatedFetch
       );
 
-      setResults(result);
+      setSinglePlatformResults(result);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Wystąpił błąd podczas scrapowania';
       setError(message);
@@ -136,70 +272,199 @@ export default function ScrapePage() {
     }
   };
 
+  const handleTestAllPlatforms = async (mode: 'real' | 'mock', scoreMode: 'real' | 'mock') => {
+    setError('');
+    setAllPlatformsResults(null);
+    setTesting(true);
+    setStartTime(Date.now());
+    setElapsedTime(0);
+
+    try {
+      // Get enabled platforms
+      const enabledPlatforms = platforms.filter(p => p.enabled).map(p => p.id);
+      
+      if (enabledPlatforms.length === 0) {
+        setError('Brak włączonych platform. Włącz przynajmniej jedną platformę.');
+        setTesting(false);
+        return;
+      }
+
+      const result = await adminScrapeApi.scrapeAll(
+        mode,
+        scoreMode,
+        parseKeywords(mustContain),
+        parseKeywords(mayContain),
+        parseKeywords(mustNotContain),
+        enabledPlatforms,
+        perPage,
+        parseInt(maxOffers),
+        authenticatedFetch
+      );
+
+      setAllPlatformsResults(result);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Wystąpił błąd podczas scrapowania';
+      setError(message);
+      console.error('Scrape error:', err);
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const handleResetPrompt = () => {
+    setScoringPrompt('');
+    toast.success('Prompt został zresetowany do domyślnego');
+  };
+
+  const enabledPlatformsCount = platforms.filter(p => p.enabled).length;
+
   return (
     <div className="overflow-x-hidden">
       <PageHeader title="Scrape Test" />
 
       {/* Tabs */}
       <div className="border-b border-gray-700 mb-4 sm:mb-6 overflow-x-auto">
-        <nav className="-mb-px flex space-x-4 sm:space-x-8 min-w-max">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors relative whitespace-nowrap
-                ${activeTab === tab.id
-                  ? 'border-yellow-400 text-yellow-400'
-                  : 'border-transparent text-gray-400 hover:text-white hover:border-gray-600'
-                }
-              `}
-            >
-              {tab.label}
-              {tab.comingSoon && (
-                <span className="ml-1.5 sm:ml-2 text-[10px] sm:text-xs bg-gray-700 text-gray-400 px-1.5 sm:px-2 py-0.5 rounded">
-                  wkrótce
-                </span>
-              )}
-            </button>
-          ))}
+        <nav className="-mb-px flex space-x-2 sm:space-x-4 min-w-max">
+          {PLATFORM_TABS.map((tab) => {
+            const platform = platforms.find(p => p.id === tab.id);
+            const isEnabled = tab.id === 'all' || platform?.enabled;
+            
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setSinglePlatformResults(null);
+                  setAllPlatformsResults(null);
+                  setError('');
+                }}
+                className={`
+                  py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors relative whitespace-nowrap flex items-center gap-1.5
+                  ${activeTab === tab.id
+                    ? 'border-yellow-400 text-yellow-400'
+                    : 'border-transparent text-gray-400 hover:text-white hover:border-gray-600'
+                  }
+                `}
+              >
+                {tab.id !== 'all' && (
+                  <span className={`w-2 h-2 rounded-full ${isEnabled ? 'bg-green-500' : 'bg-gray-600'}`} />
+                )}
+                {tab.label}
+                {tab.id === 'all' && enabledPlatformsCount > 0 && (
+                  <span className="text-[10px] bg-yellow-400/20 text-yellow-400 px-1.5 py-0.5 rounded">
+                    {enabledPlatformsCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </nav>
       </div>
 
-      {/* Upwork Tab Content */}
-      {activeTab === 'upwork' && loading && (
+      {loading && (
         <div className="flex items-center justify-center h-64">
           <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
       
-      {activeTab === 'upwork' && !loading && (
+      {!loading && (
         <div className="space-y-4 sm:space-y-6">
+          {/* Platform Toggle (for individual platform tabs) */}
+          {activeTab !== 'all' && (
+            <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+              <div>
+                <h3 className="text-white font-medium">
+                  {currentPlatform?.name || activeTab}
+                </h3>
+                <p className="text-sm text-gray-400">
+                  {isPlatformEnabled 
+                    ? 'Ta platforma jest włączona i będzie używana przy scrapowaniu' 
+                    : 'Ta platforma jest wyłączona'}
+                </p>
+              </div>
+              <button
+                onClick={handleTogglePlatform}
+                className={`
+                  relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                  ${isPlatformEnabled ? 'bg-green-600' : 'bg-gray-600'}
+                `}
+              >
+                <span
+                  className={`
+                    inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                    ${isPlatformEnabled ? 'translate-x-6' : 'translate-x-1'}
+                  `}
+                />
+              </button>
+            </div>
+          )}
+
           {/* Configuration Section */}
           <AdminSection title="Konfiguracja" className="space-y-4">
-            <ApiKeyInput 
-              value={apifyApiKey}
-              onChange={setApifyApiKey}
-              showKey={showApiKey}
-              onToggleShow={() => setShowApiKey(!showApiKey)}
-              onCopy={handleCopyApiKey}
-            />
+            {/* Apify API Key - shown for Upwork and All tabs */}
+            {(activeTab === 'upwork' || activeTab === 'all') && (
+              <ApiKeyInput 
+                label="Klucz API Apify (Upwork)"
+                value={apifyApiKey}
+                onChange={setApifyApiKey}
+                showKey={showApiKey}
+                onToggleShow={() => setShowApiKey(!showApiKey)}
+                onCopy={() => handleCopyApiKey(apifyApiKey)}
+              />
+            )}
 
-            <div>
-              <label className="block text-sm font-semibold text-yellow-400 mb-2">Maksymalna liczba ofert</label>
-              <select
-                value={upworkMaxOffers}
-                onChange={(e) => setUpworkMaxOffers(Number(e.target.value))}
-                className="block w-full px-3 py-2 text-sm border border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-gray-700 text-white"
-              >
-                <option value={10}>10 ofert</option>
-                <option value={20}>20 ofert</option>
-                <option value={50}>50 ofert</option>
-              </select>
-              <p className="mt-1 text-xs text-gray-400">
-                Maksymalna liczba ofert pobieranych z Upwork podczas scrapowania
-              </p>
-            </div>
+            {/* OpenAI API Key - shown only for All tab */}
+            {activeTab === 'all' && (
+              <>
+                <ApiKeyInput 
+                  label="Klucz API OpenAI"
+                  value={openaiApiKey}
+                  onChange={setOpenaiApiKey}
+                  showKey={showOpenaiKey}
+                  onToggleShow={() => setShowOpenaiKey(!showOpenaiKey)}
+                  onCopy={() => handleCopyApiKey(openaiApiKey)}
+                />
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-semibold text-yellow-400">
+                      Prompt do oceny ofert
+                    </label>
+                    <button
+                      onClick={handleResetPrompt}
+                      className="text-xs text-gray-400 hover:text-white transition-colors"
+                    >
+                      Resetuj do domyślnego
+                    </button>
+                  </div>
+                  <textarea
+                    value={scoringPrompt || defaultPrompt}
+                    onChange={(e) => setScoringPrompt(e.target.value)}
+                    rows={8}
+                    className="block w-full px-3 py-2 text-sm border border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-gray-700 text-white font-mono"
+                    placeholder="Prompt do oceny ofert..."
+                  />
+                  <p className="mt-1 text-xs text-gray-400">
+                    Użyj {'{must_contain}'}, {'{may_contain}'}, {'{must_not_contain}'}, {'{offers_json}'} jako zmiennych
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-yellow-400 mb-2">Max ofert do wysyłki</label>
+                  <Input
+                    type="number"
+                    value={maxOffers}
+                    onChange={(e) => setMaxOffers(e.target.value)}
+                    min="1"
+                    max="50"
+                    placeholder="np. 10"
+                  />
+                  <p className="mt-1 text-xs text-gray-400">
+                    Maksymalna liczba ofert które trafią do maila (z zachowaniem różnorodności platform)
+                  </p>
+                </div>
+              </>
+            )}
 
             <Button onClick={handleSaveConfig} loading={savingConfig} variant="primary" size="lg" className="w-full sm:w-auto">
               Zapisz konfigurację
@@ -209,31 +474,120 @@ export default function ScrapePage() {
           {/* Test Section */}
           <AdminSection title="Test scrapera" className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-yellow-400 mb-2">Liczba ofert do testu</label>
+              <label className="block text-sm font-semibold text-yellow-400 mb-2">Liczba ofert do testu (per platforma)</label>
               <select
                 value={perPage}
                 onChange={(e) => setPerPage(Number(e.target.value))}
                 className="block w-full px-3 py-2 text-sm border border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-gray-700 text-white"
               >
-                <option value={10}>10 ofert (szybki test)</option>
+                <option value={5}>5 ofert (szybki test)</option>
+                <option value={10}>10 ofert</option>
                 <option value={20}>20 ofert</option>
                 <option value={50}>50 ofert</option>
               </select>
-              <p className="mt-1 text-xs text-gray-400">
-                Tylko do testów - produkcyjne scrapowanie używa ustawień z konfiguracji
-              </p>
+            </div>
+
+            {/* Test Keywords Button */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button 
+                onClick={handleLoadTestKeywords} 
+                variant="secondary" 
+                size="sm"
+                disabled={!savedTestKeywords || (
+                  (savedTestKeywords.must_contain?.length ?? 0) === 0 &&
+                  (savedTestKeywords.may_contain?.length ?? 0) === 0 &&
+                  (savedTestKeywords.must_not_contain?.length ?? 0) === 0
+                )}
+              >
+                📋 Załaduj testowe słowa
+              </Button>
+              <Button 
+                onClick={handleSaveTestKeywords} 
+                variant="secondary" 
+                size="sm"
+                disabled={!mustContain && !mayContain && !mustNotContain}
+              >
+                💾 Zapisz jako testowe
+              </Button>
+              {savedTestKeywords && ((savedTestKeywords.must_contain?.length ?? 0) > 0 || (savedTestKeywords.may_contain?.length ?? 0) > 0) && (
+                <span className="text-xs text-gray-400">
+                  Zapisane: {[...(savedTestKeywords.must_contain || []), ...(savedTestKeywords.may_contain || [])].slice(0, 3).join(', ')}
+                  {(savedTestKeywords.must_contain?.length ?? 0) + (savedTestKeywords.may_contain?.length ?? 0) > 3 && '...'}
+                </span>
+              )}
             </div>
 
             <KeywordInput label="Musi zawierać" value={mustContain} onChange={setMustContain} placeholder="np. react, typescript, developer" />
             <KeywordInput label="Może zawierać" value={mayContain} onChange={setMayContain} placeholder="np. nextjs, tailwind, redux" />
             <KeywordInput label="Nie może zawierać" value={mustNotContain} onChange={setMustNotContain} placeholder="np. wordpress, php, junior" />
 
-            {/* Test Button */}
-            <div className="pt-2 sm:pt-4">
-              <Button onClick={handleTest} loading={testing} variant="primary" size="lg" className="w-full sm:w-auto">
-                {testing ? 'Testowanie...' : 'Testuj scrapera'}
-              </Button>
+            {/* Test Buttons */}
+            <div className="pt-2 sm:pt-4 flex flex-wrap gap-3">
+              {activeTab === 'all' ? (
+                <>
+                  <Button 
+                    onClick={() => handleTestAllPlatforms('mock', 'mock')} 
+                    loading={testing} 
+                    variant="secondary" 
+                    size="lg"
+                    disabled={enabledPlatformsCount === 0}
+                  >
+                    🧪 Test Mock (Scrape + Score)
+                  </Button>
+                  <Button 
+                    onClick={() => handleTestAllPlatforms('mock', 'real')} 
+                    loading={testing} 
+                    variant="secondary" 
+                    size="lg"
+                    disabled={!openaiApiKey || enabledPlatformsCount === 0}
+                  >
+                    🤖 Mock Scrape + Real OpenAI
+                  </Button>
+                  <Button 
+                    onClick={() => handleTestAllPlatforms('real', 'real')} 
+                    loading={testing} 
+                    variant="primary" 
+                    size="lg"
+                    disabled={enabledPlatformsCount === 0}
+                  >
+                    🚀 Test Real (jak w produkcji)
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    onClick={() => handleTestSinglePlatform('mock')} 
+                    loading={testing} 
+                    variant="secondary" 
+                    size="lg"
+                    disabled={!isPlatformEnabled}
+                  >
+                    🧪 Test Mock
+                  </Button>
+                  <Button 
+                    onClick={() => handleTestSinglePlatform('real')} 
+                    loading={testing} 
+                    variant="primary" 
+                    size="lg"
+                    disabled={!isPlatformEnabled || (activeTab === 'upwork' && !apifyApiKey)}
+                  >
+                    🚀 Test Real
+                  </Button>
+                  {!isPlatformEnabled && (
+                    <p className="text-xs text-orange-400 w-full">
+                      ⚠️ Włącz platformę aby uruchomić test
+                    </p>
+                  )}
+                </>
+              )}
             </div>
+
+            {/* Enabled platforms info for All tab */}
+            {activeTab === 'all' && (
+              <div className="text-xs text-gray-400 pt-2">
+                Włączone platformy: {platforms.filter(p => p.enabled).map(p => p.name).join(', ') || 'brak'}
+              </div>
+            )}
 
             {/* Loading State */}
             {testing && (
@@ -253,36 +607,25 @@ export default function ScrapePage() {
             )}
           </AdminSection>
 
-          {/* Results Section */}
-          {results && <ScrapeResultsSection results={results} />}
+          {/* Results Section - Single Platform */}
+          {singlePlatformResults && activeTab !== 'all' && (
+            <SinglePlatformResultsSection results={singlePlatformResults} />
+          )}
+
+          {/* Results Section - All Platforms */}
+          {allPlatformsResults && activeTab === 'all' && (
+            <AllPlatformsResultsSection results={allPlatformsResults} maxOffers={parseInt(maxOffers)} />
+          )}
         </div>
       )}
-
-      {/* Coming Soon Tabs */}
-      {activeTab === 'all' && <ComingSoonPlaceholder emoji="🔍" text="Funkcja przeszukiwania wszystkich platform jednocześnie zostanie wkrótce dodana" />}
-      {activeTab === 'fiverr' && <ComingSoonPlaceholder emoji="💼" text="Scraper dla platformy Fiverr jest w trakcie implementacji" />}
     </div>
   );
 }
 
-// Types and Sub-components
-
-interface ScrapeResults {
-  count: number;
-  search_url?: string;
-  scrape_time_ms?: number;
-  parsed?: Array<{
-    title: string;
-    description: string;
-    budget?: string;
-    client_name?: string;
-    posted_at?: string;
-    url?: string;
-  }>;
-  raw?: string;
-}
+// ============ Sub-components ============
 
 interface ApiKeyInputProps {
+  label: string;
   value: string;
   onChange: (value: string) => void;
   showKey: boolean;
@@ -290,14 +633,14 @@ interface ApiKeyInputProps {
   onCopy: () => void;
 }
 
-function ApiKeyInput({ value, onChange, showKey, onToggleShow, onCopy }: ApiKeyInputProps) {
+function ApiKeyInput({ label, value, onChange, showKey, onToggleShow, onCopy }: ApiKeyInputProps) {
   return (
     <div>
-      <label className="block text-sm font-semibold text-yellow-400 mb-2">Klucz API Apify</label>
+      <label className="block text-sm font-semibold text-yellow-400 mb-2">{label}</label>
       <div className="relative">
         <Input
           type={showKey ? 'text' : 'password'}
-          placeholder="Wprowadź klucz API Apify"
+          placeholder={`Wprowadź ${label.toLowerCase()}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="pr-20"
@@ -334,7 +677,7 @@ function ApiKeyInput({ value, onChange, showKey, onToggleShow, onCopy }: ApiKeyI
           </button>
         </div>
       </div>
-      <p className="mt-1 text-xs text-gray-400">Klucz API jest bezpiecznie szyfrowany w bazie danych</p>
+      <p className="mt-1 text-xs text-gray-400">Klucz jest bezpiecznie szyfrowany w bazie danych</p>
     </div>
   );
 }
@@ -358,11 +701,7 @@ function KeywordInput({ label, value, onChange, placeholder }: KeywordInputProps
   );
 }
 
-interface ScrapeResultsSectionProps {
-  results: ScrapeResults;
-}
-
-function ScrapeResultsSection({ results }: ScrapeResultsSectionProps) {
+function SinglePlatformResultsSection({ results }: { results: SinglePlatformResult }) {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Search URL */}
@@ -391,7 +730,7 @@ function ScrapeResultsSection({ results }: ScrapeResultsSectionProps) {
           </div>
           <div className="bg-yellow-400/10 p-3 sm:p-4 rounded-lg border border-yellow-500/20">
             <p className="text-xs sm:text-sm text-gray-400">Platforma</p>
-            <p className="text-xl sm:text-2xl font-bold text-yellow-400">Upwork</p>
+            <p className="text-xl sm:text-2xl font-bold text-yellow-400 capitalize">{results.platform}</p>
           </div>
         </div>
       </AdminSection>
@@ -407,8 +746,7 @@ function ScrapeResultsSection({ results }: ScrapeResultsSectionProps) {
                   <p className="text-xs sm:text-sm text-gray-400 mb-2 break-words whitespace-pre-wrap line-clamp-3">{offer.description}</p>
                   <div className="flex flex-wrap gap-2 sm:gap-4 text-[10px] sm:text-xs text-gray-500">
                     {offer.budget && <span className="flex items-center"><span className="font-medium text-gray-400">Budżet:</span>&nbsp;{offer.budget}</span>}
-                    {offer.client_name && <span className="flex items-center break-words"><span className="font-medium text-gray-400">Klient:</span>&nbsp;{offer.client_name}</span>}
-                    {offer.posted_at && <span className="flex items-center"><span className="font-medium text-gray-400">Data:</span>&nbsp;{new Date(offer.posted_at).toLocaleString('pl-PL')}</span>}
+                    {offer.client_location && <span className="flex items-center break-words"><span className="font-medium text-gray-400">Lokalizacja:</span>&nbsp;{offer.client_location}</span>}
                   </div>
                   {offer.url && (
                     <a href={offer.url} target="_blank" rel="noopener noreferrer" className="text-[10px] sm:text-xs text-yellow-400 hover:text-yellow-300 mt-2 inline-block break-all">
@@ -423,32 +761,144 @@ function ScrapeResultsSection({ results }: ScrapeResultsSectionProps) {
           )}
         </div>
       </AdminSection>
+    </div>
+  );
+}
 
-      {/* Raw Output */}
-      <AdminSection title="Wyniki (raw)">
-        <div className="max-h-80 sm:max-h-96 overflow-y-auto overflow-x-hidden">
-          <pre className="text-[10px] sm:text-xs bg-gray-700 p-3 sm:p-4 rounded-lg border border-gray-600 whitespace-pre-wrap break-words text-gray-300">
-            {results.raw}
-          </pre>
+const PLATFORM_COLORS: Record<string, string> = {
+  upwork: 'bg-green-600/30 text-green-400',
+  fiverr: 'bg-emerald-600/30 text-emerald-400',
+  justjoinit: 'bg-blue-600/30 text-blue-400',
+  contra: 'bg-purple-600/30 text-purple-400',
+  useme: 'bg-orange-600/30 text-orange-400',
+  rocketjobs: 'bg-red-600/30 text-red-400',
+};
+
+function AllPlatformsResultsSection({ results, maxOffers }: { results: AllPlatformsResult; maxOffers: number }) {
+  return (
+    <div className="space-y-4 sm:space-y-6">
+      {/* Summary */}
+      <AdminSection title="Podsumowanie">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4">
+          <div className="bg-yellow-400/10 p-3 sm:p-4 rounded-lg border border-yellow-500/20">
+            <p className="text-xs sm:text-sm text-gray-400">Wszystkich ofert</p>
+            <p className="text-xl sm:text-2xl font-bold text-yellow-400">{results.total_offers}</p>
+          </div>
+          <div className="bg-green-400/10 p-3 sm:p-4 rounded-lg border border-green-500/20">
+            <p className="text-xs sm:text-sm text-gray-400">Wybranych (do maila)</p>
+            <p className="text-xl sm:text-2xl font-bold text-green-400">{results.selected_count}</p>
+          </div>
+          <div className="bg-yellow-400/10 p-3 sm:p-4 rounded-lg border border-yellow-500/20">
+            <p className="text-xs sm:text-sm text-gray-400">Max ofert</p>
+            <p className="text-xl sm:text-2xl font-bold text-yellow-400">{maxOffers}</p>
+          </div>
+          <div className="bg-yellow-400/10 p-3 sm:p-4 rounded-lg border border-yellow-500/20">
+            <p className="text-xs sm:text-sm text-gray-400">Czas scrapowania</p>
+            <p className="text-xl sm:text-2xl font-bold text-yellow-400">
+              {results.total_duration_ms ? `${(results.total_duration_ms/1000).toFixed(1)}s` : 'N/A'}
+            </p>
+          </div>
+        </div>
+
+        {/* Platform breakdown */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
+          {Object.entries(results.platform_results).map(([platform, data]) => (
+            <div key={platform} className="bg-gray-700/50 p-3 rounded-lg border border-gray-600">
+              <p className="text-xs text-gray-400 capitalize">{platform}</p>
+              <p className="text-lg font-bold text-white">{data.count} ofert</p>
+              {data.error && <p className="text-xs text-red-400 mt-1 truncate" title={data.error}>{data.error}</p>}
+            </div>
+          ))}
+        </div>
+      </AdminSection>
+
+      {/* All Offers with Scores */}
+      <AdminSection title={`Wszystkie oferty (${results.total_offers}) - posortowane wg oceny`}>
+        <p className="text-xs text-gray-400 mb-3">
+          💚 Oferty które trafią do maila • ⚫ Oferty poza limitem (wyszarzone)
+        </p>
+        <div className="max-h-[600px] overflow-y-auto overflow-x-hidden border border-gray-700 rounded-lg">
+          {results.all_offers && results.all_offers.length > 0 ? (
+            <div className="divide-y divide-gray-700">
+              {results.all_offers.map((offer, index) => (
+                <div 
+                  key={index} 
+                  className={`p-3 sm:p-4 transition-colors ${
+                    offer.selected 
+                      ? 'hover:bg-gray-700/50 border-l-2 border-l-green-500' 
+                      : 'opacity-50 bg-gray-800/50 border-l-2 border-l-gray-600'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className={`text-xs px-2 py-0.5 rounded capitalize ${
+                          PLATFORM_COLORS[offer.platform] || 'bg-gray-600/30 text-gray-400'
+                        }`}>
+                          {offer.platform}
+                        </span>
+                        {offer.selected && (
+                          <span className="text-xs px-2 py-0.5 rounded bg-green-600/30 text-green-400">
+                            ✓ w mailu
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="font-semibold text-white mb-2 text-sm sm:text-base break-words">{offer.title}</h4>
+                      <p className="text-xs sm:text-sm text-gray-400 mb-2 break-words whitespace-pre-wrap line-clamp-2">{offer.description}</p>
+                      <div className="flex flex-wrap gap-2 sm:gap-4 text-[10px] sm:text-xs text-gray-500">
+                        {offer.budget && <span><span className="font-medium text-gray-400">Budżet:</span> {offer.budget}</span>}
+                        {offer.client_location && <span><span className="font-medium text-gray-400">Lokalizacja:</span> {offer.client_location}</span>}
+                      </div>
+                      {offer.url && (
+                        <a href={offer.url} target="_blank" rel="noopener noreferrer" className="text-[10px] sm:text-xs text-yellow-400 hover:text-yellow-300 mt-2 inline-block break-all">
+                          Zobacz ofertę →
+                        </a>
+                      )}
+                    </div>
+                    
+                    {/* Scores */}
+                    <div className="flex-shrink-0 text-right space-y-1">
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="text-xs text-gray-400">Dopasowanie:</span>
+                        <ScoreBadge score={offer.fit_score || 0} />
+                      </div>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="text-xs text-gray-400">Atrakcyjność:</span>
+                        <ScoreBadge score={offer.attractiveness_score || 0} />
+                      </div>
+                      <div className="flex items-center justify-end gap-2 pt-1 border-t border-gray-600">
+                        <span className="text-xs text-white font-medium">Ogólna:</span>
+                        <ScoreBadge score={offer.overall_score || 0} large />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center text-gray-400 text-sm">Brak ofert do wyświetlenia</div>
+          )}
         </div>
       </AdminSection>
     </div>
   );
 }
 
-interface ComingSoonPlaceholderProps {
-  emoji: string;
-  text: string;
-}
+function ScoreBadge({ score, large = false }: { score: number; large?: boolean }) {
+  const getScoreColor = (s: number) => {
+    if (s >= 8) return 'bg-green-600/30 text-green-400 border-green-500/50';
+    if (s >= 6) return 'bg-yellow-600/30 text-yellow-400 border-yellow-500/50';
+    if (s >= 4) return 'bg-orange-600/30 text-orange-400 border-orange-500/50';
+    return 'bg-red-600/30 text-red-400 border-red-500/50';
+  };
 
-function ComingSoonPlaceholder({ emoji, text }: ComingSoonPlaceholderProps) {
   return (
-    <div className="bg-cards-background rounded-lg shadow-xl shadow-black/20 border border-gray-700 p-8 sm:p-12 text-center">
-      <div className="max-w-md mx-auto">
-        <div className="text-4xl sm:text-6xl mb-4">{emoji}</div>
-        <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">Wkrótce dostępne</h3>
-        <p className="text-sm text-gray-400">{text}</p>
-      </div>
-    </div>
+    <span className={`
+      ${large ? 'text-sm px-2 py-1' : 'text-xs px-1.5 py-0.5'} 
+      rounded border font-mono font-bold
+      ${getScoreColor(score)}
+    `}>
+      {score.toFixed(1)}
+    </span>
   );
 }

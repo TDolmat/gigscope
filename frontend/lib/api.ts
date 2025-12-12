@@ -110,8 +110,10 @@ export const adminSettingsApi = {
 
 // Admin Scrape API
 export const adminScrapeApi = {
-  // Test scrape with keywords
+  // Test scrape for a single platform
   testScrape: async (
+    platform: string,
+    mode: 'real' | 'mock',
     mustContain: string[],
     mayContain: string[],
     mustNotContain: string[],
@@ -121,11 +123,103 @@ export const adminScrapeApi = {
     return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE, {
       method: 'POST',
       body: JSON.stringify({
+        platform,
+        mode,
         must_contain: mustContain,
         may_contain: mayContain,
         must_not_contain: mustNotContain,
         per_page: perPage,
       }),
+    }, authenticatedFetch);
+  },
+
+  // Scrape all platforms and get scored results
+  scrapeAll: async (
+    mode: 'real' | 'mock',
+    scoreMode: 'real' | 'mock',
+    mustContain: string[],
+    mayContain: string[],
+    mustNotContain: string[],
+    platforms: string[],
+    perPlatform: number,
+    maxOffers: number,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_ALL, {
+      method: 'POST',
+      body: JSON.stringify({
+        mode,
+        score_mode: scoreMode,
+        must_contain: mustContain,
+        may_contain: mayContain,
+        must_not_contain: mustNotContain,
+        platforms,
+        per_platform: perPlatform,
+        max_offers: maxOffers,
+      }),
+    }, authenticatedFetch);
+  },
+
+  // Get test keywords
+  getTestKeywords: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_TEST_KEYWORDS, {}, authenticatedFetch);
+  },
+
+  // Save test keywords
+  saveTestKeywords: async (
+    mustContain: string[],
+    mayContain: string[],
+    mustNotContain: string[],
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_TEST_KEYWORDS, {
+      method: 'PUT',
+      body: JSON.stringify({
+        must_contain: mustContain,
+        may_contain: mayContain,
+        must_not_contain: mustNotContain,
+      }),
+    }, authenticatedFetch);
+  },
+
+  // Get OpenAI settings
+  getOpenAISettings: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_OPENAI_SETTINGS, {}, authenticatedFetch);
+  },
+
+  // Update OpenAI settings
+  updateOpenAISettings: async (
+    data: {
+      openai_api_key?: string;
+      openai_scoring_prompt?: string;
+      email_max_offers?: number;
+    },
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_OPENAI_SETTINGS, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }, authenticatedFetch);
+  },
+
+  // Get available platforms
+  getPlatforms: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_PLATFORMS, {}, authenticatedFetch);
+  },
+
+  // Toggle platform enabled status
+  togglePlatform: async (
+    platformId: string,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_PLATFORM_TOGGLE(platformId), {
+      method: 'POST',
     }, authenticatedFetch);
   },
 };

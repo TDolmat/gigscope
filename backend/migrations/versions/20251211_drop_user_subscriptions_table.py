@@ -1,7 +1,7 @@
 """Drop user_subscriptions table - subscription now managed via external BeFreeClub API
 
 Revision ID: d1e2f3a4b5c6
-Revises: a1b2c3d4e5f6
+Revises: c81c000ff360
 Create Date: 2025-12-11
 
 """
@@ -17,13 +17,13 @@ depends_on = None
 
 
 def upgrade():
-    """Drop the user_subscriptions table - no longer needed.
+    """Drop the user_subscriptions table if it exists - no longer needed.
     
     Subscription status is now determined by querying the BeFreeClub API
     at https://api.befreeclub.pro/subscribers
     """
-    # Drop the table and all its data
-    op.drop_table('user_subscriptions')
+    # Use IF EXISTS to make migration idempotent (safe to run multiple times)
+    op.execute('DROP TABLE IF EXISTS user_subscriptions')
 
 
 def downgrade():
@@ -37,4 +37,3 @@ def downgrade():
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )
-

@@ -1,7 +1,7 @@
 """Add scoring and OpenAI settings
 
 Revision ID: bbea275c3671
-Revises: a1b2c3d4e5f7
+Revises: d1e2f3a4b5c6
 Create Date: 2025-12-12 11:03:25.409596
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'bbea275c3671'
-down_revision = 'a1b2c3d4e5f7'
+down_revision = 'd1e2f3a4b5c6'
 branch_labels = None
 depends_on = None
 

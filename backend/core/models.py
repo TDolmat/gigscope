@@ -57,6 +57,10 @@ class AppSettings(db.Model):
     test_may_contain = db.Column(db.JSON, default=[])
     test_must_not_contain = db.Column(db.JSON, default=[])
     
+    # Running state tracking
+    is_scrape_running = db.Column(db.Boolean, default=False)
+    scrape_started_at = db.Column(db.DateTime, nullable=True)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

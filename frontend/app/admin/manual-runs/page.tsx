@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { adminManualRunsApi } from '@/lib/api';
 import { useAuth } from '@/app/context/AuthContext';
 import { toast } from 'sonner';
 import { PageHeader, AdminSection } from '@/components/admin';
-import { Search, Mail, Zap, AlertTriangle, CheckCircle2, XCircle, Clock, Users } from 'lucide-react';
+import { Search, Mail, Zap, AlertTriangle, CheckCircle2, XCircle, Clock, Users, Package, ChevronDown, ChevronUp } from 'lucide-react';
 
 type ModalType = 'scrape' | 'mail' | 'both' | null;
 
@@ -17,11 +17,43 @@ interface RunResult {
   details?: any;
 }
 
+interface PendingBundle {
+  bundle_id: number;
+  user_id: number;
+  email: string;
+  scraped_at: string;
+  offers_count: number;
+}
+
+interface PendingBundlesData {
+  count: number;
+  bundles: PendingBundle[];
+}
+
 export default function ManualRunsPage() {
   const { authenticatedFetch } = useAuth();
   const [modalOpen, setModalOpen] = useState<ModalType>(null);
   const [loading, setLoading] = useState<ModalType>(null);
   const [lastResult, setLastResult] = useState<RunResult | null>(null);
+  const [pendingBundles, setPendingBundles] = useState<PendingBundlesData | null>(null);
+  const [showPendingDetails, setShowPendingDetails] = useState(false);
+  const [loadingPending, setLoadingPending] = useState(true);
+
+  useEffect(() => {
+    fetchPendingBundles();
+  }, []);
+
+  const fetchPendingBundles = async () => {
+    try {
+      setLoadingPending(true);
+      const data = await adminManualRunsApi.getPendingBundles(authenticatedFetch);
+      setPendingBundles(data);
+    } catch (error) {
+      console.error('Error fetching pending bundles:', error);
+    } finally {
+      setLoadingPending(false);
+    }
+  };
 
   const handleScrapeAll = async () => {
     try {
@@ -43,6 +75,8 @@ export default function ManualRunsPage() {
             duration_seconds: Math.round((result.total_duration_millis || 0) / 1000),
           }
         });
+        // Refresh pending bundles after scraping
+        fetchPendingBundles();
       } else {
         toast.error(result.error || 'Wystąpił błąd podczas scrapowania');
         setLastResult({
@@ -79,6 +113,8 @@ export default function ManualRunsPage() {
             expired_users: result.summary.expired_users,
           }
         });
+        // Refresh pending bundles after sending
+        fetchPendingBundles();
       } else {
         toast.error(result.error || 'Wystąpił błąd podczas wysyłania emaili');
         setLastResult({
@@ -112,6 +148,8 @@ export default function ManualRunsPage() {
             mail: result.mail_result?.summary,
           }
         });
+        // Refresh pending bundles after both operations
+        fetchPendingBundles();
       } else {
         toast.error(result.error || 'Wystąpił błąd');
         setLastResult({
@@ -172,6 +210,16 @@ export default function ManualRunsPage() {
 
   const modalConfig = getModalConfig();
 
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleString('pl-PL', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   return (
     <div>
       <PageHeader 
@@ -180,6 +228,57 @@ export default function ManualRunsPage() {
       />
       
       <div className="space-y-4 sm:space-y-6">
+        {/* Pending bundles info */}
+        {!loadingPending && pendingBundles && pendingBundles.count > 0 && (
+          <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4">
+            <div 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setShowPendingDetails(!showPendingDetails)}
+            >
+              <div className="flex items-center gap-3">
+                <Package className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                <div>
+                  <h4 className="text-sm font-semibold text-blue-300">
+                    {pendingBundles.count} {pendingBundles.count === 1 ? 'paczka ofert' : pendingBundles.count < 5 ? 'paczki ofert' : 'paczek ofert'} oczekuje na wysyłkę
+                  </h4>
+                  <p className="text-xs text-blue-400/80 mt-0.5">
+                    Kliknij aby zobaczyć szczegóły
+                  </p>
+                </div>
+              </div>
+              {showPendingDetails ? (
+                <ChevronUp className="w-5 h-5 text-blue-400" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-blue-400" />
+              )}
+            </div>
+            
+            {showPendingDetails && (
+              <div className="mt-4 border-t border-blue-700/50 pt-4">
+                <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
+                  {pendingBundles.bundles.map((bundle) => (
+                    <div 
+                      key={bundle.bundle_id}
+                      className="flex items-center justify-between text-sm bg-blue-900/30 rounded-lg px-3 py-2"
+                    >
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="text-blue-300 truncate" title={bundle.email}>
+                          {bundle.email}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-blue-400/80 text-xs whitespace-nowrap">
+                        <span>{bundle.offers_count} ofert</span>
+                        <span>•</span>
+                        <span>{formatDate(bundle.scraped_at)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Warning banner */}
         <div className="bg-amber-900/20 border border-amber-700 rounded-lg p-4 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
@@ -414,4 +513,3 @@ function DetailCard({ icon: Icon, label, value }: DetailCardProps) {
     </div>
   );
 }
-

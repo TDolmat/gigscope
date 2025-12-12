@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { adminDashboardApi } from '@/lib/api';
 import { useAuth } from '@/app/context/AuthContext';
 import { toast } from 'sonner';
-import { Users, Mail, FileText, TrendingUp } from 'lucide-react';
-import { PageHeader, PageLoader, StatCard, DashboardChart } from '@/components/admin';
+import { Users, Mail, FileText, TrendingUp, Search } from 'lucide-react';
+import { PageHeader, PageLoader, StatCard, StatusCard, ScrapeTooltip, MailTooltip, DashboardChart } from '@/components/admin';
 
 interface DashboardStats {
   summary: {
@@ -21,23 +21,50 @@ interface DashboardStats {
   };
 }
 
+interface DashboardStatus {
+  scrape: {
+    status: 'scheduled' | 'running' | 'completed';
+    time: string;
+    scheduled_time: string;
+    total_offers: number;
+    total_users: number;
+    successful: number;
+    failed: number;
+    platform_breakdown: Record<string, number>;
+  };
+  mail: {
+    status: 'scheduled' | 'sent';
+    time: string;
+    scheduled_time: string;
+    total_sent: number;
+    total_failed: number;
+    user_details: Array<{ email: string; offers_count: number }>;
+  };
+  frequency: string;
+}
+
 export default function DashboardPage() {
   const { authenticatedFetch } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [status, setStatus] = useState<DashboardStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStats();
+    fetchData();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const data = await adminDashboardApi.getStats(authenticatedFetch);
-      setStats(data);
+      const [statsData, statusData] = await Promise.all([
+        adminDashboardApi.getStats(authenticatedFetch),
+        adminDashboardApi.getStatus(authenticatedFetch),
+      ]);
+      setStats(statsData);
+      setStatus(statusData);
     } catch (error) {
-      console.error('Error fetching stats:', error);
-      toast.error('Nie udało się pobrać statystyk');
+      console.error('Error fetching dashboard data:', error);
+      toast.error('Nie udało się pobrać danych');
     } finally {
       setLoading(false);
     }
@@ -61,6 +88,42 @@ export default function DashboardPage() {
   return (
     <div>
       <PageHeader title="Dashboard" />
+
+      {/* Today's Status Cards */}
+      {status && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+          <StatusCard
+            title="Status scrapowania"
+            status={status.scrape.status}
+            time={status.scrape.time}
+            scheduledTime={status.scrape.scheduled_time}
+            icon={Search}
+            tooltipContent={
+              <ScrapeTooltip
+                totalOffers={status.scrape.total_offers}
+                totalUsers={status.scrape.total_users}
+                successful={status.scrape.successful}
+                failed={status.scrape.failed}
+                platformBreakdown={status.scrape.platform_breakdown}
+              />
+            }
+          />
+          <StatusCard
+            title="Status wysyłki maili"
+            status={status.mail.status === 'sent' ? 'sent' : 'scheduled'}
+            time={status.mail.time}
+            scheduledTime={status.mail.scheduled_time}
+            icon={Mail}
+            tooltipContent={
+              <MailTooltip
+                totalSent={status.mail.total_sent}
+                totalFailed={status.mail.total_failed}
+                userDetails={status.mail.user_details}
+              />
+            }
+          />
+        </div>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
@@ -93,19 +156,19 @@ export default function DashboardPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         <DashboardChart
-          title="Wysłane maile (ostatnie 30 dni)"
-          data={stats.timeseries.sent_emails}
-          color="#F1E388"
-        />
-        <DashboardChart
           title="Scrapowane oferty dziennie (ostatnie 30 dni)"
           data={stats.timeseries.scraped_offers}
           color="#F97316"
         />
         <DashboardChart
+          title="Wysłane maile (ostatnie 30 dni)"
+          data={stats.timeseries.sent_emails}
+          color="#F1E388"
+        />
+        <DashboardChart
           title="Subskrypcje AI Scoper (ostatnie 30 dni)"
           data={stats.timeseries.scoper_subscriptions}
-          color="#E5D77A"
+          color="#22C55E"
         />
       </div>
     </div>

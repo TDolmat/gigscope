@@ -1,5 +1,5 @@
 from flask import jsonify
-from core.models import User, UserEmailPreference, UserOfferEmail, Offer, db
+from core.models import User, UserEmailPreference, UserOfferEmail, Offer, OfferBundle, AppSettings, ScrapeLog, MailLog, db
 from http import HTTPStatus
 from flask_jwt_extended import jwt_required
 from datetime import datetime, timedelta
@@ -117,3 +117,124 @@ def get_dashboard_stats():
     except Exception as e:
         print(f"Error fetching dashboard stats: {str(e)}")
         return jsonify({'error': 'Wystąpił błąd podczas pobierania statystyk'}), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@bp.route('/dashboard/status', methods=['GET'])
+@jwt_required()
+def get_dashboard_status():
+    """
+    Get today's scrape and mail status for the dashboard.
+    Returns status (scheduled/running/completed) with details for tooltips.
+    """
+    try:
+        now = datetime.now()  # Use local time for display
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Get app settings for scheduled times
+        settings = AppSettings.query.first()
+        if not settings:
+            return jsonify({'error': 'Brak ustawień aplikacji'}), HTTPStatus.INTERNAL_SERVER_ERROR
+        
+        # Parse scheduled times
+        email_time = settings.email_daytime or '09:00'
+        email_hour, email_minute = map(int, email_time.split(':'))
+        scrape_hour = email_hour - 1 if email_hour > 0 else 23
+        scrape_time = f"{scrape_hour:02d}:{email_minute:02d}"
+        
+        # ==================== SCRAPE STATUS ====================
+        today_scrape_log = ScrapeLog.query.filter(
+            ScrapeLog.executed_at >= today_start
+        ).order_by(ScrapeLog.executed_at.desc()).first()
+        
+        # Get platform breakdown from today's offers
+        platform_stats = {}
+        if today_scrape_log:
+            # Get offers scraped today grouped by platform
+            today_offers = db.session.query(
+                Offer.platform,
+                func.count(Offer.id).label('count')
+            ).filter(
+                Offer.created_at >= today_start
+            ).group_by(Offer.platform).all()
+            
+            for platform, count in today_offers:
+                platform_stats[platform] = count
+        
+        # Determine scrape status
+        if settings.is_scrape_running:
+            scrape_status = 'running'
+            scrape_time_display = settings.scrape_started_at.strftime('%H:%M') if settings.scrape_started_at else None
+        elif today_scrape_log:
+            scrape_status = 'completed'
+            scrape_time_display = today_scrape_log.executed_at.strftime('%H:%M')
+        else:
+            scrape_status = 'scheduled'
+            scrape_time_display = scrape_time
+        
+        scrape_data = {
+            'status': scrape_status,
+            'time': scrape_time_display,
+            'scheduled_time': scrape_time,
+            'total_offers': today_scrape_log.total_offers_scraped if today_scrape_log else 0,
+            'total_users': today_scrape_log.total_users if today_scrape_log else 0,
+            'successful': today_scrape_log.successful_scrapes if today_scrape_log else 0,
+            'failed': today_scrape_log.failed_scrapes if today_scrape_log else 0,
+            'platform_breakdown': platform_stats,
+        }
+        
+        # ==================== MAIL STATUS ====================
+        today_mail_log = MailLog.query.filter(
+            MailLog.executed_at >= today_start
+        ).order_by(MailLog.executed_at.desc()).first()
+        
+        # Get user details for tooltip (emails sent today)
+        user_details = []
+        if today_mail_log:
+            # Get emails sent today with offer counts
+            today_emails = db.session.query(
+                UserOfferEmail.email_sent_to,
+                OfferBundle.id.label('bundle_id'),
+                func.count(Offer.id).label('offers_count')
+            ).outerjoin(
+                OfferBundle, OfferBundle.id == UserOfferEmail.offer_bundle_id
+            ).outerjoin(
+                Offer, Offer.offer_bundle_id == OfferBundle.id
+            ).filter(
+                UserOfferEmail.sent_at >= today_start
+            ).group_by(
+                UserOfferEmail.email_sent_to,
+                OfferBundle.id
+            ).all()
+            
+            for email, bundle_id, offers_count in today_emails:
+                user_details.append({
+                    'email': email,
+                    'offers_count': offers_count or 0
+                })
+        
+        # Determine mail status
+        if today_mail_log:
+            mail_status = 'sent'
+            mail_time_display = today_mail_log.executed_at.strftime('%H:%M')
+        else:
+            mail_status = 'scheduled'
+            mail_time_display = email_time
+        
+        mail_data = {
+            'status': mail_status,
+            'time': mail_time_display,
+            'scheduled_time': email_time,
+            'total_sent': today_mail_log.subscribed_sent + today_mail_log.never_subscribed_sent if today_mail_log else 0,
+            'total_failed': today_mail_log.subscribed_failed + today_mail_log.never_subscribed_failed if today_mail_log else 0,
+            'user_details': user_details,
+        }
+        
+        return jsonify({
+            'scrape': scrape_data,
+            'mail': mail_data,
+            'frequency': settings.email_frequency,
+        }), HTTPStatus.OK
+        
+    except Exception as e:
+        print(f"Error fetching dashboard status: {str(e)}")
+        return jsonify({'error': 'Wystąpił błąd podczas pobierania statusu'}), HTTPStatus.INTERNAL_SERVER_ERROR

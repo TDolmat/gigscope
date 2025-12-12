@@ -56,6 +56,13 @@ export const adminDashboardApi = {
   ): Promise<any> => {
     return apiFetch<any>(API_ENDPOINTS.ADMIN.DASHBOARD_STATS, {}, authenticatedFetch);
   },
+  
+  // Get today's scrape and mail status
+  getStatus: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch<any>(API_ENDPOINTS.ADMIN.DASHBOARD_STATUS, {}, authenticatedFetch);
+  },
 };
 
 // Admin Settings API
@@ -346,6 +353,13 @@ export const adminManualRunsApi = {
       method: 'POST',
       body: JSON.stringify({}),
     }, authenticatedFetch);
+  },
+  
+  // Get pending bundles waiting to be sent
+  getPendingBundles: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MANUAL_PENDING_BUNDLES, {}, authenticatedFetch);
   },
 };
 

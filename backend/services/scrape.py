@@ -297,12 +297,24 @@ def scrape_offers_for_all_users(print_logs: bool = False) -> dict:
     Scrape offers for all users with active BeFreeClub subscription.
     Uses multi-platform scraping with scoring and diversity.
     """
+    # Set running flag
+    settings = AppSettings.query.first()
+    if settings:
+        settings.is_scrape_running = True
+        settings.scrape_started_at = datetime.utcnow()
+        db.session.commit()
+    
     try:
         # Get active users (this fetches subscribers from BeFreeClub API)
         active_users = get_active_subscribed_users()
         
         if not active_users:
             print("No active subscribed users found")
+            # Clear running flag
+            if settings:
+                settings.is_scrape_running = False
+                settings.scrape_started_at = None
+                db.session.commit()
             return {
                 'total_users': 0,
                 'successful_scrapes': 0,
@@ -379,6 +391,12 @@ def scrape_offers_for_all_users(print_logs: bool = False) -> dict:
             errors=errors
         )
         db.session.add(scrape_log)
+        
+        # Clear running flag
+        if settings:
+            settings.is_scrape_running = False
+            settings.scrape_started_at = None
+        
         db.session.commit()
 
         return {
@@ -392,6 +410,15 @@ def scrape_offers_for_all_users(print_logs: bool = False) -> dict:
         }
     except Exception as e:
         db.session.rollback()
+        # Clear running flag even on error
+        try:
+            settings = AppSettings.query.first()
+            if settings:
+                settings.is_scrape_running = False
+                settings.scrape_started_at = None
+                db.session.commit()
+        except:
+            pass
         return {
             'total_users': 0,
             'successful_scrapes': 0,

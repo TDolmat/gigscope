@@ -1,6 +1,8 @@
 from flask import request, jsonify
 from http import HTTPStatus
 from flask_jwt_extended import jwt_required
+from sqlalchemy import func
+from core.models import db, OfferBundle, Offer, User
 from . import bp
 
 
@@ -128,6 +130,55 @@ def scrape_and_send_all():
         print(f"Error in scrape_and_send_all: {str(e)}")
         return jsonify({
             'success': False,
+            'error': f'Wystąpił błąd: {str(e)}'
+        }), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@bp.route('/manual-runs/pending-bundles', methods=['GET'])
+@jwt_required()
+def get_pending_bundles():
+    """Get count of bundles with offers waiting to be sent via email."""
+    try:
+        # Get bundles that haven't been sent yet (user_offer_email_id is NULL)
+        pending_bundles = db.session.query(
+            OfferBundle.id,
+            OfferBundle.user_id,
+            User.email,
+            OfferBundle.scraped_at,
+            func.count(Offer.id).label('offers_count')
+        ).join(
+            User, User.id == OfferBundle.user_id
+        ).outerjoin(
+            Offer, Offer.offer_bundle_id == OfferBundle.id
+        ).filter(
+            OfferBundle.user_offer_email_id.is_(None)
+        ).group_by(
+            OfferBundle.id,
+            OfferBundle.user_id,
+            User.email,
+            OfferBundle.scraped_at
+        ).order_by(
+            OfferBundle.scraped_at.desc()
+        ).all()
+        
+        bundles_list = []
+        for bundle_id, user_id, email, scraped_at, offers_count in pending_bundles:
+            bundles_list.append({
+                'bundle_id': bundle_id,
+                'user_id': user_id,
+                'email': email,
+                'scraped_at': scraped_at.isoformat() if scraped_at else None,
+                'offers_count': offers_count or 0
+            })
+        
+        return jsonify({
+            'count': len(bundles_list),
+            'bundles': bundles_list
+        }), HTTPStatus.OK
+        
+    except Exception as e:
+        print(f"Error in get_pending_bundles: {str(e)}")
+        return jsonify({
             'error': f'Wystąpił błąd: {str(e)}'
         }), HTTPStatus.INTERNAL_SERVER_ERROR
 

@@ -35,6 +35,7 @@ export const API_ENDPOINTS = {
   // Admin endpoints
   ADMIN: {
     DASHBOARD_STATS: `${BASE_URL}/admin/dashboard/stats`,
+    DASHBOARD_STATUS: `${BASE_URL}/admin/dashboard/status`,
     SETTINGS: `${BASE_URL}/admin/settings`,
     SETTINGS_APIFY_KEY: `${BASE_URL}/admin/settings/apify-key`,
     TEST: `${BASE_URL}/admin/test`,
@@ -52,6 +53,7 @@ export const API_ENDPOINTS = {
     MANUAL_SCRAPE_ALL: `${BASE_URL}/admin/manual-runs/scrape-all`,
     MANUAL_SEND_EMAILS: `${BASE_URL}/admin/manual-runs/send-emails`,
     MANUAL_SCRAPE_AND_SEND: `${BASE_URL}/admin/manual-runs/scrape-and-send`,
+    MANUAL_PENDING_BUNDLES: `${BASE_URL}/admin/manual-runs/pending-bundles`,
     // Logs
     LOGS: `${BASE_URL}/admin/logs`,
     LOGS_SCRAPE: `${BASE_URL}/admin/logs/scrape`,

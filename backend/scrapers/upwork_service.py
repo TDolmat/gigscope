@@ -13,7 +13,7 @@ PLATFORM = "upwork"
 SEARCH_URL_BASE = "https://www.upwork.com/nx/search/jobs/"
 APIFY_ACTOR_ID = "XYTgO05GT5qAoSlxy"
 
-TIMEOUT_SECONDS = 200
+TIMEOUT_SECONDS = 150
 
 class UpworkScraper(BaseScraper):
     """Upwork platform scraper"""

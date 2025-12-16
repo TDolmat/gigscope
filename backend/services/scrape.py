@@ -39,7 +39,7 @@ def scrape_all_platforms(
     may_contain: List[str],
     must_not_contain: List[str],
     enabled_platforms: List[str],
-    per_platform: int = 10,
+    per_platform: int = None,  # Deprecated, use platform_max_offers from settings
     max_offers: int = 10,
     use_real_scrape: bool = True,
     use_real_scoring: bool = True,
@@ -54,7 +54,7 @@ def scrape_all_platforms(
         may_contain: Optional keywords
         must_not_contain: Excluded keywords
         enabled_platforms: List of platform IDs to scrape
-        per_platform: Max offers to scrape per platform
+        per_platform: DEPRECATED - uses platform_max_offers from settings
         max_offers: Final max offers after scoring/selection
         use_real_scrape: If True, use real scrapers; if False, use mock
         use_real_scoring: If True, use OpenAI scoring; if False, use mock
@@ -65,6 +65,10 @@ def scrape_all_platforms(
     """
     settings = AppSettings.query.first()
     
+    # Get per-platform max offers from settings
+    platform_max_offers = settings.platform_max_offers if settings else {}
+    default_max = 50
+    
     # Collect results from all platforms
     all_offers = []
     platform_results = {}
@@ -74,6 +78,9 @@ def scrape_all_platforms(
         if platform not in SCRAPER_REGISTRY:
             platform_results[platform] = {'count': 0, 'error': f'Unknown platform: {platform}'}
             continue
+        
+        # Get max offers for this specific platform
+        platform_limit = platform_max_offers.get(platform, default_max) if platform_max_offers else default_max
         
         try:
             scraper = get_scraper(platform)
@@ -95,7 +102,7 @@ def scrape_all_platforms(
                     must_contain=must_contain,
                     may_contain=may_contain,
                     must_not_contain=must_not_contain,
-                    max_offers=per_platform,
+                    max_offers=platform_limit,
                     api_key=api_key,
                     print_logs=print_logs,
                 )
@@ -104,7 +111,7 @@ def scrape_all_platforms(
                     must_contain=must_contain,
                     may_contain=may_contain,
                     must_not_contain=must_not_contain,
-                    max_offers=per_platform,
+                    max_offers=platform_limit,
                 )
             
             platform_results[platform] = {
@@ -220,16 +227,13 @@ def scrape_and_store_for_user(
             print(f"User already received {len(sent_offer_urls)} offers - will filter them out")
     
     # Scrape all platforms with real scraping and scoring
-    # Request more offers per platform to account for filtering
-    per_platform = max_offers * 2 if sent_offer_urls else max_offers
-    
+    # Uses per-platform max_offers from settings
     result = scrape_all_platforms(
         must_contain=must_contain,
         may_contain=may_contain,
         must_not_contain=must_not_contain,
         enabled_platforms=enabled_platforms,
-        per_platform=per_platform,  # Get enough per platform
-        max_offers=max_offers * 3 if sent_offer_urls else max_offers,  # Get more to filter
+        max_offers=max_offers * 3 if sent_offer_urls else max_offers,  # Get more to filter if needed
         use_real_scrape=True,
         use_real_scoring=True,
         print_logs=print_logs,

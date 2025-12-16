@@ -2,9 +2,14 @@
 Base scraper interface that all platform scrapers must implement.
 Each platform scraper should provide both real and mock implementations.
 """
+import time
+import requests
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
 from dataclasses import dataclass
+
+
+HEADERS = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'}
 
 
 @dataclass
@@ -126,3 +131,73 @@ class BaseScraper(ABC):
         """
         return ""
 
+
+def make_request(
+    url: str, 
+    headers: dict = HEADERS,
+    sleep_interval_seconds: float = 1.0, 
+    max_retries: int = 3,
+    backoff_factor: float = 2.0
+) -> requests.Response:
+    """
+    Make HTTP GET request with retry logic and exponential backoff.
+    
+    Args:
+        url: URL to request
+        headers: Optional headers dict
+        sleep_interval_seconds: Initial sleep before first request
+        max_retries: Number of retry attempts
+        backoff_factor: Multiplier for wait time after each failure
+        
+    Returns:
+        Response object or None if all retries failed
+        
+    Handles:
+        - Rate limiting (HTTP 429) with exponential backoff
+        - Connection errors with retries
+        - Server errors (5xx) with retries
+    """
+    wait_time = sleep_interval_seconds
+    last_error = None
+    
+    for attempt in range(max_retries):
+        try:
+            time.sleep(wait_time)
+            response = requests.get(url, headers=headers, timeout=30)
+            
+            # Handle rate limiting specifically
+            if response.status_code == 429:
+                retry_after = response.headers.get('Retry-After')
+                if retry_after:
+                    wait_time = float(retry_after)
+                else:
+                    wait_time *= backoff_factor
+                print(f"Rate limited (429) on {url}, waiting {wait_time}s before retry {attempt + 1}/{max_retries}")
+                continue
+            
+            # Retry on server errors
+            if response.status_code >= 500:
+                wait_time *= backoff_factor
+                print(f"Server error ({response.status_code}) on {url}, retry {attempt + 1}/{max_retries}")
+                continue
+                
+            response.raise_for_status()
+            return response
+            
+        except requests.exceptions.Timeout as e:
+            last_error = e
+            wait_time *= backoff_factor
+            print(f"Timeout on {url}, retry {attempt + 1}/{max_retries}")
+            
+        except requests.exceptions.ConnectionError as e:
+            last_error = e
+            wait_time *= backoff_factor
+            print(f"Connection error on {url}: {e}, retry {attempt + 1}/{max_retries}")
+            
+        except requests.exceptions.RequestException as e:
+            last_error = e
+            print(f"Request error on {url}: {e}")
+            break  # Don't retry on other errors (e.g., 4xx client errors)
+    
+    print(f"All {max_retries} retries failed for {url}. Last error: {last_error}")
+    return None

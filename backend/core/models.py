@@ -46,7 +46,17 @@ class AppSettings(db.Model):
     
     # Scraper settings (encrypted)
     apify_api_key = db.Column(db.String, nullable=True)  # Stored encrypted
-    upwork_max_offers = db.Column(db.Integer, default=50)  # Max offers to scrape from Upwork
+    
+    # Per-platform max offers to scrape (e.g. {"upwork": 50, "fiverr": 30, ...})
+    # This limits how many offers are scraped from each platform
+    platform_max_offers = db.Column(db.JSON, default={
+        'upwork': 50,
+        'fiverr': 50,
+        'useme': 50,
+        'justjoinit': 50,
+        'contra': 50,
+        'rocketjobs': 50,
+    })
     
     # OpenAI settings for offer scoring
     openai_api_key = db.Column(db.String, nullable=True)  # Stored encrypted

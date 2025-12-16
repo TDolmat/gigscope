@@ -23,6 +23,7 @@ interface Platform {
   id: string;
   name: string;
   enabled: boolean;
+  max_offers: number;
 }
 
 interface ScoredOffer {
@@ -78,7 +79,6 @@ export default function ScrapePage() {
   const [scoringPrompt, setScoringPrompt] = useState('');
   const [defaultPrompt, setDefaultPrompt] = useState('');
   const [maxOffers, setMaxOffers] = useState('10');
-  const [perPage, setPerPage] = useState(10);
   const [savingConfig, setSavingConfig] = useState(false);
   
   // Test keywords
@@ -177,6 +177,18 @@ export default function ScrapePage() {
     }
   };
 
+  const handleUpdatePlatformMaxOffers = async (platformId: string, maxOffers: number) => {
+    try {
+      await adminScrapeApi.updatePlatformMaxOffers(platformId, maxOffers, authenticatedFetch);
+      setPlatforms(prev => prev.map(p => 
+        p.id === platformId ? { ...p, max_offers: maxOffers } : p
+      ));
+      toast.success(`Max ofert dla ${platformId} zaktualizowane`);
+    } catch (err) {
+      toast.error('Nie udało się zaktualizować max ofert');
+    }
+  };
+
   const handleSaveConfig = async () => {
     setSavingConfig(true);
     
@@ -253,13 +265,16 @@ export default function ScrapePage() {
     setElapsedTime(0);
 
     try {
+      // Use platform's max_offers setting
+      const platformMaxOffers = currentPlatform?.max_offers || 50;
+      
       const result = await adminScrapeApi.testScrape(
         activeTab,
         mode,
         parseKeywords(mustContain),
         parseKeywords(mayContain),
         parseKeywords(mustNotContain),
-        perPage,
+        platformMaxOffers,
         authenticatedFetch
       );
 
@@ -297,7 +312,6 @@ export default function ScrapePage() {
         parseKeywords(mayContain),
         parseKeywords(mustNotContain),
         enabledPlatforms,
-        perPage,
         parseInt(maxOffers),
         authenticatedFetch
       );
@@ -370,33 +384,67 @@ export default function ScrapePage() {
       
       {!loading && (
         <div className="space-y-4 sm:space-y-6">
-          {/* Platform Toggle (for individual platform tabs) */}
+          {/* Platform Toggle and Max Offers (for individual platform tabs) */}
           {activeTab !== 'all' && (
-            <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-              <div>
-                <h3 className="text-white font-medium">
-                  {currentPlatform?.name || activeTab}
-                </h3>
-                <p className="text-sm text-gray-400">
-                  {isPlatformEnabled 
-                    ? 'Ta platforma jest włączona i będzie używana przy scrapowaniu' 
-                    : 'Ta platforma jest wyłączona'}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <div>
+                  <h3 className="text-white font-medium">
+                    {currentPlatform?.name || activeTab}
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    {isPlatformEnabled 
+                      ? 'Ta platforma jest włączona i będzie używana przy scrapowaniu' 
+                      : 'Ta platforma jest wyłączona'}
+                  </p>
+                </div>
+                <button
+                  onClick={handleTogglePlatform}
+                  className={`
+                    relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                    ${isPlatformEnabled ? 'bg-green-600' : 'bg-gray-600'}
+                  `}
+                >
+                  <span
+                    className={`
+                      inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                      ${isPlatformEnabled ? 'translate-x-6' : 'translate-x-1'}
+                    `}
+                  />
+                </button>
+              </div>
+              
+              {/* Max Offers per Platform */}
+              <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <label className="block text-sm font-semibold text-yellow-400 mb-2">
+                  Max ofert do scrapowania z {currentPlatform?.name || activeTab}
+                </label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="number"
+                    value={currentPlatform?.max_offers || 50}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 50;
+                      setPlatforms(prev => prev.map(p => 
+                        p.id === activeTab ? { ...p, max_offers: value } : p
+                      ));
+                    }}
+                    min="1"
+                    max="200"
+                    className="w-32"
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleUpdatePlatformMaxOffers(activeTab, currentPlatform?.max_offers || 50)}
+                  >
+                    Zapisz
+                  </Button>
+                </div>
+                <p className="mt-1 text-xs text-gray-400">
+                  Limit ofert scrapowanych z tej platformy (1-200)
                 </p>
               </div>
-              <button
-                onClick={handleTogglePlatform}
-                className={`
-                  relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${isPlatformEnabled ? 'bg-green-600' : 'bg-gray-600'}
-                `}
-              >
-                <span
-                  className={`
-                    inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                    ${isPlatformEnabled ? 'translate-x-6' : 'translate-x-1'}
-                  `}
-                />
-              </button>
             </div>
           )}
 
@@ -474,20 +522,6 @@ export default function ScrapePage() {
 
           {/* Test Section */}
           <AdminSection title="Test scrapera" className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-yellow-400 mb-2">Liczba ofert do testu (per platforma)</label>
-              <select
-                value={perPage}
-                onChange={(e) => setPerPage(Number(e.target.value))}
-                className="block w-full px-3 py-2 text-sm border border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-gray-700 text-white"
-              >
-                <option value={5}>5 ofert (szybki test)</option>
-                <option value={10}>10 ofert</option>
-                <option value={20}>20 ofert</option>
-                <option value={50}>50 ofert</option>
-              </select>
-            </div>
-
             {/* Test Keywords Button */}
             <div className="flex items-center gap-2 flex-wrap">
               <Button 

@@ -1,12 +1,12 @@
 """
 Upwork scraper service with real and mock implementations.
 """
-import random
 from typing import List
 from urllib.parse import quote
 from apify_client import ApifyClient
 
 from .utils import BaseScraper, ScrapedOffer, ScrapeResult
+from .mock.upwork_mock import generate_upwork_mock_offers
 
 
 PLATFORM = "upwork"
@@ -83,9 +83,6 @@ class UpworkScraper(BaseScraper):
     ) -> ScrapeResult:
         """
         Real Upwork scraping using Apify.
-        
-        TODO: Implement this method when ready for production.
-        Currently raises NotImplementedError.
         """
         if not api_key:
             return ScrapeResult(
@@ -158,70 +155,16 @@ class UpworkScraper(BaseScraper):
         max_offers: int = 10,
         **kwargs
     ) -> ScrapeResult:
-        """
-        Mock Upwork scraping for testing.
-        Returns sample data without making API calls.
-        """
+        """Mock Upwork scraping for testing."""
         search_url = self.get_search_url(must_contain, may_contain, must_not_contain)
-        
-        # Sample job titles for more realistic mock data
-        job_titles = [
-            "Senior React Developer for E-commerce Platform",
-            "Full Stack Engineer - Node.js & React",
-            "Frontend Developer with TypeScript Experience",
-            "Python Backend Developer for Data Processing",
-            "Mobile App Developer - React Native",
-            "DevOps Engineer for Cloud Infrastructure",
-            "UI/UX Designer with Figma Skills",
-            "WordPress Developer for Blog Migration",
-            "Machine Learning Engineer for NLP Project",
-            "Blockchain Developer - Smart Contracts",
-            "QA Engineer for Automated Testing",
-            "Database Administrator - PostgreSQL",
-        ]
-        
-        descriptions = [
-            "We are looking for an experienced developer to join our growing team. The ideal candidate will have 3+ years of experience and excellent communication skills.",
-            "Exciting opportunity to work on cutting-edge technology. Remote-friendly position with flexible hours. Must be available for weekly sync meetings.",
-            "Join our startup and help build the next big thing. We offer competitive rates and the chance to work with a talented international team.",
-            "Long-term project with potential for ongoing work. Looking for someone reliable and detail-oriented who can deliver high-quality code.",
-            "Fast-paced environment seeking a skilled professional. You'll be working directly with the CTO to implement new features.",
-        ]
-        
-        budgets = ["$500", "$1,000", "$2,500", "$5,000", "$50/hr", "$75/hr", "$100/hr", "Negotiable"]
-        locations = ["United States", "United Kingdom", "Germany", "Canada", "Australia", "Netherlands", "Denmark", "Sweden"]
-        
-        # Build keywords string for descriptions
-        keywords = must_contain + may_contain
-        keywords_str = ", ".join(keywords) if keywords else "software development"
-        
-        offers = []
-        for i in range(max_offers):
-            title = random.choice(job_titles)
-            if keywords:
-                # Add a random keyword to title sometimes
-                if random.random() > 0.5:
-                    title = f"{random.choice(keywords).title()} - {title}"
-            
-            offers.append(ScrapedOffer(
-                title=f"{title} #{i+1}",
-                description=f"{random.choice(descriptions)} Required skills: {keywords_str}.",
-                url=f"https://www.upwork.com/jobs/~0{1990000000000000000 + i}",
-                platform=PLATFORM,
-                budget=random.choice(budgets),
-                client_location=random.choice(locations),
-                posted_at="2025-12-12T10:00:00.000Z",
-                tags=keywords[:5] if keywords else ["development", "software"],
-            ))
-        
-        return ScrapeResult(
-            offers=offers,
+        return generate_upwork_mock_offers(
+            must_contain=must_contain,
+            may_contain=may_contain,
+            must_not_contain=must_not_contain,
+            max_offers=max_offers,
             search_url=search_url,
-            duration_millis=random.randint(30000, 90000),  # Simulated 30-90 seconds
-            platform=PLATFORM,
         )
 
 
 # Singleton instance
 upwork_scraper = UpworkScraper()
-

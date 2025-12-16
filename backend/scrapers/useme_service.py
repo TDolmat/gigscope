@@ -1,27 +1,38 @@
 """
 Useme scraper service with real and mock implementations.
+All scraping logic is contained in this single file.
 """
-import random
 import time
-from typing import List
+import requests
+from typing import List, Dict, Any
+from urllib.parse import urljoin, quote
 
-from .utils import BaseScraper, ScrapedOffer, ScrapeResult
-from .logic import UsemeScraperLogic
+from bs4 import BeautifulSoup
+
+from .utils import BaseScraper, ScrapedOffer, ScrapeResult, make_request
+from .utils.keywords_helper import parse_keywords, filter_offers, deduplicate_offers
+from .mock.useme_mock import generate_useme_mock_offers
 
 
 PLATFORM = "useme"
+BASE_URL = "https://useme.com"
 SEARCH_URL_BASE = "https://useme.com/pl/jobs/"
-
 
 class UsemeScraper(BaseScraper):
     """Useme platform scraper (Polish freelance marketplace)"""
     
-    def __init__(self):
-        self._scraper_logic = UsemeScraperLogic()
-    
     @property
     def platform_name(self) -> str:
         return PLATFORM
+    
+    # -------------------------------------------------------------------------
+    # URL Building
+    # -------------------------------------------------------------------------
+    
+    def _build_search_url(self, query: str) -> str:
+        """Build Useme search URL. Uses query param with + for spaces."""
+        encoded_query = quote(query).replace("%20", "+")
+        return f"{SEARCH_URL_BASE}?query={encoded_query}"
     
     def get_search_url(
         self,
@@ -30,12 +41,89 @@ class UsemeScraper(BaseScraper):
         must_not_contain: List[str],
         **kwargs
     ) -> str:
-        """Build Useme search URL."""
+        """Build Useme search URL from keyword lists."""
         keywords = must_contain + may_contain
         if keywords:
             query = ", ".join(keywords)
-            return self._scraper_logic.build_search_url(query)
+            return self._build_search_url(query)
         return SEARCH_URL_BASE
+    
+    # -------------------------------------------------------------------------
+    # HTML Parsing
+    # -------------------------------------------------------------------------
+    
+    def _parse_offers_from_html(self, html: str) -> List[Dict[str, Any]]:
+        """Parse Useme job listings from HTML."""
+        soup = BeautifulSoup(html, 'html.parser')
+        offer_elements = soup.select('article.job')
+        
+        offers = []
+        for offer_elem in offer_elements:
+            # Skip closed offers
+            if offer_elem.select_one('a.job__title-link--closed'):
+                continue
+            
+            # Title and URL
+            title_elem = offer_elem.select_one('a.job__title')
+            if not title_elem:
+                continue
+            
+            title = title_elem.get_text(strip=True)
+            url = urljoin(BASE_URL, title_elem.get('href', ''))
+            
+            # Description
+            desc_elem = offer_elem.select_one('p')
+            description = desc_elem.get_text(strip=True) if desc_elem else None
+            
+            # Budget
+            budget_elem = offer_elem.select_one('div.job__budget span.job__budget-value')
+            budget = budget_elem.get_text(strip=True) if budget_elem else None
+            
+            # Client name
+            client_elem = offer_elem.select_one('div.job__employer a, div.job__employer span')
+            client_name = client_elem.get_text(strip=True) if client_elem else None
+            
+            # Client location
+            location_elem = offer_elem.select_one('div.job__location')
+            client_location = location_elem.get_text(strip=True) if location_elem else None
+            
+            offers.append({
+                'title': title,
+                'description': description,
+                'url': url,
+                'budget': budget,
+                'client_name': client_name,
+                'client_location': client_location,
+                'platform': PLATFORM,
+            })
+        
+        return offers
+    
+    # -------------------------------------------------------------------------
+    # Raw Scraping (single query)
+    # -------------------------------------------------------------------------
+    
+    def _scrape_raw(self, query: str) -> List[Dict[str, Any]]:
+        """Scrape offers for a query without any filtering."""
+        url = self._build_search_url(query)
+        print(f"Scraping URL: {url}")
+        
+        response = make_request(
+            url, 
+            sleep_interval_seconds=1.0,
+            max_retries=3,
+            backoff_factor=2.0
+        )
+        
+        if response is None:
+            print(f"Failed to fetch {url} after all retries")
+            return []
+            
+        return self._parse_offers_from_html(response.content)
+    
+    # -------------------------------------------------------------------------
+    # Main Scrape Method
+    # -------------------------------------------------------------------------
     
     def scrape(
         self,
@@ -47,30 +135,43 @@ class UsemeScraper(BaseScraper):
         **kwargs
     ) -> ScrapeResult:
         """
-        Real Useme scraping using KeywordScraper logic.
+        Real Useme scraping.
+        
+        Search Strategy:
+        - must_contain: Single request (platform handles AND logic via comma-separated query)
+        - may_contain: Multiple requests (one per keyword), client-side filtering for must_contain
+        - must_not_contain: Always filtered client-side
         """
         search_url = self.get_search_url(must_contain, may_contain, must_not_contain)
         start_time = time.time()
         
         try:
-            # Convert lists to comma-separated strings for KeywordScraper
-            must_include_str = ", ".join(must_contain) if must_contain else ""
-            may_include_str = ", ".join(may_contain) if may_contain else ""
-            must_not_include_str = ", ".join(must_not_contain) if must_not_contain else ""
+            all_offers = []
             
-            # Use the scraper logic to get raw offers
-            raw_offers = self._scraper_logic.scrape(
-                must_include_keywords=must_include_str,
-                may_include_keywords=may_include_str,
-                must_not_include_keywords=must_not_include_str
-            )
+            # Path 1: must_contain - single request, platform handles AND
+            if must_contain:
+                query = ", ".join(must_contain)
+                offers = self._scrape_raw(query)
+                # Only filter out must_not_contain
+                offers = filter_offers(offers, must_not_include=must_not_contain)
+                all_offers.extend(offers)
+            
+            # Path 2: may_contain - multiple requests, client-side filtering for must_contain
+            for keyword in may_contain:
+                offers = self._scrape_raw(keyword)
+                # Filter for must_contain AND must_not_contain
+                offers = filter_offers(offers, must_include=must_contain, must_not_include=must_not_contain)
+                all_offers.extend(offers)
+            
+            # Deduplicate and limit
+            all_offers = deduplicate_offers(all_offers)
             
             duration_millis = int((time.time() - start_time) * 1000)
             
             # Convert to ScrapedOffer objects
-            offers = []
-            for raw in raw_offers[:max_offers]:
-                offers.append(ScrapedOffer(
+            scraped_offers = []
+            for raw in all_offers[:max_offers]:
+                scraped_offers.append(ScrapedOffer(
                     title=raw.get('title', ''),
                     description=raw.get('description', ''),
                     url=raw.get('url', ''),
@@ -81,7 +182,7 @@ class UsemeScraper(BaseScraper):
                 ))
             
             return ScrapeResult(
-                offers=offers,
+                offers=scraped_offers,
                 search_url=search_url,
                 duration_millis=duration_millis,
                 platform=PLATFORM,
@@ -97,6 +198,10 @@ class UsemeScraper(BaseScraper):
                 error=str(e)
             )
     
+    # -------------------------------------------------------------------------
+    # Mock Scrape (for testing)
+    # -------------------------------------------------------------------------
+    
     def scrape_mock(
         self,
         must_contain: List[str],
@@ -110,59 +215,12 @@ class UsemeScraper(BaseScraper):
         Returns sample Polish freelance marketplace projects.
         """
         search_url = self.get_search_url(must_contain, may_contain, must_not_contain)
-        
-        project_titles = [
-            "Wykonanie strony internetowej dla firmy",
-            "Projekt graficzny logo i wizytówek",
-            "Tłumaczenie dokumentów angielski-polski",
-            "Stworzenie aplikacji mobilnej",
-            "Prowadzenie kampanii Google Ads",
-            "Pisanie artykułów na blog firmowy",
-            "Obsługa social media",
-            "Montaż filmów promocyjnych",
-            "Projektowanie UX/UI aplikacji webowej",
-            "Programowanie wtyczki WordPress",
-            "Administracja serwerem Linux",
-            "Tworzenie contentu video na TikTok",
-        ]
-        
-        descriptions = [
-            "Szukamy osoby do realizacji projektu. Wymagane portfolio i doświadczenie w podobnych projektach.",
-            "Pilne zlecenie z możliwością stałej współpracy. Preferowane osoby z Useme dla bezpieczeństwa płatności.",
-            "Projekt dla klienta korporacyjnego. Wymagana pełna dyspozycyjność przez okres realizacji.",
-            "Zlecenie z elastycznym terminem. Liczy się jakość wykonania, nie szybkość.",
-        ]
-        
-        budgets = ["500 - 1000 PLN", "1000 - 2500 PLN", "2500 - 5000 PLN", "5000 - 10000 PLN", "Do ustalenia"]
-        
-        keywords = must_contain + may_contain
-        keywords_str = ", ".join(keywords) if keywords else "freelance"
-        
-        offers = []
-        for i in range(max_offers):
-            title = random.choice(project_titles)
-            if keywords:
-                if random.random() > 0.5:
-                    title = f"{title} ({random.choice(keywords)})"
-            
-            offers.append(ScrapedOffer(
-                title=title,
-                description=f"{random.choice(descriptions)} Wymagane umiejętności: {keywords_str}. "
-                           f"Płatność przez Useme - bezpieczna transakcja.",
-                url=f"https://useme.com/pl/jobs/job,{200000 + i}/",
-                platform=PLATFORM,
-                budget=random.choice(budgets),
-                client_name=f"Zleceniodawca {random.randint(100, 999)}",
-                client_location="Polska",
-                posted_at="2025-12-12T10:00:00.000Z",
-                tags=keywords[:5] if keywords else ["freelance", "zlecenie"],
-            ))
-        
-        return ScrapeResult(
-            offers=offers,
+        return generate_useme_mock_offers(
+            must_contain=must_contain,
+            may_contain=may_contain,
+            must_not_contain=must_not_contain,
+            max_offers=max_offers,
             search_url=search_url,
-            duration_millis=random.randint(5000, 12000),
-            platform=PLATFORM,
         )
 
 

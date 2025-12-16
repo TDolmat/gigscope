@@ -128,6 +128,7 @@ def scrape_all_platforms_endpoint():
     """
     Scrape from all enabled platforms, score with OpenAI, and return diverse results.
     This mirrors the logic used in manual runs and scheduler.
+    Uses per-platform max_offers from settings.
     """
     data = request.get_json() or {}
     
@@ -137,7 +138,6 @@ def scrape_all_platforms_endpoint():
     may_contain = data.get('may_contain', [])
     must_not_contain = data.get('must_not_contain', [])
     platforms = data.get('platforms', [])  # Only scrape platforms passed from frontend
-    per_platform = data.get('per_platform', 10)
     max_offers = data.get('max_offers', 10)
     
     # Filter to only enabled platforms that exist
@@ -153,7 +153,6 @@ def scrape_all_platforms_endpoint():
         may_contain=may_contain,
         must_not_contain=must_not_contain,
         enabled_platforms=valid_platforms,
-        per_platform=per_platform,
         max_offers=max_offers,
         use_real_scrape=(mode == 'real'),
         use_real_scoring=(score_mode == 'real'),
@@ -282,9 +281,20 @@ def update_openai_settings():
 @bp.route('/scrape/platforms', methods=['GET'])
 @jwt_required()
 def get_platforms():
-    """Get list of available scraping platforms with their enabled status."""
+    """Get list of available scraping platforms with their enabled status and max offers."""
     settings = AppSettings.query.first()
     enabled_list = settings.enabled_platforms if settings else []
+    platform_max_offers = settings.platform_max_offers if settings else {}
+    
+    # Default max offers per platform
+    default_max_offers = {
+        'upwork': 50,
+        'fiverr': 50,
+        'useme': 50,
+        'justjoinit': 50,
+        'contra': 50,
+        'rocketjobs': 50,
+    }
     
     platforms = []
     for platform_id in SCRAPER_REGISTRY.keys():
@@ -292,6 +302,7 @@ def get_platforms():
             'id': platform_id,
             'name': PLATFORM_NAMES.get(platform_id, platform_id.title()),
             'enabled': platform_id in enabled_list,
+            'max_offers': platform_max_offers.get(platform_id, default_max_offers.get(platform_id, 50)) if platform_max_offers else default_max_offers.get(platform_id, 50),
         })
     
     return jsonify({
@@ -332,4 +343,44 @@ def toggle_platform(platform_id: str):
         'platform_id': platform_id,
         'enabled': enabled,
         'enabled_platforms': enabled_list,
+    }), HTTPStatus.OK
+
+
+@bp.route('/scrape/platforms/<platform_id>/max-offers', methods=['PUT'])
+@jwt_required()
+def update_platform_max_offers(platform_id: str):
+    """Update max offers for a specific platform."""
+    from sqlalchemy.orm.attributes import flag_modified
+    
+    if platform_id not in SCRAPER_REGISTRY:
+        return jsonify({'error': f'Unknown platform: {platform_id}'}), HTTPStatus.BAD_REQUEST
+    
+    data = request.get_json()
+    if not data or 'max_offers' not in data:
+        return jsonify({'error': 'max_offers is required'}), HTTPStatus.BAD_REQUEST
+    
+    try:
+        max_offers = int(data['max_offers'])
+        if max_offers < 1 or max_offers > 200:
+            return jsonify({'error': 'max_offers must be between 1 and 200'}), HTTPStatus.BAD_REQUEST
+    except (ValueError, TypeError):
+        return jsonify({'error': 'max_offers must be a valid number'}), HTTPStatus.BAD_REQUEST
+    
+    settings = AppSettings.query.first()
+    if not settings:
+        settings = AppSettings()
+        db.session.add(settings)
+    
+    # Update or create the platform_max_offers dict
+    platform_max_offers = dict(settings.platform_max_offers or {})
+    platform_max_offers[platform_id] = max_offers
+    
+    settings.platform_max_offers = platform_max_offers
+    flag_modified(settings, 'platform_max_offers')
+    db.session.commit()
+    
+    return jsonify({
+        'platform_id': platform_id,
+        'max_offers': max_offers,
+        'message': f'Max offers for {platform_id} updated to {max_offers}',
     }), HTTPStatus.OK

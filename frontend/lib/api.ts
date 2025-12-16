@@ -83,7 +83,6 @@ export const adminSettingsApi = {
       email_max_offers?: number;
       mail_api_key?: string;
       mail_sender_email?: string;
-      upwork_max_offers?: number;
       allow_duplicate_offers?: boolean;
     },
     authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
@@ -142,6 +141,7 @@ export const adminScrapeApi = {
   },
 
   // Scrape all platforms and get scored results
+  // Uses per-platform max_offers from settings
   scrapeAll: async (
     mode: 'real' | 'mock',
     scoreMode: 'real' | 'mock',
@@ -149,7 +149,6 @@ export const adminScrapeApi = {
     mayContain: string[],
     mustNotContain: string[],
     platforms: string[],
-    perPlatform: number,
     maxOffers: number,
     authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
   ): Promise<any> => {
@@ -162,7 +161,6 @@ export const adminScrapeApi = {
         may_contain: mayContain,
         must_not_contain: mustNotContain,
         platforms,
-        per_platform: perPlatform,
         max_offers: maxOffers,
       }),
     }, authenticatedFetch);
@@ -228,6 +226,18 @@ export const adminScrapeApi = {
   ): Promise<any> => {
     return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_PLATFORM_TOGGLE(platformId), {
       method: 'POST',
+    }, authenticatedFetch);
+  },
+
+  // Update platform max offers
+  updatePlatformMaxOffers: async (
+    platformId: string,
+    maxOffers: number,
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_PLATFORM_MAX_OFFERS(platformId), {
+      method: 'PUT',
+      body: JSON.stringify({ max_offers: maxOffers }),
     }, authenticatedFetch);
   },
 };

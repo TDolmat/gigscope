@@ -45,6 +45,7 @@ export const API_ENDPOINTS = {
     SCRAPE_OPENAI_SETTINGS: `${BASE_URL}/admin/scrape/openai-settings`,
     SCRAPE_PLATFORMS: `${BASE_URL}/admin/scrape/platforms`,
     SCRAPE_PLATFORM_TOGGLE: (platformId: string) => `${BASE_URL}/admin/scrape/platforms/${platformId}/toggle`,
+    SCRAPE_PLATFORM_MAX_OFFERS: (platformId: string) => `${BASE_URL}/admin/scrape/platforms/${platformId}/max-offers`,
     MAIL_TEST: `${BASE_URL}/admin/mail/test`,
     MAIL_SEND_OFFERS: `${BASE_URL}/admin/mail/send-offers`,
     MAIL_PREVIEW: `${BASE_URL}/admin/mail/preview`,

@@ -27,6 +27,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [frequency, setFrequency] = useState('daily');
   const [sendTime, setSendTime] = useState('09:00');
+  const [allowDuplicateOffers, setAllowDuplicateOffers] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -43,6 +44,8 @@ export default function SettingsPage() {
       if (data.email_daytime) {
         setSendTime(utcToPolishTime(data.email_daytime));
       }
+      
+      setAllowDuplicateOffers(data.allow_duplicate_offers || false);
     } catch (error) {
       console.error('Error fetching settings:', error);
       toast.error('Nie udało się pobrać ustawień');
@@ -60,6 +63,7 @@ export default function SettingsPage() {
       await adminSettingsApi.updateSettings({
         email_frequency: POLISH_TO_FREQUENCY[frequency],
         email_daytime: utcTime,
+        allow_duplicate_offers: allowDuplicateOffers,
       }, authenticatedFetch);
       
       toast.success('Ustawienia zostały zapisane!');
@@ -107,6 +111,38 @@ export default function SettingsPage() {
               Czas w strefie czasowej Europa/Warszawa (polski czas lokalny)
             </p>
           </div>
+        </AdminSection>
+
+        <AdminSection title="Opcje ofert" className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-[#191B1F] rounded-[1rem]">
+            <div className="flex-1 pr-4">
+              <h3 className="text-white font-medium text-sm sm:text-base">
+                Zezwalaj na powielanie ofert
+              </h3>
+              <p className="text-xs sm:text-sm text-white/50 mt-1">
+                {allowDuplicateOffers 
+                  ? 'Użytkownicy mogą otrzymać tę samą ofertę wielokrotnie' 
+                  : 'Każdy użytkownik otrzyma daną ofertę tylko raz'}
+              </p>
+            </div>
+            <button
+              onClick={() => setAllowDuplicateOffers(!allowDuplicateOffers)}
+              className={`
+                relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0
+                ${allowDuplicateOffers ? 'bg-green-600' : 'bg-gray-600'}
+              `}
+            >
+              <span
+                className={`
+                  inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                  ${allowDuplicateOffers ? 'translate-x-6' : 'translate-x-1'}
+                `}
+              />
+            </button>
+          </div>
+          <p className="text-xs text-white/40">
+            Gdy wyłączone, system sprawdzi czy dana oferta była już wysłana do użytkownika (po URL oferty) i nie wyśle jej ponownie.
+          </p>
         </AdminSection>
 
         <p className="text-sm text-gray-400">

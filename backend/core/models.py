@@ -61,6 +61,11 @@ class AppSettings(db.Model):
     is_scrape_running = db.Column(db.Boolean, default=False)
     scrape_started_at = db.Column(db.DateTime, nullable=True)
     
+    # Duplicate offers settings
+    # When False: filter out offers that were already sent to the user
+    # When True: allow sending the same offer multiple times
+    allow_duplicate_offers = db.Column(db.Boolean, default=False)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -147,6 +152,9 @@ class OfferBundle(db.Model):
 class Offer(db.Model):
     # Offer scraped from the platform
     __tablename__ = 'offers'
+    __table_args__ = (
+        Index('ix_offers_url', 'url'),  # Index for fast URL lookups when checking duplicates
+    )
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     offer_bundle_id = db.Column(db.Integer, db.ForeignKey(OfferBundle.id), nullable=True)

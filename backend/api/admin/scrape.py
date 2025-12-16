@@ -2,12 +2,30 @@ from flask import request, jsonify
 from http import HTTPStatus
 from flask_jwt_extended import jwt_required
 import json
+from typing import Set
 from scrapers import get_scraper, SCRAPER_REGISTRY, PLATFORM_NAMES
 from services.scrape import scrape_all_platforms
 from services.openai_scoring import DEFAULT_SCORING_PROMPT
-from core.models import AppSettings, db
+from core.models import AppSettings, Offer, OfferBundle, db
 from utils.encryption import decrypt_api_key, encrypt_api_key
 from . import bp
+
+
+def get_existing_offer_urls() -> Set[str]:
+    """
+    Get all offer URLs that exist in the database (from sent bundles).
+    This is used for the admin test scrape to show which offers were already sent.
+    """
+    # Get URLs from all offers in bundles that have been sent
+    sent_offers = db.session.query(Offer.url).join(
+        OfferBundle,
+        Offer.offer_bundle_id == OfferBundle.id
+    ).filter(
+        OfferBundle.user_offer_email_id.isnot(None),  # Bundle was used in an email
+        Offer.deleted_at.is_(None)
+    ).distinct().all()
+    
+    return {offer.url for offer in sent_offers}
 
 
 @bp.route('/scrape', methods=['POST'])
@@ -84,6 +102,11 @@ def scrape_offers():
         # Convert to response format
         parsed_offers = [offer.to_dict() for offer in result.offers]
         
+        # Mark offers that already exist in the database (were sent to someone)
+        existing_urls = get_existing_offer_urls()
+        for offer in parsed_offers:
+            offer['exists_in_database'] = offer.get('url', '') in existing_urls
+        
         return jsonify({
             'platform': result.platform,
             'mode': mode,
@@ -136,6 +159,13 @@ def scrape_all_platforms_endpoint():
         use_real_scoring=(score_mode == 'real'),
         print_logs=True,
     )
+    
+    # Mark offers that already exist in the database (were sent to someone)
+    existing_urls = get_existing_offer_urls()
+    for offer in result['all_offers']:
+        offer['exists_in_database'] = offer.get('url', '') in existing_urls
+    for offer in result['selected_offers']:
+        offer['exists_in_database'] = offer.get('url', '') in existing_urls
     
     return jsonify({
         'mode': mode,

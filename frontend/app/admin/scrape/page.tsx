@@ -37,6 +37,7 @@ interface ScoredOffer {
   attractiveness_score?: number;
   overall_score?: number;
   selected?: boolean;
+  exists_in_database?: boolean;
 }
 
 interface AllPlatformsResult {
@@ -702,6 +703,8 @@ function KeywordInput({ label, value, onChange, placeholder }: KeywordInputProps
 }
 
 function SinglePlatformResultsSection({ results }: { results: SinglePlatformResult }) {
+  const existsInDbCount = results.parsed?.filter(o => o.exists_in_database).length || 0;
+  
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Search URL */}
@@ -737,12 +740,27 @@ function SinglePlatformResultsSection({ results }: { results: SinglePlatformResu
 
       {/* Parsed Output */}
       <AdminSection title={`Wyniki (${results.count} ofert)`}>
+        {existsInDbCount > 0 && (
+          <p className="text-xs text-gray-400 mb-3">
+            📦 {existsInDbCount} ofert już istnieje w bazie (były wcześniej wysłane)
+          </p>
+        )}
         <div className="max-h-80 sm:max-h-96 overflow-y-auto overflow-x-hidden border border-gray-700 rounded-lg">
           {results.parsed && results.parsed.length > 0 ? (
             <div className="divide-y divide-gray-700">
               {results.parsed.map((offer, index) => (
                 <div key={index} className="p-3 sm:p-4 hover:bg-gray-700/50">
-                  <h4 className="font-semibold text-white mb-2 text-sm sm:text-base break-words">{offer.title}</h4>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="font-semibold text-white text-sm sm:text-base break-words flex-1">{offer.title}</h4>
+                    {offer.exists_in_database && (
+                      <span 
+                        className="text-[10px] px-1.5 py-0.5 rounded bg-blue-600/30 text-blue-400 border border-blue-500/30 cursor-help flex-shrink-0"
+                        title="Ta oferta była już wcześniej wysłana do któregoś użytkownika"
+                      >
+                        📦 w bazie
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs sm:text-sm text-gray-400 mb-2 break-words whitespace-pre-wrap line-clamp-3">{offer.description}</p>
                   <div className="flex flex-wrap gap-2 sm:gap-4 text-[10px] sm:text-xs text-gray-500">
                     {offer.budget && <span className="flex items-center"><span className="font-medium text-gray-400">Budżet:</span>&nbsp;{offer.budget}</span>}
@@ -775,6 +793,8 @@ const PLATFORM_COLORS: Record<string, string> = {
 };
 
 function AllPlatformsResultsSection({ results, maxOffers }: { results: AllPlatformsResult; maxOffers: number }) {
+  const existsInDbCount = results.all_offers?.filter(o => o.exists_in_database).length || 0;
+  
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Summary */}
@@ -815,7 +835,7 @@ function AllPlatformsResultsSection({ results, maxOffers }: { results: AllPlatfo
       {/* All Offers with Scores */}
       <AdminSection title={`Wszystkie oferty (${results.total_offers}) - posortowane wg oceny`}>
         <p className="text-xs text-gray-400 mb-3">
-          💚 Oferty które trafią do maila • ⚫ Oferty poza limitem (wyszarzone)
+          💚 Oferty które trafią do maila • ⚫ Oferty poza limitem (wyszarzone) {existsInDbCount > 0 && `• 📦 ${existsInDbCount} ofert już w bazie`}
         </p>
         <div className="max-h-[600px] overflow-y-auto overflow-x-hidden border border-gray-700 rounded-lg">
           {results.all_offers && results.all_offers.length > 0 ? (
@@ -840,6 +860,14 @@ function AllPlatformsResultsSection({ results, maxOffers }: { results: AllPlatfo
                         {offer.selected && (
                           <span className="text-xs px-2 py-0.5 rounded bg-green-600/30 text-green-400">
                             ✓ w mailu
+                          </span>
+                        )}
+                        {offer.exists_in_database && (
+                          <span 
+                            className="text-xs px-2 py-0.5 rounded bg-blue-600/30 text-blue-400 cursor-help"
+                            title="Ta oferta była już wcześniej wysłana do któregoś użytkownika"
+                          >
+                            📦 w bazie
                           </span>
                         )}
                       </div>

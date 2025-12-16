@@ -3,13 +3,35 @@ Scraping service that handles multi-platform scraping with scoring and diversity
 Used by manual runs, scheduler, and admin API.
 """
 from datetime import datetime
-from typing import List, Dict, Any, Optional
-from core.models import db, User, UserEmailPreference, OfferBundle, Offer, AppSettings, ScrapeLog
+from typing import List, Dict, Any, Optional, Set
+from core.models import db, User, UserEmailPreference, OfferBundle, Offer, AppSettings, ScrapeLog, UserOfferEmail
 from core.config import CONFIG
 from scrapers import get_scraper, SCRAPER_REGISTRY, get_platform_name
 from services.openai_scoring import score_offers_with_openai, score_offers_mock, select_offers_with_diversity
 from utils.encryption import decrypt_api_key
 from helpers.user_helper import get_active_subscribed_users
+
+
+def get_sent_offer_urls_for_user(user_id: int) -> Set[str]:
+    """
+    Get all offer URLs that have been sent to a specific user.
+    This queries offers from bundles that have been linked to sent emails.
+    
+    Returns a set of URLs for fast lookup.
+    """
+    # Get all bundles that were sent to this user (have user_offer_email_id set)
+    sent_bundles = db.session.query(OfferBundle.id).filter(
+        OfferBundle.user_id == user_id,
+        OfferBundle.user_offer_email_id.isnot(None)  # Bundle was used in an email
+    ).subquery()
+    
+    # Get all offer URLs from these bundles
+    sent_offers = db.session.query(Offer.url).filter(
+        Offer.offer_bundle_id.in_(db.session.query(sent_bundles.c.id)),
+        Offer.deleted_at.is_(None)
+    ).all()
+    
+    return {offer.url for offer in sent_offers}
 
 
 def scrape_all_platforms(
@@ -169,6 +191,9 @@ def scrape_and_store_for_user(
     """
     Scrape offers for a single user using multi-platform logic and store in database.
     Only stores the selected offers (within max_offers limit).
+    
+    If allow_duplicate_offers is False in settings, filters out offers that were
+    already sent to this user (checked by offer URL).
     """
     settings = AppSettings.query.first()
     if not settings:
@@ -179,24 +204,54 @@ def scrape_and_store_for_user(
         raise Exception('No platforms enabled for scraping')
     
     max_offers = settings.email_max_offers or CONFIG.DEFAULT_MAX_MAIL_OFFERS
+    allow_duplicates = settings.allow_duplicate_offers if settings.allow_duplicate_offers is not None else False
     
     if print_logs:
         print(f"Scraping offers for user: {user_email}...")
         print(f"Enabled platforms: {enabled_platforms}")
         print(f"Max offers: {max_offers}")
+        print(f"Allow duplicates: {allow_duplicates}")
+    
+    # Get URLs of offers already sent to this user (if duplicates are not allowed)
+    sent_offer_urls: Set[str] = set()
+    if not allow_duplicates:
+        sent_offer_urls = get_sent_offer_urls_for_user(user_id)
+        if print_logs and sent_offer_urls:
+            print(f"User already received {len(sent_offer_urls)} offers - will filter them out")
     
     # Scrape all platforms with real scraping and scoring
+    # Request more offers per platform to account for filtering
+    per_platform = max_offers * 2 if sent_offer_urls else max_offers
+    
     result = scrape_all_platforms(
         must_contain=must_contain,
         may_contain=may_contain,
         must_not_contain=must_not_contain,
         enabled_platforms=enabled_platforms,
-        per_platform=max_offers,  # Get enough per platform
-        max_offers=max_offers,
+        per_platform=per_platform,  # Get enough per platform
+        max_offers=max_offers * 3 if sent_offer_urls else max_offers,  # Get more to filter
         use_real_scrape=True,
         use_real_scoring=True,
         print_logs=print_logs,
     )
+    
+    # Filter out already sent offers if duplicates are not allowed
+    filtered_offers = result['selected_offers']
+    duplicates_filtered = 0
+    
+    if sent_offer_urls:
+        original_count = len(filtered_offers)
+        filtered_offers = [
+            offer for offer in result['all_offers']
+            if offer.get('url') not in sent_offer_urls
+        ]
+        # Sort by overall score and take max_offers
+        filtered_offers.sort(key=lambda x: x.get('overall_score', 0), reverse=True)
+        filtered_offers = select_offers_with_diversity(filtered_offers, max_offers)
+        duplicates_filtered = original_count - len([o for o in result['selected_offers'] if o.get('url') not in sent_offer_urls])
+        
+        if print_logs:
+            print(f"Filtered {duplicates_filtered} duplicate offers, {len(filtered_offers)} unique offers remaining")
     
     # Create bundle and store only selected offers
     bundle = OfferBundle(
@@ -212,7 +267,7 @@ def scrape_and_store_for_user(
     
     # Store only selected offers (the ones that will go in the email)
     offers = []
-    for offer_data in result['selected_offers']:
+    for offer_data in filtered_offers:
         offer = Offer(
             offer_bundle_id=bundle.id,
             title=offer_data.get('title', ''),
@@ -236,6 +291,7 @@ def scrape_and_store_for_user(
         'bundle_id': bundle.id,
         'offers_count': len(offers),
         'total_scraped': result['total_offers'],
+        'duplicates_filtered': duplicates_filtered,
         'duration_millis': result['total_duration_ms'],
         'platform_results': result['platform_results'],
     }

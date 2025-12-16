@@ -38,6 +38,7 @@ def get_settings():
             'mail_api_key': settings.mail_api_key,
             'mail_sender_email': settings.mail_sender_email,
             'upwork_max_offers': settings.upwork_max_offers or 50,
+            'allow_duplicate_offers': settings.allow_duplicate_offers if settings.allow_duplicate_offers is not None else False,
             'updated_at': settings.updated_at.isoformat() if settings.updated_at else None
         }), HTTPStatus.OK
         
@@ -87,6 +88,9 @@ def update_settings():
         if 'upwork_max_offers' in data:
             settings.upwork_max_offers = int(data['upwork_max_offers'])
         
+        if 'allow_duplicate_offers' in data:
+            settings.allow_duplicate_offers = bool(data['allow_duplicate_offers'])
+        
         settings.updated_at = datetime.utcnow()
         db.session.commit()
         
@@ -101,6 +105,7 @@ def update_settings():
                 'mail_api_key': settings.mail_api_key,
                 'mail_sender_email': settings.mail_sender_email,
                 'upwork_max_offers': settings.upwork_max_offers,
+                'allow_duplicate_offers': settings.allow_duplicate_offers if settings.allow_duplicate_offers is not None else False,
                 'updated_at': settings.updated_at.isoformat()
             }
         }), HTTPStatus.OK

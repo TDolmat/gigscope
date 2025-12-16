@@ -10,6 +10,7 @@ from scrapers import get_scraper, SCRAPER_REGISTRY, get_platform_name
 from services.openai_scoring import score_offers_with_openai, score_offers_mock, select_offers_with_diversity
 from utils.encryption import decrypt_api_key
 from helpers.user_helper import get_active_subscribed_users
+import random
 
 
 def get_sent_offer_urls_for_user(user_id: int) -> Set[str]:
@@ -44,6 +45,7 @@ def scrape_all_platforms(
     use_real_scrape: bool = True,
     use_real_scoring: bool = True,
     print_logs: bool = False,
+    shuffle_keywords: bool = False,
 ) -> Dict[str, Any]:
     """
     Scrape from all enabled platforms, score with OpenAI, and return diverse results.
@@ -73,6 +75,10 @@ def scrape_all_platforms(
     all_offers = []
     platform_results = {}
     total_duration = 0
+
+    if shuffle_keywords:
+        may_contain = list(may_contain)  # Create a copy to avoid modifying original
+        random.shuffle(may_contain)
     
     for platform in enabled_platforms:
         if platform not in SCRAPER_REGISTRY:
@@ -228,6 +234,8 @@ def scrape_and_store_for_user(
     
     # Scrape all platforms with real scraping and scoring
     # Uses per-platform max_offers from settings
+    shuffle_keywords = settings.shuffle_keywords if settings.shuffle_keywords is not None else False
+    
     result = scrape_all_platforms(
         must_contain=must_contain,
         may_contain=may_contain,
@@ -237,6 +245,7 @@ def scrape_and_store_for_user(
         use_real_scrape=True,
         use_real_scoring=True,
         print_logs=print_logs,
+        shuffle_keywords=shuffle_keywords,
     )
     
     # Filter out already sent offers if duplicates are not allowed

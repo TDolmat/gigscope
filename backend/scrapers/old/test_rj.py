@@ -5,24 +5,24 @@ from urllib.parse import quote
 from typing import List, Dict, Any
 
 
-PLATFORM = "justjoinit"
-BASE_URL = "https://justjoin.it"
-SEARCH_URL_BASE = "https://justjoin.it/job-offers/remote?working-hours=freelance&orderBy=DESC&sortBy=published"
+PLATFORM = "rocketjobs"
+BASE_URL = "https://rocketjobs.pl"
+SEARCH_URL_BASE = "https://rocketjobs.pl/oferty-pracy/praca-zdalna?rodzaj-pracy=freelance&orderBy=DESC&sortBy=published"
 MAX_OFFERS = 10 #should be defined in the app settings
 
 def main():
     offers = []
 
-    must_inlcude = ["python, java"]
+    must_inlcude = ["python, ai"]
 
     def get_search_url(must_inlcude: List[str]) -> str:
         query = ", ".join(must_inlcude)
-        encoded_query = quote(query).replace("%2C", ",").replace("%20", "+")
+        encoded_query = quote(query).replace("%2C", ",")
         return f"{SEARCH_URL_BASE}&keyword={encoded_query}"
 
     url = get_search_url(must_inlcude)
 
-    print(f"Scraping JustJoinIt offers for url: {url}")
+    print(f"Scraping RocketJobs offers for url: {url}")
 
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -55,7 +55,8 @@ def main():
         offer_details_response = requests.get(offer_url)
         offer_details_soup = BeautifulSoup(offer_details_response.content, 'html.parser')
 
-        offer_description_element = offer_details_soup.select_one('div.MuiBox-root.mui-1iv35pp')
+        offer_description_element = offer_details_soup.select_one('div.MuiBox-root.mui-1as9fw2')
+
         offer_description = offer_description_element.get_text().strip() if offer_description_element else ''
 
         offer = {
@@ -77,4 +78,5 @@ if __name__ == "__main__":
     for offer in offers:
         print(offer['title'])
         print(offer['url'])
+        print(offer['description'])
         print("---")

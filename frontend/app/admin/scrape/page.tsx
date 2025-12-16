@@ -79,6 +79,9 @@ export default function ScrapePage() {
   const [scoringPrompt, setScoringPrompt] = useState('');
   const [defaultPrompt, setDefaultPrompt] = useState('');
   const [maxOffers, setMaxOffers] = useState('10');
+  const [minFitScore, setMinFitScore] = useState('5');
+  const [minAttractiveness, setMinAttractiveness] = useState('5');
+  const [shuffleKeywords, setShuffleKeywords] = useState(false);
   const [savingConfig, setSavingConfig] = useState(false);
   
   // Test keywords
@@ -134,6 +137,15 @@ export default function ScrapePage() {
           }
           if (openaiData.email_max_offers) {
             setMaxOffers(String(openaiData.email_max_offers));
+          }
+          if (openaiData.min_fit_score !== undefined) {
+            setMinFitScore(String(openaiData.min_fit_score));
+          }
+          if (openaiData.min_attractiveness_score !== undefined) {
+            setMinAttractiveness(String(openaiData.min_attractiveness_score));
+          }
+          if (openaiData.shuffle_keywords !== undefined) {
+            setShuffleKeywords(openaiData.shuffle_keywords);
           }
         }
       } catch (err) {
@@ -203,6 +215,9 @@ export default function ScrapePage() {
             openai_api_key: openaiApiKey,
             openai_scoring_prompt: scoringPrompt || undefined,
             email_max_offers: parseInt(maxOffers),
+            min_fit_score: parseFloat(minFitScore),
+            min_attractiveness_score: parseFloat(minAttractiveness),
+            shuffle_keywords: shuffleKeywords,
           }, authenticatedFetch)
         );
       }
@@ -511,6 +526,66 @@ export default function ScrapePage() {
                   <p className="mt-1 text-xs text-gray-400">
                     Maksymalna liczba ofert które trafią do maila (z zachowaniem różnorodności platform)
                   </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-yellow-400 mb-2">Min. dopasowanie</label>
+                    <Input
+                      type="number"
+                      value={minFitScore}
+                      onChange={(e) => setMinFitScore(e.target.value)}
+                      min="1"
+                      max="10"
+                      step="0.5"
+                      placeholder="5"
+                    />
+                    <p className="mt-1 text-xs text-gray-400">
+                      Min. fit score (1-10)
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-yellow-400 mb-2">Min. atrakcyjność</label>
+                    <Input
+                      type="number"
+                      value={minAttractiveness}
+                      onChange={(e) => setMinAttractiveness(e.target.value)}
+                      min="1"
+                      max="10"
+                      step="0.5"
+                      placeholder="5"
+                    />
+                    <p className="mt-1 text-xs text-gray-400">
+                      Min. attractiveness score (1-10)
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Oferty poniżej tych progów nie będą wybierane, chyba że brakuje ofert lepszej jakości.
+                </p>
+
+                {/* Shuffle Keywords Toggle */}
+                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                  <div>
+                    <h4 className="text-sm font-semibold text-white">Losuj kolejność słów kluczowych</h4>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Miesza słowa kluczowe przed każdym scrapowaniem, co zwiększa różnorodność wyników
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShuffleKeywords(!shuffleKeywords)}
+                    className={`
+                      relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                      ${shuffleKeywords ? 'bg-green-600' : 'bg-gray-600'}
+                    `}
+                  >
+                    <span
+                      className={`
+                        inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                        ${shuffleKeywords ? 'translate-x-6' : 'translate-x-1'}
+                      `}
+                    />
+                  </button>
                 </div>
               </>
             )}

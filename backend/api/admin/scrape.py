@@ -241,6 +241,9 @@ def get_openai_settings():
         'openai_scoring_prompt': settings.openai_scoring_prompt if settings else None,
         'default_prompt': DEFAULT_SCORING_PROMPT,
         'email_max_offers': settings.email_max_offers if settings else 10,
+        'min_fit_score': settings.min_fit_score if settings else 5.0,
+        'min_attractiveness_score': settings.min_attractiveness_score if settings else 5.0,
+        'shuffle_keywords': settings.shuffle_keywords if settings else False,
     }), HTTPStatus.OK
 
 
@@ -270,6 +273,17 @@ def update_openai_settings():
     
     if 'email_max_offers' in data:
         settings.email_max_offers = int(data['email_max_offers'])
+    
+    if 'min_fit_score' in data:
+        value = float(data['min_fit_score'])
+        settings.min_fit_score = max(1.0, min(10.0, value))
+    
+    if 'min_attractiveness_score' in data:
+        value = float(data['min_attractiveness_score'])
+        settings.min_attractiveness_score = max(1.0, min(10.0, value))
+    
+    if 'shuffle_keywords' in data:
+        settings.shuffle_keywords = bool(data['shuffle_keywords'])
     
     db.session.commit()
     

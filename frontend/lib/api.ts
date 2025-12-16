@@ -203,6 +203,9 @@ export const adminScrapeApi = {
       openai_api_key?: string;
       openai_scoring_prompt?: string;
       email_max_offers?: number;
+      min_fit_score?: number;
+      min_attractiveness_score?: number;
+      shuffle_keywords?: boolean;
     },
     authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
   ): Promise<any> => {

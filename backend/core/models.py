@@ -62,6 +62,11 @@ class AppSettings(db.Model):
     openai_api_key = db.Column(db.String, nullable=True)  # Stored encrypted
     openai_scoring_prompt = db.Column(db.Text, nullable=True)  # Custom prompt for scoring offers
     
+    # Minimum quality thresholds for offer selection (1-10 scale)
+    # Offers below these thresholds won't be included unless needed to fill max_offers
+    min_fit_score = db.Column(db.Float, default=5.0)
+    min_attractiveness_score = db.Column(db.Float, default=5.0)
+    
     # Test keywords for quick testing
     test_must_contain = db.Column(db.JSON, default=[])
     test_may_contain = db.Column(db.JSON, default=[])
@@ -75,6 +80,9 @@ class AppSettings(db.Model):
     # When False: filter out offers that were already sent to the user
     # When True: allow sending the same offer multiple times
     allow_duplicate_offers = db.Column(db.Boolean, default=False)
+    
+    # Shuffle keywords before scraping to add variety to search results
+    shuffle_keywords = db.Column(db.Boolean, default=False)
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

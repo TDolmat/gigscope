@@ -200,6 +200,22 @@ def score_offers_mock(
     return scores
 
 
+def _get_min_score_thresholds() -> tuple:
+    """Get minimum score thresholds from settings."""
+    from core.models import AppSettings
+    settings = AppSettings.query.first()
+    min_fit = settings.min_fit_score if settings and settings.min_fit_score is not None else 5.0
+    min_attr = settings.min_attractiveness_score if settings and settings.min_attractiveness_score is not None else 5.0
+    return min_fit, min_attr
+
+
+def _meets_minimum_quality(offer: Dict[str, Any], min_fit_score: float, min_attractiveness_score: float) -> bool:
+    """Check if an offer meets the minimum quality threshold."""
+    fit_score = offer.get("fit_score", 0)
+    attractiveness_score = offer.get("attractiveness_score", 0)
+    return fit_score >= min_fit_score and attractiveness_score >= min_attractiveness_score
+
+
 def select_offers_with_diversity(
     scored_offers: List[Dict[str, Any]],
     max_offers: int,
@@ -207,8 +223,13 @@ def select_offers_with_diversity(
     """
     Select top offers while ensuring platform diversity.
     
+    Quality rules:
+    - Offers must have fit_score >= 5.0 AND attractiveness_score >= 5.0 to be included
+    - Unless there aren't enough quality offers to reach max_offers
+    
     Args:
-        scored_offers: List of offers with scores, each having 'platform' and 'overall_score'
+        scored_offers: List of offers with scores, each having 'platform', 'overall_score',
+                       'fit_score', and 'attractiveness_score'
         max_offers: Maximum number of offers to select
     
     Returns:
@@ -220,9 +241,16 @@ def select_offers_with_diversity(
     if len(scored_offers) <= max_offers:
         return scored_offers
     
-    # Group offers by platform
+    # Get minimum quality thresholds from settings
+    min_fit_score, min_attractiveness_score = _get_min_score_thresholds()
+    
+    # Separate offers by quality
+    quality_offers = [o for o in scored_offers if _meets_minimum_quality(o, min_fit_score, min_attractiveness_score)]
+    low_quality_offers = [o for o in scored_offers if not _meets_minimum_quality(o, min_fit_score, min_attractiveness_score)]
+    
+    # Group quality offers by platform
     by_platform = {}
-    for offer in scored_offers:
+    for offer in quality_offers:
         platform = offer.get("platform", "unknown")
         if platform not in by_platform:
             by_platform[platform] = []
@@ -235,22 +263,30 @@ def select_offers_with_diversity(
     selected = []
     platforms = list(by_platform.keys())
     
-    # First pass: ensure at least one offer from each platform (if they have matching offers)
+    # First pass: one quality offer from each platform (if they have any)
     for platform in platforms:
         if by_platform[platform] and len(selected) < max_offers:
             selected.append(by_platform[platform].pop(0))
     
-    # Second pass: fill remaining slots with top-scored offers across all platforms
-    remaining_offers = []
+    # Second pass: fill remaining slots with top-scored quality offers across all platforms
+    remaining_quality = []
     for platform in platforms:
-        remaining_offers.extend(by_platform[platform])
+        remaining_quality.extend(by_platform[platform])
     
-    remaining_offers.sort(key=lambda x: x.get("overall_score", 0), reverse=True)
+    remaining_quality.sort(key=lambda x: x.get("overall_score", 0), reverse=True)
     
-    for offer in remaining_offers:
+    for offer in remaining_quality:
         if len(selected) >= max_offers:
             break
         selected.append(offer)
+    
+    # Third pass: if still not enough, use low-quality offers (sorted by overall score)
+    if len(selected) < max_offers and low_quality_offers:
+        low_quality_offers.sort(key=lambda x: x.get("overall_score", 0), reverse=True)
+        for offer in low_quality_offers:
+            if len(selected) >= max_offers:
+                break
+            selected.append(offer)
     
     # Sort final selection by overall score
     selected.sort(key=lambda x: x.get("overall_score", 0), reverse=True)

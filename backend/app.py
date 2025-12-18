@@ -49,7 +49,8 @@ def create_app(test_config=None):
     CORS(app, 
         origins=allowed_origins,
         supports_credentials=True,  # Required for cookies
-        allow_headers=["Content-Type", "Authorization"],
+        allow_headers=["Content-Type", "Authorization", "X-CSRF-TOKEN"],
+        expose_headers=["X-CSRF-TOKEN", "X-CSRF-ACCESS-TOKEN", "X-CSRF-REFRESH-TOKEN"],  # Allow frontend to read CSRF headers
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
     # Register blueprints

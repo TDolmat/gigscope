@@ -22,24 +22,62 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // ============================================================================
 // CSRF TOKEN HANDLING
 // ============================================================================
-// Automatically enabled in production (controlled by API_CONFIG.CSRF_ENABLED)
-// Requires backend: JWT_COOKIE_CSRF_PROTECT = True (automatic in production)
+// Flask-JWT-Extended stores CSRF tokens in cookies (not headers by default)
+// We read from cookies first, then fall back to response headers
+// Cookie names: csrf_access_token, csrf_refresh_token
 // ============================================================================
 
-// Extract CSRF tokens from response headers
-const extractCsrfToken = (response: Response): string | null => {
+// Read CSRF token from cookies
+const getCsrfTokenFromCookies = (): string | null => {
+  if (typeof document === "undefined") return null;
+  
+  // Try to get CSRF token from cookies (Flask-JWT-Extended format)
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    // Check for both access and refresh CSRF tokens
+    if (name === 'csrf_access_token' || name === 'csrf_refresh_token') {
+      return decodeURIComponent(value);
+    }
+  }
+  return null;
+};
+
+// Extract CSRF tokens from response headers (fallback)
+const extractCsrfTokenFromHeaders = (response: Response): string | null => {
   return response.headers.get("X-CSRF-TOKEN") || 
          response.headers.get("X-CSRF-ACCESS-TOKEN") ||
          response.headers.get("X-CSRF-REFRESH-TOKEN");
 };
 
-// Store CSRF token in memory (only used when CSRF_ENABLED=true)
-let csrfToken: string | null = null;
+// Get the current CSRF token (from cookies first, then memory)
+let csrfTokenMemory: string | null = null;
+
+const getCurrentCsrfToken = (): string | null => {
+  // Always try to read fresh from cookies first
+  const cookieToken = getCsrfTokenFromCookies();
+  if (cookieToken) {
+    csrfTokenMemory = cookieToken;
+    return cookieToken;
+  }
+  return csrfTokenMemory;
+};
+
+// Update CSRF token from response (headers as fallback)
+const updateCsrfTokenFromResponse = (response: Response): void => {
+  const headerToken = extractCsrfTokenFromHeaders(response);
+  if (headerToken) {
+    csrfTokenMemory = headerToken;
+  }
+};
 
 // Add CSRF header to requests (only in production)
 const addCsrfHeader = (headers: Headers): Headers => {
-  if (API_CONFIG.CSRF_ENABLED && csrfToken) {
-    headers.set("X-CSRF-TOKEN", csrfToken);
+  if (API_CONFIG.CSRF_ENABLED) {
+    const csrfToken = getCurrentCsrfToken();
+    if (csrfToken) {
+      headers.set("X-CSRF-TOKEN", csrfToken);
+    }
   }
   return headers;
 };
@@ -116,10 +154,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setAccessToken(data.access_token);
           setStoredAuthState(true);
           
-          // Extract and store CSRF token (only matters in production)
+          // Update CSRF token from response headers (fallback to cookies)
           if (API_CONFIG.CSRF_ENABLED) {
-            const token = extractCsrfToken(res);
-            if (token) csrfToken = token;
+            updateCsrfTokenFromResponse(res);
           }
         } else {
           // Clear stored state if refresh failed
@@ -161,10 +198,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setRememberMe(rememberMe);
     setStoredAuthState(true);
     
-    // Extract and store CSRF token (only matters in production)
+    // Update CSRF token from response headers (fallback to cookies)
     if (API_CONFIG.CSRF_ENABLED) {
-      const token = extractCsrfToken(res);
-      if (token) csrfToken = token;
+      updateCsrfTokenFromResponse(res);
     }
   }, []);
 
@@ -185,10 +221,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const data = await res.json();
     setAccessToken(data.access_token);
     
-    // Extract and store CSRF token (only matters in production)
+    // Update CSRF token from response headers (fallback to cookies)
     if (API_CONFIG.CSRF_ENABLED) {
-      const token = extractCsrfToken(res);
-      if (token) csrfToken = token;
+      updateCsrfTokenFromResponse(res);
     }
     
     return data.access_token as string;
@@ -218,7 +253,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setAccessToken(null);
           // Clear CSRF token on auth failure
           if (API_CONFIG.CSRF_ENABLED) {
-            csrfToken = null;
+            csrfTokenMemory = null;
           }
         }
       }
@@ -246,7 +281,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Clear CSRF token on logout
     if (API_CONFIG.CSRF_ENABLED) {
-      csrfToken = null;
+      csrfTokenMemory = null;
     }
   }, []);
 

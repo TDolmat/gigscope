@@ -3,9 +3,11 @@ from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     set_refresh_cookies,
+    set_access_cookies,
     unset_jwt_cookies,
     jwt_required,
-    get_jwt_identity
+    get_jwt_identity,
+    get_csrf_token
 )
 from datetime import timedelta
 import bcrypt
@@ -90,6 +92,26 @@ def login():
             path=cookie_path,
             # No max_age = session cookie (deleted when browser closes)
         )
+        
+        # Also set CSRF cookie for session-only mode (when CSRF is enabled)
+        if current_app.config.get("JWT_COOKIE_CSRF_PROTECT", False):
+            csrf_token = get_csrf_token(refresh_token)
+            csrf_cookie_name = current_app.config.get("JWT_REFRESH_CSRF_COOKIE_NAME", "csrf_refresh_token")
+            resp.set_cookie(
+                csrf_cookie_name,
+                value=csrf_token,
+                httponly=False,  # Must be readable by JavaScript
+                secure=cookie_secure,
+                samesite=cookie_samesite,
+                path=cookie_path,
+                # No max_age = session cookie (deleted when browser closes)
+            )
+    
+    # Also expose CSRF token in response header for frontend convenience
+    # This allows frontend to read it from headers OR cookies
+    if current_app.config.get("JWT_COOKIE_CSRF_PROTECT", False):
+        csrf_token = get_csrf_token(refresh_token)
+        resp.headers["X-CSRF-TOKEN"] = csrf_token
     
     return resp
 
@@ -99,7 +121,15 @@ def login():
 def refresh():
     identity = get_jwt_identity()
     new_access_token = create_access_token(identity=identity)
-    return jsonify({"access_token": new_access_token})
+    
+    resp = jsonify({"access_token": new_access_token})
+    
+    # Expose CSRF token in response header for frontend convenience
+    if current_app.config.get("JWT_COOKIE_CSRF_PROTECT", False):
+        csrf_token = get_csrf_token(new_access_token)
+        resp.headers["X-CSRF-TOKEN"] = csrf_token
+    
+    return resp
 
 
 @bp.route("/logout", methods=["POST"])

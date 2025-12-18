@@ -308,6 +308,7 @@ def get_platforms():
         'justjoinit': 50,
         'contra': 50,
         'rocketjobs': 50,
+        'workconnect': 50,
     }
     
     platforms = []
@@ -397,4 +398,120 @@ def update_platform_max_offers(platform_id: str):
         'platform_id': platform_id,
         'max_offers': max_offers,
         'message': f'Max offers for {platform_id} updated to {max_offers}',
+    }), HTTPStatus.OK
+
+
+# ============================================================================
+# WorkConnect specific endpoints
+# ============================================================================
+
+@bp.route('/scrape/workconnect/settings', methods=['GET'])
+@jwt_required()
+def get_workconnect_settings():
+    """Get WorkConnect specific settings."""
+    from core.models import CachedOffer
+    
+    settings = AppSettings.query.first()
+    
+    # Get cache stats
+    cached_count = CachedOffer.query.filter_by(platform='workconnect').count()
+    latest_cached = CachedOffer.query.filter_by(platform='workconnect')\
+        .order_by(CachedOffer.created_at.desc()).first()
+    
+    return jsonify({
+        'enabled': settings.workconnect_enabled if settings else False,
+        'mock_enabled': settings.workconnect_mock_enabled if settings else False,
+        'cache_hours': settings.workconnect_cache_hours if settings else 2.0,
+        'max_offers': settings.workconnect_max_offers if settings else 50,
+        'cache_stats': {
+            'count': cached_count,
+            'last_updated': (latest_cached.created_at.isoformat() + 'Z') if latest_cached else None,
+        }
+    }), HTTPStatus.OK
+
+
+@bp.route('/scrape/workconnect/settings', methods=['PUT'])
+@jwt_required()
+def update_workconnect_settings():
+    """Update WorkConnect specific settings."""
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({'error': 'No data provided'}), HTTPStatus.BAD_REQUEST
+    
+    settings = AppSettings.query.first()
+    if not settings:
+        settings = AppSettings()
+        db.session.add(settings)
+    
+    if 'enabled' in data:
+        settings.workconnect_enabled = bool(data['enabled'])
+    
+    if 'mock_enabled' in data:
+        settings.workconnect_mock_enabled = bool(data['mock_enabled'])
+    
+    if 'cache_hours' in data:
+        try:
+            cache_hours = float(data['cache_hours'])
+            if cache_hours < 0.1 or cache_hours > 168:  # Max 1 week
+                return jsonify({'error': 'cache_hours must be between 0.1 and 168'}), HTTPStatus.BAD_REQUEST
+            settings.workconnect_cache_hours = cache_hours
+        except (ValueError, TypeError):
+            return jsonify({'error': 'cache_hours must be a valid number'}), HTTPStatus.BAD_REQUEST
+    
+    if 'max_offers' in data:
+        try:
+            max_offers = int(data['max_offers'])
+            if max_offers < 1 or max_offers > 500:
+                return jsonify({'error': 'max_offers must be between 1 and 500'}), HTTPStatus.BAD_REQUEST
+            settings.workconnect_max_offers = max_offers
+        except (ValueError, TypeError):
+            return jsonify({'error': 'max_offers must be a valid number'}), HTTPStatus.BAD_REQUEST
+    
+    db.session.commit()
+    
+    return jsonify({
+        'message': 'Ustawienia WorkConnect zostały zaktualizowane',
+        'enabled': settings.workconnect_enabled,
+        'mock_enabled': settings.workconnect_mock_enabled,
+        'cache_hours': settings.workconnect_cache_hours,
+        'max_offers': settings.workconnect_max_offers,
+    }), HTTPStatus.OK
+
+
+@bp.route('/scrape/workconnect/refresh', methods=['POST'])
+@jwt_required()
+def refresh_workconnect_cache():
+    """Force refresh WorkConnect cache."""
+    from services.workconnect_service import refresh_workconnect_cache as do_refresh
+    
+    settings = AppSettings.query.first()
+    max_offers = settings.workconnect_max_offers if settings and settings.workconnect_max_offers else 50
+    
+    result = do_refresh(max_offers=max_offers, print_logs=True)
+    
+    if result['success']:
+        return jsonify({
+            'message': f'Cache odświeżony - pobrano {result["offers_count"]} ofert',
+            'offers_count': result['offers_count'],
+            'duration_ms': result['duration_ms'],
+            'cached_at': result['cached_at'],
+        }), HTTPStatus.OK
+    else:
+        return jsonify({
+            'error': result.get('error', 'Unknown error'),
+            'offers_count': 0,
+        }), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@bp.route('/scrape/workconnect/clear-cache', methods=['POST'])
+@jwt_required()
+def clear_workconnect_cache():
+    """Clear WorkConnect cache without refreshing."""
+    from services.workconnect_service import clear_cached_offers
+    
+    clear_cached_offers()
+    
+    return jsonify({
+        'message': 'Cache WorkConnect został wyczyszczony',
     }), HTTPStatus.OK

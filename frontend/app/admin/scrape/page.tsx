@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { adminScrapeApi, adminSettingsApi } from '@/lib/api';
 import { toast } from 'sonner';
+import { formatDateTime } from '@/lib/dateUtils';
 import { PageHeader, AdminSection } from '@/components/admin';
 
 // All platform tabs
@@ -17,6 +18,7 @@ const PLATFORM_TABS = [
   { id: 'contra', label: 'Contra' },
   { id: 'useme', label: 'Useme' },
   { id: 'rocketjobs', label: 'RocketJobs' },
+  { id: 'workconnect', label: 'WorkConnect' },
 ];
 
 interface Platform {
@@ -84,6 +86,12 @@ export default function ScrapePage() {
   const [shuffleKeywords, setShuffleKeywords] = useState(false);
   const [savingConfig, setSavingConfig] = useState(false);
   
+  // WorkConnect specific state (for cache management)
+  const [workconnectMockEnabled, setWorkconnectMockEnabled] = useState(false);
+  const [workconnectCacheHours, setWorkconnectCacheHours] = useState('2');
+  const [workconnectCacheStats, setWorkconnectCacheStats] = useState<{count: number; last_updated: string | null}>({ count: 0, last_updated: null });
+  const [refreshingCache, setRefreshingCache] = useState(false);
+  
   // Test keywords
   const [mustContain, setMustContain] = useState('');
   const [mayContain, setMayContain] = useState('');
@@ -109,11 +117,12 @@ export default function ScrapePage() {
     const loadSettings = async () => {
       try {
         setLoading(true);
-        const [apifyData, platformsData, testKeywordsData, openaiData] = await Promise.all([
+        const [apifyData, platformsData, testKeywordsData, openaiData, workconnectData] = await Promise.all([
           adminSettingsApi.getApifyKey(authenticatedFetch),
           adminScrapeApi.getPlatforms(authenticatedFetch),
           adminScrapeApi.getTestKeywords(authenticatedFetch),
           adminScrapeApi.getOpenAISettings(authenticatedFetch),
+          adminScrapeApi.getWorkConnectSettings(authenticatedFetch),
         ]);
         
         if (apifyData.apify_api_key) {
@@ -146,6 +155,14 @@ export default function ScrapePage() {
           }
           if (openaiData.shuffle_keywords !== undefined) {
             setShuffleKeywords(openaiData.shuffle_keywords);
+          }
+        }
+        // Load WorkConnect settings (cache config only - enabled/max_offers comes from platforms list)
+        if (workconnectData) {
+          setWorkconnectMockEnabled(workconnectData.mock_enabled || false);
+          setWorkconnectCacheHours(String(workconnectData.cache_hours || 2));
+          if (workconnectData.cache_stats) {
+            setWorkconnectCacheStats(workconnectData.cache_stats);
           }
         }
       } catch (err) {
@@ -201,6 +218,33 @@ export default function ScrapePage() {
     }
   };
 
+  // WorkConnect specific handlers
+  const handleRefreshWorkconnectCache = async () => {
+    setRefreshingCache(true);
+    try {
+      const result = await adminScrapeApi.refreshWorkConnectCache(authenticatedFetch);
+      setWorkconnectCacheStats({
+        count: result.offers_count,
+        last_updated: result.cached_at,
+      });
+      toast.success(`Cache odświeżony - pobrano ${result.offers_count} ofert`);
+    } catch (err) {
+      toast.error('Nie udało się odświeżyć cache');
+    } finally {
+      setRefreshingCache(false);
+    }
+  };
+
+  const handleClearWorkconnectCache = async () => {
+    try {
+      await adminScrapeApi.clearWorkConnectCache(authenticatedFetch);
+      setWorkconnectCacheStats({ count: 0, last_updated: null });
+      toast.success('Cache został wyczyszczony');
+    } catch (err) {
+      toast.error('Nie udało się wyczyścić cache');
+    }
+  };
+
   const handleSaveConfig = async () => {
     setSavingConfig(true);
     
@@ -218,6 +262,15 @@ export default function ScrapePage() {
             min_fit_score: parseFloat(minFitScore),
             min_attractiveness_score: parseFloat(minAttractiveness),
             shuffle_keywords: shuffleKeywords,
+          }, authenticatedFetch)
+        );
+      }
+      
+      if (activeTab === 'workconnect') {
+        promises.push(
+          adminScrapeApi.updateWorkConnectSettings({
+            mock_enabled: workconnectMockEnabled,
+            cache_hours: parseFloat(workconnectCacheHours),
           }, authenticatedFetch)
         );
       }
@@ -399,8 +452,8 @@ export default function ScrapePage() {
       
       {!loading && (
         <div className="space-y-4 sm:space-y-6">
-          {/* Platform Toggle and Max Offers (for individual platform tabs) */}
-          {activeTab !== 'all' && (
+          {/* Platform Toggle and Max Offers (for individual platform tabs except workconnect) */}
+          {activeTab !== 'all' && activeTab !== 'workconnect' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                 <div>
@@ -463,6 +516,108 @@ export default function ScrapePage() {
             </div>
           )}
 
+          {/* WorkConnect - uses same toggle/max_offers as other platforms, plus cache status */}
+          {activeTab === 'workconnect' && (
+            <div className="space-y-4">
+              {/* Enable/Disable - same as other platforms */}
+              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <div>
+                  <h3 className="text-white font-medium">
+                    {currentPlatform?.name || 'WorkConnect'}
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    {isPlatformEnabled 
+                      ? 'Ta platforma jest włączona i będzie używana przy scrapowaniu' 
+                      : 'Ta platforma jest wyłączona'}
+                  </p>
+                </div>
+                <button
+                  onClick={handleTogglePlatform}
+                  className={`
+                    relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                    ${isPlatformEnabled ? 'bg-green-600' : 'bg-gray-600'}
+                  `}
+                >
+                  <span
+                    className={`
+                      inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                      ${isPlatformEnabled ? 'translate-x-6' : 'translate-x-1'}
+                    `}
+                  />
+                </button>
+              </div>
+              
+              {/* Max Offers - same as other platforms */}
+              <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <label className="block text-sm font-semibold text-yellow-400 mb-2">
+                  Max ofert do scrapowania z {currentPlatform?.name || 'WorkConnect'}
+                </label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="number"
+                    value={currentPlatform?.max_offers || 50}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 50;
+                      setPlatforms(prev => prev.map(p => 
+                        p.id === activeTab ? { ...p, max_offers: value } : p
+                      ));
+                    }}
+                    min="1"
+                    max="200"
+                    className="w-32"
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleUpdatePlatformMaxOffers(activeTab, currentPlatform?.max_offers || 50)}
+                  >
+                    Zapisz
+                  </Button>
+                </div>
+                <p className="mt-1 text-xs text-gray-400">
+                  Limit ofert scrapowanych z tej platformy (1-200)
+                </p>
+              </div>
+
+              {/* Cache status - unique to WorkConnect */}
+              <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <h4 className="text-sm font-semibold text-yellow-400 mb-3">Status cache</h4>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="bg-gray-700/50 p-3 rounded">
+                    <p className="text-xs text-gray-400">Ofert w cache</p>
+                    <p className="text-xl font-bold text-white">{workconnectCacheStats.count}</p>
+                  </div>
+                  <div className="bg-gray-700/50 p-3 rounded">
+                    <p className="text-xs text-gray-400">Ostatnia aktualizacja</p>
+                    <p className="text-sm text-white">
+                      {workconnectCacheStats.last_updated 
+                        ? formatDateTime(workconnectCacheStats.last_updated)
+                        : 'Nigdy'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleRefreshWorkconnectCache}
+                    loading={refreshingCache}
+                  >
+                    🔄 Odśwież cache
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleClearWorkconnectCache}
+                    disabled={refreshingCache}
+                  >
+                    🗑️ Wyczyść cache
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Configuration Section */}
           <AdminSection title="Konfiguracja" className="space-y-4">
             {/* Apify API Key - shown for Upwork and All tabs */}
@@ -475,6 +630,53 @@ export default function ScrapePage() {
                 onToggleShow={() => setShowApiKey(!showApiKey)}
                 onCopy={() => handleCopyApiKey(apifyApiKey)}
               />
+            )}
+
+            {/* WorkConnect config - shown for WorkConnect tab */}
+            {activeTab === 'workconnect' && (
+              <>
+                <div>
+                  <label className="block text-sm font-semibold text-yellow-400 mb-2">
+                    Czas ważności cache (godziny)
+                  </label>
+                  <Input
+                    type="number"
+                    value={workconnectCacheHours}
+                    onChange={(e) => setWorkconnectCacheHours(e.target.value)}
+                    min="0.1"
+                    max="168"
+                    step="0.5"
+                    className="w-32"
+                  />
+                  <p className="mt-1 text-xs text-gray-400">
+                    Po tym czasie cache zostanie automatycznie odświeżony (np. 0.5 = 30 min, 2 = 2 godziny)
+                  </p>
+                </div>
+
+                {/* Mock mode toggle */}
+                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                  <div>
+                    <h4 className="text-sm font-semibold text-white">Tryb Mock</h4>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Używaj mockowanych danych zamiast prawdziwego scrapowania
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setWorkconnectMockEnabled(!workconnectMockEnabled)}
+                    className={`
+                      relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                      ${workconnectMockEnabled ? 'bg-green-600' : 'bg-gray-600'}
+                    `}
+                  >
+                    <span
+                      className={`
+                        inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                        ${workconnectMockEnabled ? 'translate-x-6' : 'translate-x-1'}
+                      `}
+                    />
+                  </button>
+                </div>
+              </>
             )}
 
             {/* OpenAI API Key - shown only for All tab */}
@@ -662,6 +864,37 @@ export default function ScrapePage() {
                   >
                     🚀 Test Real (jak w produkcji)
                   </Button>
+                </>
+              ) : activeTab === 'workconnect' ? (
+                <>
+                  <Button 
+                    onClick={() => handleTestSinglePlatform('mock')} 
+                    loading={testing} 
+                    variant="secondary" 
+                    size="lg"
+                    disabled={!isPlatformEnabled}
+                  >
+                    🧪 Test Mock
+                  </Button>
+                  <Button 
+                    onClick={() => handleTestSinglePlatform('real')} 
+                    loading={testing} 
+                    variant="primary" 
+                    size="lg"
+                    disabled={!isPlatformEnabled}
+                  >
+                    🚀 Test Real (z cache)
+                  </Button>
+                  {!isPlatformEnabled && (
+                    <p className="text-xs text-orange-400 w-full">
+                      ⚠️ Włącz platformę aby uruchomić test
+                    </p>
+                  )}
+                  {isPlatformEnabled && workconnectCacheStats.count === 0 && (
+                    <p className="text-xs text-yellow-400 w-full">
+                      💡 Cache jest pusty - kliknij &quot;Odśwież cache&quot; powyżej aby pobrać oferty
+                    </p>
+                  )}
                 </>
               ) : (
                 <>
@@ -899,6 +1132,7 @@ const PLATFORM_COLORS: Record<string, string> = {
   contra: 'bg-purple-600/30 text-purple-400',
   useme: 'bg-orange-600/30 text-orange-400',
   rocketjobs: 'bg-red-600/30 text-red-400',
+  workconnect: 'bg-cyan-600/30 text-cyan-400',
 };
 
 function AllPlatformsResultsSection({ results, maxOffers }: { results: AllPlatformsResult; maxOffers: number }) {

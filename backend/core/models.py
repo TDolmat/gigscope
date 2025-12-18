@@ -26,8 +26,15 @@ class AppSettings(db.Model):
         JUSTJOINIT = 'justjoinit'
         CONTRA = 'contra'
         ROCKETJOBS = 'rocketjobs'
+        WORKCONNECT = 'workconnect'
 
     enabled_platforms = db.Column(db.JSON, default=[])
+    
+    # WorkConnect specific settings
+    workconnect_enabled = db.Column(db.Boolean, default=False)
+    workconnect_mock_enabled = db.Column(db.Boolean, default=False)
+    workconnect_cache_hours = db.Column(db.Float, default=2.0)  # How long to cache offers (in hours)
+    workconnect_max_offers = db.Column(db.Integer, default=50)  # Max offers to scrape
     
     # Email settings  
     class EmailFrequency(Enum):
@@ -56,6 +63,7 @@ class AppSettings(db.Model):
         'justjoinit': 50,
         'contra': 50,
         'rocketjobs': 50,
+        'workconnect': 50,
     })
     
     # OpenAI settings for offer scoring
@@ -247,4 +255,34 @@ class MailLog(db.Model):
     never_subscribed_errors = db.Column(db.JSON, nullable=True, default=[])
     
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+
+class CachedOffer(db.Model):
+    """
+    Cached offers from platforms that require scraping (e.g., WorkConnect).
+    These are refreshed periodically instead of being scraped on-demand.
+    """
+    __tablename__ = 'cached_offers'
+    __table_args__ = (
+        Index('ix_cached_offers_platform', 'platform'),
+        Index('ix_cached_offers_url', 'url'),
+    )
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    
+    # Platform identifier (e.g., 'workconnect')
+    platform = db.Column(db.String, nullable=False, index=True)
+    
+    # Offer data (same fields as Offer model)
+    title = db.Column(db.String, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    budget = db.Column(db.String, nullable=True)
+    client_name = db.Column(db.String, nullable=True)
+    client_location = db.Column(db.String, nullable=True)
+    url = db.Column(db.String, nullable=False)
+    
+    # Category from WorkConnect
+    category = db.Column(db.String, nullable=True)
+    
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 

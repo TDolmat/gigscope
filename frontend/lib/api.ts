@@ -243,6 +243,44 @@ export const adminScrapeApi = {
       body: JSON.stringify({ max_offers: maxOffers }),
     }, authenticatedFetch);
   },
+
+  // WorkConnect specific methods
+  getWorkConnectSettings: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_WORKCONNECT_SETTINGS, {}, authenticatedFetch);
+  },
+
+  updateWorkConnectSettings: async (
+    data: {
+      enabled?: boolean;
+      mock_enabled?: boolean;
+      cache_hours?: number;
+      max_offers?: number;
+    },
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_WORKCONNECT_SETTINGS, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }, authenticatedFetch);
+  },
+
+  refreshWorkConnectCache: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_WORKCONNECT_REFRESH, {
+      method: 'POST',
+    }, authenticatedFetch);
+  },
+
+  clearWorkConnectCache: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.SCRAPE_WORKCONNECT_CLEAR_CACHE, {
+      method: 'POST',
+    }, authenticatedFetch);
+  },
 };
 
 // Admin Mail API

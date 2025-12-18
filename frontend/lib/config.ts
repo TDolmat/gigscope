@@ -46,6 +46,10 @@ export const API_ENDPOINTS = {
     SCRAPE_PLATFORMS: `${BASE_URL}/admin/scrape/platforms`,
     SCRAPE_PLATFORM_TOGGLE: (platformId: string) => `${BASE_URL}/admin/scrape/platforms/${platformId}/toggle`,
     SCRAPE_PLATFORM_MAX_OFFERS: (platformId: string) => `${BASE_URL}/admin/scrape/platforms/${platformId}/max-offers`,
+    // WorkConnect specific
+    SCRAPE_WORKCONNECT_SETTINGS: `${BASE_URL}/admin/scrape/workconnect/settings`,
+    SCRAPE_WORKCONNECT_REFRESH: `${BASE_URL}/admin/scrape/workconnect/refresh`,
+    SCRAPE_WORKCONNECT_CLEAR_CACHE: `${BASE_URL}/admin/scrape/workconnect/clear-cache`,
     MAIL_TEST: `${BASE_URL}/admin/mail/test`,
     MAIL_SEND_OFFERS: `${BASE_URL}/admin/mail/send-offers`,
     MAIL_PREVIEW: `${BASE_URL}/admin/mail/preview`,

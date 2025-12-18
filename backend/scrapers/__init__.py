@@ -7,6 +7,7 @@ from .justjoinit_service import justjoinit_scraper, JustJoinITScraper
 from .contra_service import contra_scraper, ContraScraper
 from .useme_service import useme_scraper, UsemeScraper
 from .rocketjobs_service import rocketjobs_scraper, RocketJobsScraper
+from .workconnect_service import workconnect_scraper, WorkConnectScraper
 
 # Registry of all available scrapers (order matters for UI)
 SCRAPER_REGISTRY = {
@@ -16,6 +17,7 @@ SCRAPER_REGISTRY = {
     'contra': contra_scraper,
     'useme': useme_scraper,
     'rocketjobs': rocketjobs_scraper,
+    'workconnect': workconnect_scraper,
 }
 
 # Platform display names
@@ -26,6 +28,7 @@ PLATFORM_NAMES = {
     'contra': 'Contra',
     'useme': 'Useme',
     'rocketjobs': 'RocketJobs',
+    'workconnect': 'WorkConnect',
 }
 
 def get_scraper(platform: str) -> BaseScraper:
@@ -52,12 +55,14 @@ __all__ = [
     'ContraScraper',
     'UsemeScraper',
     'RocketJobsScraper',
+    'WorkConnectScraper',
     'upwork_scraper',
     'fiverr_scraper',
     'justjoinit_scraper',
     'contra_scraper',
     'useme_scraper',
     'rocketjobs_scraper',
+    'workconnect_scraper',
     'get_scraper',
     'get_all_scrapers',
     'get_platform_name',

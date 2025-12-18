@@ -110,6 +110,9 @@ def save_offers_to_cache(offers: List[Dict[str, Any]]):
 
 def _create_driver() -> webdriver.Chrome:
     """Create and configure Chrome WebDriver."""
+    import os
+    from selenium.webdriver.chrome.service import Service
+    
     options = Options()
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
@@ -118,6 +121,18 @@ def _create_driver() -> webdriver.Chrome:
     options.add_argument('--window-size=1920,1080')
     options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
     
+    # Use system Chromium if available (Docker environment)
+    chrome_bin = os.environ.get('CHROME_BIN')
+    chromedriver_path = os.environ.get('CHROMEDRIVER_PATH')
+    
+    if chrome_bin:
+        options.binary_location = chrome_bin
+    
+    if chromedriver_path and os.path.exists(chromedriver_path):
+        service = Service(executable_path=chromedriver_path)
+        return webdriver.Chrome(service=service, options=options)
+    
+    # Fallback to auto-detection (local development)
     return webdriver.Chrome(options=options)
 
 

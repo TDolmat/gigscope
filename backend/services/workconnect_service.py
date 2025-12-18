@@ -22,8 +22,13 @@ BASE_OFFERS_URL = "https://www.workconnect.app/zlecenia"
 def get_workconnect_settings() -> Dict[str, Any]:
     """Get WorkConnect settings from AppSettings."""
     settings = AppSettings.query.first()
+    
+    # Check if workconnect is in enabled_platforms list (main toggle mechanism)
+    enabled_platforms = settings.enabled_platforms if settings and settings.enabled_platforms else []
+    is_enabled = 'workconnect' in enabled_platforms
+    
     return {
-        'enabled': settings.workconnect_enabled if settings and settings.workconnect_enabled is not None else False,
+        'enabled': is_enabled,
         'mock_enabled': settings.workconnect_mock_enabled if settings and settings.workconnect_mock_enabled is not None else False,
         'cache_hours': settings.workconnect_cache_hours if settings and settings.workconnect_cache_hours is not None else 2.0,
         'max_offers': settings.workconnect_max_offers if settings and settings.workconnect_max_offers is not None else 50,

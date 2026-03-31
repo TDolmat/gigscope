@@ -20,6 +20,14 @@ COPY package.json package-lock.json ./
 # Install ALL dependencies (including devDependencies for build)
 RUN npm ci
 
+# Debug: verify next is installed correctly
+RUN echo "=== Node version ===" && node --version && \
+    echo "=== npm version ===" && npm --version && \
+    echo "=== next in node_modules ===" && ls -la node_modules/next/dist/bin/ && \
+    echo "=== next symlink ===" && ls -la node_modules/.bin/next 2>/dev/null || echo "NO SYMLINK" && \
+    echo "=== which npx ===" && which npx && \
+    echo "=== npx next version ===" && npx next --version
+
 # Ensure node_modules binaries are in PATH
 ENV PATH=/app/node_modules/.bin:$PATH
 

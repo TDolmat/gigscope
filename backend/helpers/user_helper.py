@@ -227,7 +227,8 @@ def get_subscribed_users_with_data(max_offers: int = CONFIG.DEFAULT_MAX_MAIL_OFF
         func.max(OfferBundle.scraped_at).label('max_scraped_at')
     ).filter(
         OfferBundle.user_id.in_(user_ids),
-        OfferBundle.user_offer_email_id.is_(None)  # Only unsent bundles
+        OfferBundle.user_offer_email_id.is_(None),  # Only unsent bundles
+        OfferBundle.cancelled_at.is_(None)  # Exclude cancelled bundles
     ).group_by(OfferBundle.user_id).subquery()
     
     # Get bundle IDs

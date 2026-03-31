@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from http import HTTPStatus
+from datetime import datetime
 from flask_jwt_extended import jwt_required
 from sqlalchemy import func
 from core.models import db, OfferBundle, Offer, User
@@ -151,7 +152,8 @@ def get_pending_bundles():
         ).outerjoin(
             Offer, Offer.offer_bundle_id == OfferBundle.id
         ).filter(
-            OfferBundle.user_offer_email_id.is_(None)
+            OfferBundle.user_offer_email_id.is_(None),
+            OfferBundle.cancelled_at.is_(None)
         ).group_by(
             OfferBundle.id,
             OfferBundle.user_id,
@@ -179,6 +181,61 @@ def get_pending_bundles():
     except Exception as e:
         print(f"Error in get_pending_bundles: {str(e)}")
         return jsonify({
+            'error': f'Wystąpił błąd: {str(e)}'
+        }), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@bp.route('/manual-runs/cancel-bundles', methods=['POST'])
+@jwt_required()
+def cancel_bundles():
+    """Cancel pending bundles - marks them as cancelled without deleting."""
+    try:
+        data = request.json or {}
+        bundle_ids = data.get('bundle_ids', [])
+        cancel_all = data.get('cancel_all', False)
+
+        if cancel_all:
+            # Cancel all pending bundles
+            pending = OfferBundle.query.filter(
+                OfferBundle.user_offer_email_id.is_(None),
+                OfferBundle.cancelled_at.is_(None)
+            ).all()
+
+            for bundle in pending:
+                bundle.cancelled_at = datetime.utcnow()
+
+            cancelled_count = len(pending)
+        elif bundle_ids:
+            # Cancel specific bundles
+            pending = OfferBundle.query.filter(
+                OfferBundle.id.in_(bundle_ids),
+                OfferBundle.user_offer_email_id.is_(None),
+                OfferBundle.cancelled_at.is_(None)
+            ).all()
+
+            for bundle in pending:
+                bundle.cancelled_at = datetime.utcnow()
+
+            cancelled_count = len(pending)
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Podaj bundle_ids lub cancel_all=true'
+            }), HTTPStatus.BAD_REQUEST
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'cancelled_count': cancelled_count,
+            'message': f'Anulowano {cancelled_count} paczek ofert'
+        }), HTTPStatus.OK
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error in cancel_bundles: {str(e)}")
+        return jsonify({
+            'success': False,
             'error': f'Wystąpił błąd: {str(e)}'
         }), HTTPStatus.INTERNAL_SERVER_ERROR
 

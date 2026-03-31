@@ -59,6 +59,7 @@ export const API_ENDPOINTS = {
     MANUAL_SEND_EMAILS: `${BASE_URL}/admin/manual-runs/send-emails`,
     MANUAL_SCRAPE_AND_SEND: `${BASE_URL}/admin/manual-runs/scrape-and-send`,
     MANUAL_PENDING_BUNDLES: `${BASE_URL}/admin/manual-runs/pending-bundles`,
+    MANUAL_CANCEL_BUNDLES: `${BASE_URL}/admin/manual-runs/cancel-bundles`,
     // Logs
     LOGS: `${BASE_URL}/admin/logs`,
     LOGS_SCRAPE: `${BASE_URL}/admin/logs/scrape`,

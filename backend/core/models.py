@@ -45,6 +45,7 @@ class AppSettings(db.Model):
 
     email_frequency = db.Column(db.String, default=EmailFrequency.DAILY.value)
     email_daytime = db.Column(db.String, default='09:00')
+    scrape_hours_before = db.Column(db.Integer, default=3)  # How many hours before email to start scraping
     email_max_offers = db.Column(db.Integer, default=CONFIG.DEFAULT_MAX_MAIL_OFFERS)
     
     # Mail provider settings
@@ -169,6 +170,8 @@ class OfferBundle(db.Model):
     must_include_keywords = db.Column(db.JSON, nullable=True)
     can_include_keywords = db.Column(db.JSON, nullable=True)
     cannot_include_keywords = db.Column(db.JSON, nullable=True)
+
+    cancelled_at = db.Column(db.DateTime, nullable=True)  # Set when admin cancels pending bundle
 
     scraped_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

@@ -138,7 +138,8 @@ def get_dashboard_status():
         # Parse scheduled times
         email_time = settings.email_daytime or '09:00'
         email_hour, email_minute = map(int, email_time.split(':'))
-        scrape_hour = email_hour - 1 if email_hour > 0 else 23
+        scrape_hours_before = settings.scrape_hours_before or 3
+        scrape_hour = (email_hour - scrape_hours_before) % 24
         scrape_time = f"{scrape_hour:02d}:{email_minute:02d}"
         
         # ==================== SCRAPE STATUS ====================

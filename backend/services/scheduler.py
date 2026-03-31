@@ -2,7 +2,7 @@
 AI Scoper Scheduler Service
 
 This scheduler runs scraping and email sending based on admin-configured settings.
-- Scraping runs 1 hour before the configured email time
+- Scraping runs 3 hours before the configured email time
 - Email sending runs at the configured email time
 - Frequency can be: daily, every_2_days, weekly, disabled
 
@@ -205,10 +205,9 @@ def scheduler_tick(app: Flask):
             
             # Parse configured time
             email_hour, email_minute = parse_time(email_time)
-            scrape_hour = email_hour - 1
-            if scrape_hour < 0:
-                scrape_hour = 23  # If email at 00:xx, scrape at 23:xx (edge case)
-            
+            scrape_hours_before = settings.scrape_hours_before or 3
+            scrape_hour = (email_hour - scrape_hours_before) % 24
+
             # Check status
             scraped_today = already_scraped_today()
             sent_today = already_sent_today()
@@ -255,7 +254,18 @@ def scheduler_tick(app: Flask):
                 else:
                     logger.info(f"   🚀 Starting email sending...")
                     run_email_sending()
-                    
+
+            # === FALLBACK: HOURLY CHECK ===
+            # If scraping finished but emails weren't sent (e.g. scrape took longer than expected),
+            # check every hour and send if ready.
+            is_past_email_time = (current_hour > email_hour or
+                                  (current_hour == email_hour and current_minute > email_minute))
+
+            if current_minute == 0 and is_past_email_time and not is_email_time:
+                if scraped_today and not already_sent_today():
+                    logger.info(f"🔄 [{now.strftime('%H:%M')}] FALLBACK: Scraped today but not sent yet — sending now!")
+                    run_email_sending()
+
         except Exception as e:
             logger.exception(f"❌ Error in scheduler tick: {e}")
 
@@ -285,7 +295,8 @@ def start_scheduler():
                 logger.info(f"   • Email time (from DB): '{settings.email_daytime}'")
                 
                 email_hour, email_minute = parse_time(settings.email_daytime or '09:00')
-                scrape_hour = email_hour - 1 if email_hour > 0 else 23
+                scrape_hours_before = settings.scrape_hours_before or 3
+                scrape_hour = (email_hour - scrape_hours_before) % 24
                 
                 logger.info(f"   • Parsed email time: {email_hour:02d}:{email_minute:02d}")
                 logger.info(f"   • Calculated scrape time: {scrape_hour:02d}:{email_minute:02d}")

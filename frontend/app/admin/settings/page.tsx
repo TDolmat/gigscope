@@ -27,6 +27,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [frequency, setFrequency] = useState('daily');
   const [sendTime, setSendTime] = useState('09:00');
+  const [scrapeHoursBefore, setScrapeHoursBefore] = useState(3);
   const [allowDuplicateOffers, setAllowDuplicateOffers] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -45,6 +46,7 @@ export default function SettingsPage() {
         setSendTime(utcToPolishTime(data.email_daytime));
       }
       
+      setScrapeHoursBefore(data.scrape_hours_before ?? 3);
       setAllowDuplicateOffers(data.allow_duplicate_offers || false);
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -63,6 +65,7 @@ export default function SettingsPage() {
       await adminSettingsApi.updateSettings({
         email_frequency: POLISH_TO_FREQUENCY[frequency],
         email_daytime: utcTime,
+        scrape_hours_before: scrapeHoursBefore,
         allow_duplicate_offers: allowDuplicateOffers,
       }, authenticatedFetch);
       
@@ -109,6 +112,22 @@ export default function SettingsPage() {
             />
             <p className="mt-1 text-xs text-white/50">
               Czas w strefie czasowej Europa/Warszawa (polski czas lokalny)
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-white mb-2">Scraping przed wysyłką (godziny)</label>
+            <select
+              value={scrapeHoursBefore}
+              onChange={(e) => setScrapeHoursBefore(Number(e.target.value))}
+              className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2.5 bg-[#191B1F] border-0 rounded-[1rem] focus:outline-none focus:ring-2 focus:ring-[#F1E388]/50 text-sm sm:text-base text-white"
+            >
+              {[1, 2, 3, 4, 5, 6].map((h) => (
+                <option key={h} value={h}>{h} {h === 1 ? 'godzina' : h < 5 ? 'godziny' : 'godzin'} przed</option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-white/50">
+              Ile godzin przed wysyłką emaili rozpocząć scrapowanie ofert
             </p>
           </div>
         </AdminSection>

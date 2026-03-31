@@ -413,6 +413,27 @@ export const adminManualRunsApi = {
   ): Promise<any> => {
     return apiFetch(API_ENDPOINTS.ADMIN.MANUAL_PENDING_BUNDLES, {}, authenticatedFetch);
   },
+
+  // Cancel pending bundles
+  cancelBundles: async (
+    bundleIds: number[],
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MANUAL_CANCEL_BUNDLES, {
+      method: 'POST',
+      body: JSON.stringify({ bundle_ids: bundleIds }),
+    }, authenticatedFetch);
+  },
+
+  // Cancel all pending bundles
+  cancelAllBundles: async (
+    authenticatedFetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
+  ): Promise<any> => {
+    return apiFetch(API_ENDPOINTS.ADMIN.MANUAL_CANCEL_BUNDLES, {
+      method: 'POST',
+      body: JSON.stringify({ cancel_all: true }),
+    }, authenticatedFetch);
+  },
 };
 
 // User Subscription API

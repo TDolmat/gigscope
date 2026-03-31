@@ -34,6 +34,7 @@ def get_settings():
             'enabled_platforms': settings.enabled_platforms or [],
             'email_frequency': settings.email_frequency,
             'email_daytime': settings.email_daytime,
+            'scrape_hours_before': settings.scrape_hours_before if settings.scrape_hours_before is not None else 3,
             'email_max_offers': settings.email_max_offers,
             'mail_api_key': settings.mail_api_key,
             'mail_sender_email': settings.mail_sender_email,
@@ -85,6 +86,9 @@ def update_settings():
         if 'mail_sender_email' in data:
             settings.mail_sender_email = data['mail_sender_email']
         
+        if 'scrape_hours_before' in data:
+            settings.scrape_hours_before = max(1, min(12, int(data['scrape_hours_before'])))
+
         if 'allow_duplicate_offers' in data:
             settings.allow_duplicate_offers = bool(data['allow_duplicate_offers'])
         
@@ -98,6 +102,7 @@ def update_settings():
                 'enabled_platforms': settings.enabled_platforms,
                 'email_frequency': settings.email_frequency,
                 'email_daytime': settings.email_daytime,
+                'scrape_hours_before': settings.scrape_hours_before if settings.scrape_hours_before is not None else 3,
                 'email_max_offers': settings.email_max_offers,
                 'mail_api_key': settings.mail_api_key,
                 'mail_sender_email': settings.mail_sender_email,

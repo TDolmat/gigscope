@@ -7,9 +7,9 @@ import { adminManualRunsApi } from '@/lib/api';
 import { useAuth } from '@/app/context/AuthContext';
 import { toast } from 'sonner';
 import { PageHeader, AdminSection } from '@/components/admin';
-import { Search, Mail, Zap, AlertTriangle, CheckCircle2, XCircle, Clock, Users, Package, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Mail, Zap, AlertTriangle, CheckCircle2, XCircle, Clock, Users, Package, ChevronDown, ChevronUp, Ban } from 'lucide-react';
 
-type ModalType = 'scrape' | 'mail' | 'both' | null;
+type ModalType = 'scrape' | 'mail' | 'both' | 'cancel_all' | null;
 
 interface RunResult {
   success: boolean;
@@ -170,9 +170,36 @@ export default function ManualRunsPage() {
     }
   };
 
+  const handleCancelAll = async () => {
+    try {
+      setLoading('cancel_all');
+      setLastResult(null);
+
+      const result = await adminManualRunsApi.cancelAllBundles(authenticatedFetch);
+
+      if (result.success) {
+        toast.success(`Anulowano ${result.cancelled_count} paczek ofert`);
+        setLastResult({
+          success: true,
+          message: result.message,
+        });
+        fetchPendingBundles();
+      } else {
+        toast.error(result.error || 'Wystąpił błąd podczas anulowania');
+        setLastResult({ success: false, message: result.error || 'Wystąpił błąd' });
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Wystąpił błąd podczas anulowania';
+      toast.error(message);
+      setLastResult({ success: false, message });
+    } finally {
+      setLoading(null);
+    }
+  };
+
   const handleConfirm = async () => {
     setModalOpen(null);
-    
+
     switch (modalOpen) {
       case 'scrape':
         await handleScrapeAll();
@@ -182,6 +209,9 @@ export default function ManualRunsPage() {
         break;
       case 'both':
         await handleScrapeAndSend();
+        break;
+      case 'cancel_all':
+        await handleCancelAll();
         break;
     }
   };
@@ -202,6 +232,11 @@ export default function ManualRunsPage() {
         return {
           title: 'Potwierdź scraping i wysyłkę',
           description: 'Czy na pewno chcesz uruchomić pełny proces? Najpierw zostaną zescrapowane oferty dla wszystkich użytkowników, a następnie wysłane emaile. Ta operacja może potrwać kilka minut.',
+        };
+      case 'cancel_all':
+        return {
+          title: 'Potwierdź anulowanie',
+          description: `Czy na pewno chcesz anulować ${pendingBundles?.count || 0} oczekujących paczek ofert? Zescrapowane oferty zostaną zachowane w bazie danych, ale emaile nie zostaną wysłane.`,
         };
       default:
         return { title: '', description: '' };
@@ -246,11 +281,25 @@ export default function ManualRunsPage() {
                   </p>
                 </div>
               </div>
-              {showPendingDetails ? (
-                <ChevronUp className="w-5 h-5 text-blue-400" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-blue-400" />
-              )}
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setModalOpen('cancel_all');
+                  }}
+                  disabled={loading !== null}
+                  variant="secondary"
+                  className="text-xs px-3 py-1.5 bg-red-900/30 border-red-700 hover:bg-red-900/50 text-red-300"
+                >
+                  <Ban className="w-3.5 h-3.5 mr-1.5" />
+                  Anuluj wszystkie
+                </Button>
+                {showPendingDetails ? (
+                  <ChevronUp className="w-5 h-5 text-blue-400" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-blue-400" />
+                )}
+              </div>
             </div>
             
             {showPendingDetails && (
@@ -470,6 +519,7 @@ export default function ManualRunsPage() {
                   {loading === 'scrape' && 'Scrapowanie ofert...'}
                   {loading === 'mail' && 'Wysyłanie emaili...'}
                   {loading === 'both' && 'Scrapowanie i wysyłanie...'}
+                  {loading === 'cancel_all' && 'Anulowanie paczek...'}
                 </p>
                 <p className="text-xs text-gray-500">
                   Ta operacja może potrwać kilka minut

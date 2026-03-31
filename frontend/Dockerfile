@@ -3,7 +3,7 @@
 # ============================================================================
 # Stage 1: Builder (install deps + build)
 # ============================================================================
-FROM node:20-slim AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -18,7 +18,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json ./
 
 # Install ALL dependencies (including devDependencies for build)
-# Cache bust: v2
 RUN npm ci
 
 # Ensure node_modules binaries are in PATH
@@ -33,7 +32,7 @@ RUN npm run build
 # ============================================================================
 # Stage 2: Runner (Production)
 # ============================================================================
-FROM node:20-slim AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 

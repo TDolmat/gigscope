@@ -20,6 +20,9 @@ COPY package.json package-lock.json ./
 # Install ALL dependencies (including devDependencies for build)
 RUN npm ci
 
+# Ensure node_modules binaries are in PATH
+ENV PATH=/app/node_modules/.bin:$PATH
+
 # Copy all files needed for build
 COPY . .
 

@@ -15,19 +15,19 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package.json ./
 
-# Install ALL dependencies (including devDependencies for build)
-RUN npm ci
-
-# Ensure node_modules binaries are in PATH
-ENV PATH=/app/node_modules/.bin:$PATH
+# Install dependencies (npm install resolves for current platform)
+RUN npm install --no-audit --no-fund 2>&1 && \
+    echo "=== Checking next ===" && \
+    ls -la node_modules/.bin/next && \
+    node_modules/.bin/next --version
 
 # Copy all files needed for build
 COPY . .
 
 # Build Next.js application
-RUN npm run build
+RUN node_modules/.bin/next build
 
 # ============================================================================
 # Stage 2: Runner (Production)

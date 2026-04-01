@@ -3,7 +3,7 @@
 # ============================================================================
 # Stage 1: Builder (install deps + build)
 # ============================================================================
-FROM node:20-slim AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -15,24 +15,21 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Copy package files
-COPY package.json ./
+COPY package.json package-lock.json ./
 
-# Install dependencies (npm install resolves for current platform)
-RUN npm install --no-audit --no-fund 2>&1 && \
-    echo "=== Checking next ===" && \
-    ls -la node_modules/.bin/next && \
-    node_modules/.bin/next --version
+# Install ALL dependencies (including devDependencies for build)
+RUN npm ci
 
 # Copy all files needed for build
 COPY . .
 
 # Build Next.js application
-RUN node_modules/.bin/next build
+RUN npm run build
 
 # ============================================================================
 # Stage 2: Runner (Production)
 # ============================================================================
-FROM node:20-slim AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 

@@ -40,7 +40,7 @@ export function DashboardChart({ title, data, color }: DashboardChartProps) {
               width={30} 
             />
             <Tooltip 
-              labelFormatter={formatDateForChart}
+              labelFormatter={(label) => formatDateForChart(String(label))}
               contentStyle={{ 
                 borderRadius: '8px', 
                 border: '1px solid rgba(255,255,255,0.1)', 

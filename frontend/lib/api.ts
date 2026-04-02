@@ -80,6 +80,7 @@ export const adminSettingsApi = {
       enabled_platforms?: string[];
       email_frequency?: string;
       email_daytime?: string;
+      scrape_hours_before?: number;
       email_max_offers?: number;
       mail_api_key?: string;
       mail_sender_email?: string;
